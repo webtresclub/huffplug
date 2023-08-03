@@ -11,6 +11,9 @@ using { create } for bytes;
 interface IERC721Metadata is IERC721 {
     function name() external view returns (string memory);
     function symbol() external view returns (string memory);
+    function tokenURI(uint256 _tokenId) external view returns (string memory);
+
+    // extra for minting
     function mint(address who, uint256 tokenid) external;
 }
 
@@ -26,8 +29,10 @@ contract CounterTest is Test {
         assertEq(huffplug.ownerOf(3), address(0x01));
     }
 
-    function testSymbol() public {
+    function testMetadata() public {
         assertEq(huffplug.symbol(), "UwU");
+        assertEq(huffplug.name(), "Buttpluggy");
+        console2.log(huffplug.tokenURI(3));
     }
 
 }

@@ -3,16 +3,42 @@
 
 #define function mint(address, uint256) payable returns ()
 
+// armar el contract uri
+// validacion de que solo el minter pueda mintear
+// owner transferible 
+// solo el minter puede mintear
+// arreglar el token uri, por el momento es uno fijo 
 
-#define macro MINT() = takes (0) returns (0) {
-    
+#define constant MINTER = 0x0000000000000000000000000000000000000000000000000000000000000000 // contrato
+#define constant OWNER = 0x0000000000000000000000000000000000000000000000000000000000000000 // multisig
+
+#define macro MINT() = takes (0) returns (0) { 
     0x24 calldataload       // [tokenId]
     0x04 calldataload       // [to, tokenId]
     _MINT()
     stop
 }
 
-//@TODO name
+
+#define macro NAME() = takes (0) {
+    NON_PAYABLE()                               // []
+    0x42757474706c7567677900000000000000000000000000000000000000000000 // Buttpluggy
+    0x0a
+    0x20 0x00 mstore                            // [name_length, name_value]
+    0x20 mstore                                 // [name_value]
+    0x40 mstore                                 // []
+    0x60 0x00 return
+}
+
+#define macro TOKEN_URI() = takes (0) {
+    // https://shorturl.at/dgh16
+    0x68747470733a2f2f73686f727475726c2e61742f646768313600000000000000
+    0x19  
+    0x20 0x00 mstore                            // [symbol_length, symbol_value]
+    0x20 mstore                                 // [symbol_value]
+    0x40 mstore                                 // []
+    0x60 0x00 return
+}
 
 #define macro SYMBOL() = takes (0) {
     NON_PAYABLE()                               // []
