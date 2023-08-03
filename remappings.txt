@@ -1,0 +1,16 @@
+ds-test/=lib/forge-std/lib/ds-test/src/
+forge-std/=lib/forge-std/src/
+foundry-huff/=lib/huffmate/lib/foundry-huff/src/
+huff-runner/=lib/huff-runner/src/
+huffmate/=lib/huffmate/src/
+solidity-stringutils/=lib/huffmate/lib/foundry-huff/lib/solidity-stringutils/
+solmate/=lib/huffmate/lib/solmate/src/
+lib/forge-std:ds-test/=lib/forge-std/lib/ds-test/src/
+lib/huff-runner:ds-test/=lib/huff-runner/lib/forge-std/lib/ds-test/src/
+lib/huff-runner:forge-std/=lib/huff-runner/lib/forge-std/src/
+lib/huffmate:ds-test/=lib/huffmate/lib/forge-std/lib/ds-test/src/
+lib/huffmate:forge-std/=lib/huffmate/lib/forge-std/src/
+lib/huffmate:foundry-huff/=lib/huffmate/lib/foundry-huff/src/
+lib/huffmate:solidity-stringutils/=lib/huffmate/lib/foundry-huff/lib/solidity-stringutils/
+lib/huffmate:solmate/=lib/huffmate/lib/solmate/src/
+lib/huffmate:stringutils/=lib/huffmate/lib/foundry-huff/lib/solidity-stringutils/
