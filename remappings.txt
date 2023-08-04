@@ -1,3 +1,4 @@
+Huff-Console/=lib/Huff-Console/src/
 ds-test/=lib/forge-std/lib/ds-test/src/
 forge-std/=lib/forge-std/src/
 foundry-huff/=lib/huffmate/lib/foundry-huff/src/

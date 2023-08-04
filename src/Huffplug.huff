@@ -1,5 +1,7 @@
 #include "huffmate/tokens/ERC721.huff"
+//#include "Huff-Console/Console.huff"
 
+#define constant TOKEN_RENDERER = 0x0000000000000000000000005615deb798bb3e4dfa0139dfa1b3d433cc23b72f
 
 #define function mint(address, uint256) payable returns ()
 
@@ -31,12 +33,27 @@
 }
 
 #define macro TOKEN_URI() = takes (0) {
-    // https://shorturl.at/dgh16
-    0x68747470733a2f2f73686f727475726c2e61742f646768313600000000000000
-    0x19  
-    0x20 0x00 mstore                            // [symbol_length, symbol_value]
-    0x20 mstore                                 // [symbol_value]
-    0x40 mstore                                 // []
+    // __FUNC_SIG(tokenURI) 
+    0xc87b56dd 0xE0 shl
+    0x00 mstore                // tokenURI SIG
+
+    0x04 calldataload          // [tokenId]
+    0x04 mstore                //
+
+    0x60                    // [retSize]
+    0x00                    // [retOffset, retSize]
+    0x24                  // [argSize, retOffset, retSize]
+    0x00                    // [argOffset, argSize, retOffset, retSize]
+    [TOKEN_RENDERER]        // [to, argOffset, argSize, retOffset, retSize]
+    gas                // [gas, to, argOffset, argSize, retOffset, retSize]
+    staticcall              // [success]
+
+    // Revert if call is unsuccessful
+    cont jumpi
+    0x00 dup1 revert
+    cont:
+
+    // Load the result
     0x60 0x00 return
 }
 
