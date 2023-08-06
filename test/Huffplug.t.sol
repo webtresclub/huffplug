@@ -35,11 +35,6 @@ contract ButtplugTest is Test {
         huffplug = IHuffplug(deployed);
     }
 
-    function testRenderer() public {
-        TokenRenderer renderer = new TokenRenderer("https://huffplug.com/");
-        assertEq(renderer.tokenURI(3), "https://huffplug.com/3.json");
-    }
-
     function testRendererFuzz(uint256 id) public {
         if (id == 0 || id > 1024) {
             vm.expectRevert();
