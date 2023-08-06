@@ -1,21 +1,22 @@
 #include "huffmate/tokens/ERC721.huff"
+#include "huffmate/auth/Owned.huff"
+
 #include "huffmate/utils/Errors.huff"
 
 // @dev Usage LOG_STACK_1(0x00), LOG_STACK_2(0x00), ..., etc
 #include "Huff-Console/Console.huff"
 
+
 // @todo validacion de que solo el minter pueda mintear
-// @todo owner transferible 
 
 
 // *************************************************************
 // ***                    Constants                          ***
 // *************************************************************
 
-#define constant TOKEN_RENDERER = 0x0000000000000000000000005615deb798bb3e4dfa0139dfa1b3d433cc23b72f
-#define constant MINTER = 0x0000000000000000000000000000000000000000000000000000000000000000 // contrato
-// @todo cambiar a Ownable
-#define constant OWNER = 0x0000000000000000000000000000000000000000000000000000000000000000 // multisig
+#define constant TOKEN_RENDERER = 0x0000000000000000000000000000000000000000000000000000000000000000
+// @dev contract that allows users to mint Buttpluggys
+#define constant MINTER =         0x0000000000000000000000000000000000000000000000000000000000000000
 
 
 // *************************************************************
@@ -105,6 +106,14 @@
     0x60 0x00 return
 }
 
+// *************************************************************
+// ***                   Constructor                         ***
+// *************************************************************
+
+#define macro CONSTRUCTOR() = takes (0) returns (0) {
+    OWNED_CONSTRUCTOR()
+}
+
 
 // *************************************************************
 // ***               Function dispatcher                     ***
@@ -134,6 +143,9 @@
     dup1 __FUNC_SIG(ownerOf)                    eq ownerOf jumpi
 
     dup1 __FUNC_SIG("safeTransferFrom(address,address,uint256,bytes)") eq safeTransferFromData jumpi
+
+    // owned functions dispatcher
+    OWNED_MAIN()
 
     // Revert on failed dispatch
     0x00 dup1 revert

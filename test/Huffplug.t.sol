@@ -2,41 +2,55 @@
 pragma solidity ^0.8.13;
 
 import {Test, console2, Vm} from "forge-std/Test.sol";
-import {compile, create} from "huff-runner/Deploy.sol";
+import {compile} from "./Deploy.sol";
 import {IERC721} from "forge-std/interfaces/IERC721.sol";
 import {TokenRenderer} from "src/TokenRenderer.sol";
-
 import {LibString} from "solmate/utils/LibString.sol";
 
 using { compile } for Vm;
-using { create } for bytes;
 
 interface IERC721Metadata is IERC721 {
     function name() external view returns (string memory);
     function symbol() external view returns (string memory);
     function tokenURI(uint256 _tokenId) external view returns (string memory);
+}
+
+interface IOwnable is IERC721 {
+    function owner() external view returns (address);
+    function setOwner(address new_owner) external;
+    event OwnerUpdated(address indexed user, address indexed newOwner);
+}
+
+interface IHuffplug is IERC721Metadata, IOwnable {
 
     // extra for minting
     function mint(address who, uint256 tokenid) external;
 }
 
-contract CounterTest is Test {
-    IERC721Metadata public huffplug;
+
+contract ButtplugTest is Test {
+    IHuffplug public huffplug;
 
     address public user = makeAddr("user");
+    address public owner = makeAddr("owner");
+    address public minter = makeAddr("minter");
 
     function setUp() public {
         TokenRenderer renderer = new TokenRenderer("https://huffplug.com/");
 
-        /*
-        string[] memory cmd = new string[](3);
-        cmd[0] = "huffc";
-        cmd[1] = "--bytecode";
-        cmd[2] = path;
-        return vm.ffi(cmd);
-        */
+        bytes memory bytecode = vm.compile(address(renderer));
 
-        huffplug = IERC721Metadata(vm.compile("src/Huffplug.huff").create({value: 0}));
+        // send owner to the constructor
+        
+        bytecode = bytes.concat(bytecode, abi.encode(owner));
+
+        address deployed;
+        assembly {
+            deployed := create(0, add(bytecode, 0x20), mload(bytecode))
+        }
+
+        vm.label(deployed, "huffplug");
+        huffplug = IHuffplug(deployed);
     }
 
 
@@ -118,4 +132,22 @@ contract CounterTest is Test {
 
         assertEq(huffplug.tokenURI(1024), "https://huffplug.com/1024.json");
     }
+
+    function testOwner() public {
+        assertEq(huffplug.owner(), owner);
+    }
+
+    function testSetOwner(address new_owner) public {
+        vm.assume(new_owner != owner);
+        
+        vm.prank(new_owner);
+        vm.expectRevert();
+        huffplug.setOwner(new_owner);
+        assertEq(owner, huffplug.owner());
+
+        vm.prank(owner);
+        huffplug.setOwner(new_owner);
+        assertEq(new_owner, huffplug.owner());
+    }
+
 }
