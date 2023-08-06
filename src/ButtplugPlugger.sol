@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity 0.8.21;
 
+import {MerkleProofLib} from "solmate/utils/MerkleProofLib.sol";
 import {IHuffplug} from "src/IHuffplug.sol";
 
 contract ButtplugPlugger {
@@ -14,6 +15,8 @@ contract ButtplugPlugger {
     IHuffplug immutable HUFFPLUG;
     uint256 immutable COLLECTION_START = block.timestamp;
 
+    bytes32 immutable MERKLE_ROOT;
+
     bytes32 public salt;
     mapping(address => bool) public claimed;
     uint256 public minted;
@@ -24,9 +27,10 @@ contract ButtplugPlugger {
     /// @notice The constructor of the contract
     /// @param _HUFFPLUG The address of the Huffplug contract
     /// @param _premintedByMerkletree The number of Buttplug (UwU) that can be minted by the merkle tree
-    constructor(address _HUFFPLUG, uint256 _premintedByMerkletree) {
+    constructor(address _HUFFPLUG, bytes32 _merkleRoot, uint256 _premintedByMerkletree) {
         HUFFPLUG = IHuffplug(_HUFFPLUG);
         minted = _premintedByMerkletree;
+        MERKLE_ROOT = _merkleRoot;
 
         salt = keccak256(abi.encodePacked(msg.sender, block.prevrandao));
     }
@@ -81,10 +85,15 @@ contract ButtplugPlugger {
         HUFFPLUG.plug(msg.sender, uint256(random) % 1024 + 1);
     }
 
-    function mintWithMerkle() external {
+    function mintWithMerkle(bytes32[] calldata proofs) external {
         require(!claimed[msg.sender], "already claimed");
+
         // @todo chequear que msg.sender este en el merkle
-        
+        require(
+            MerkleProofLib.verify(proofs, MERKLE_ROOT, keccak256(abi.encodePacked(msg.sender /* ??? */ ))),
+            "INVALID PROOF"
+        );
+
         /// @dev Tag that the user has claimed his Buttplug (UwU) and can't claim more
         claimed[msg.sender] = true;
 
