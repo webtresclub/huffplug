@@ -21,7 +21,7 @@
 // *************************************************************
 
 #define function mint(address, uint256) payable returns ()
-
+#define function totalSupply() view returns (uint256)
 
 // *************************************************************
 // ***                      Macros                           ***
@@ -70,6 +70,10 @@
     stop
 }
 
+#define macro TOTAL_SUPPLY() = takes (0) returns (0) {
+    0x0400 0x00 mstore
+    0x20 0x00 return
+}
 
 #define macro NAME() = takes (0) {
     NON_PAYABLE()                               // []
@@ -133,7 +137,7 @@
     0x00 calldataload 0xE0 shr  // [sig]
 
     // Mint Functions
-    dup1 __FUNC_SIG(mint)                       eq mint_jump jumpi
+    dup1 __FUNC_SIG(mint)                       eq mint jumpi
 
     dup1 __FUNC_SIG(approve)                    eq approve jumpi
     dup1 __FUNC_SIG(setApprovalForAll)          eq setApprovalForAll jumpi
@@ -154,13 +158,18 @@
 
     dup1 __FUNC_SIG("safeTransferFrom(address,address,uint256,bytes)") eq safeTransferFromData jumpi
 
+    dup1 __FUNC_SIG(totalSupply)                    eq totalSupply jumpi
+
     // owned functions dispatcher
     OWNED_MAIN()
 
     // Revert on failed dispatch
     0x00 dup1 revert
 
-    mint_jump:
+    totalSupply:
+        TOTAL_SUPPLY()
+
+    mint:
         MINT()
 
     approve:

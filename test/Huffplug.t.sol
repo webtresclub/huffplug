@@ -103,6 +103,7 @@ contract ButtplugTest is Test {
     function testMetadata() public {
         assertEq(huffplug.symbol(), "UwU");
         assertEq(huffplug.name(), "Buttpluggy");
+        assertEq(huffplug.totalSupply(), 1024);
     }
 
     function testTokenUri() public {
