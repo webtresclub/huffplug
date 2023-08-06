@@ -4,7 +4,7 @@ pragma solidity ^0.8.13;
 contract Minter {
     // make this a constant
     address immutable buttpluggy;
-    
+
     bytes32 public hash;
     mapping(address => bool) public claimed;
 
@@ -13,11 +13,7 @@ contract Minter {
     }
 
     function mint(bytes32 salt) external {
-        bytes32 random = keccak256(abi.encode(
-            msg.sender,
-            hash,
-            salt
-        ));
+        bytes32 random = keccak256(abi.encode(msg.sender, hash, salt));
 
         // chequear que msg.sender tenga el salt correcto
         // calcular id
@@ -30,13 +26,11 @@ contract Minter {
         require(!claimed[msg.sender], "already claimed");
         claimed[msg.sender] = true;
 
-        IMinteable(buttpluggy).mint(msg.sender, uint256(
-            keccak256(abi.encode(msg.sender,hash))   
-        ) % 1024 + 1);
+        IMinteable(buttpluggy).mint(msg.sender, uint256(keccak256(abi.encode(msg.sender, hash))) % 1024 + 1);
     }
 }
 
 interface IMinteable {
-      // extra for minting
+    // extra for minting
     function mint(address who, uint256 tokenid) external;
 }

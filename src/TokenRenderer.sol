@@ -8,9 +8,9 @@ contract TokenRenderer {
         baseurl = _baseurl;
     }
 
-    function tokenURI(uint256 id) external view returns(string memory url) {
+    function tokenURI(uint256 id) external view returns (string memory url) {
         require(id > 0 && id < 1025, "invalid token");
-        url = string.concat(baseurl, toString(id), '.json');
+        url = string.concat(baseurl, toString(id), ".json");
     }
 
     /// @dev Returns the base 10 decimal representation of `value`.

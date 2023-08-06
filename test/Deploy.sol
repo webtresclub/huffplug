@@ -21,7 +21,7 @@ function bytes32ToString(bytes32 x) returns (string memory) {
     }
     return result;
 }
-    
+
 function bytesToString(bytes memory data) returns (string memory) {
     bytes memory alphabet = "0123456789abcdef";
 

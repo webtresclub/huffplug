@@ -7,7 +7,7 @@ import {IERC721} from "forge-std/interfaces/IERC721.sol";
 import {TokenRenderer} from "src/TokenRenderer.sol";
 import {LibString} from "solmate/utils/LibString.sol";
 
-using { compile } for Vm;
+using {compile} for Vm;
 
 interface IERC721Metadata is IERC721 {
     function name() external view returns (string memory);
@@ -18,15 +18,14 @@ interface IERC721Metadata is IERC721 {
 interface IOwnable is IERC721 {
     function owner() external view returns (address);
     function setOwner(address new_owner) external;
+
     event OwnerUpdated(address indexed user, address indexed newOwner);
 }
 
 interface IHuffplug is IERC721Metadata, IOwnable {
-
     // extra for minting
     function mint(address who, uint256 tokenid) external;
 }
-
 
 contract ButtplugTest is Test {
     IHuffplug public huffplug;
@@ -41,7 +40,7 @@ contract ButtplugTest is Test {
         bytes memory bytecode = vm.compile(address(renderer));
 
         // send owner to the constructor
-        
+
         bytecode = bytes.concat(bytecode, abi.encode(owner));
 
         address deployed;
@@ -53,7 +52,6 @@ contract ButtplugTest is Test {
         huffplug = IHuffplug(deployed);
     }
 
-
     function testRenderer() public {
         TokenRenderer renderer = new TokenRenderer("https://huffplug.com/");
         assertEq(renderer.tokenURI(3), "https://huffplug.com/3.json");
@@ -64,13 +62,12 @@ contract ButtplugTest is Test {
             vm.expectRevert();
             huffplug.tokenURI(id);
         } else {
-            string memory expected = string.concat("https://huffplug.com/",LibString.toString(id),".json");
+            string memory expected = string.concat("https://huffplug.com/", LibString.toString(id), ".json");
             assertEq(huffplug.tokenURI(id), expected);
         }
     }
 
     function testMintLimits() public {
-        
         huffplug.mint(user, 1);
         assertEq(huffplug.ownerOf(1), user);
 
@@ -83,10 +80,10 @@ contract ButtplugTest is Test {
         // token id 1025 should not be mintable
         vm.expectRevert("INVALID_TOKEN_ID");
         huffplug.mint(user, 1025);
-        
+
         // token id 0 should not be mintable
         vm.expectRevert("INVALID_TOKEN_ID");
-        huffplug.mint(user, 0);        
+        huffplug.mint(user, 0);
     }
 
     function testMint() public {
@@ -102,12 +99,11 @@ contract ButtplugTest is Test {
         huffplug.mint(user, 3);
     }
 
-    
     function testMintFuzz(address to, uint256 tokenId) public {
         if (tokenId == 0 || tokenId > 1024) {
             vm.expectRevert("INVALID_TOKEN_ID");
             huffplug.mint(to, tokenId);
-        } else if(to==address(0)) {
+        } else if (to == address(0)) {
             vm.expectRevert();
             huffplug.mint(to, tokenId);
         } else {
@@ -115,7 +111,7 @@ contract ButtplugTest is Test {
             assertEq(huffplug.ownerOf(tokenId), to);
         }
     }
-    
+
     function testMetadata() public {
         assertEq(huffplug.symbol(), "UwU");
         assertEq(huffplug.name(), "Buttpluggy");
@@ -139,7 +135,7 @@ contract ButtplugTest is Test {
 
     function testSetOwner(address new_owner) public {
         vm.assume(new_owner != owner);
-        
+
         vm.prank(new_owner);
         vm.expectRevert();
         huffplug.setOwner(new_owner);
@@ -149,5 +145,4 @@ contract ButtplugTest is Test {
         huffplug.setOwner(new_owner);
         assertEq(new_owner, huffplug.owner());
     }
-
 }
