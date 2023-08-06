@@ -47,40 +47,40 @@ contract ButtplugTest is Test {
 
     function testMintLimits() public {
         vm.startPrank(minter);
-        huffplug.mint(user, 1);
+        huffplug.plug(user, 1);
         assertEq(huffplug.ownerOf(1), user);
 
-        huffplug.mint(user, 2);
+        huffplug.plug(user, 2);
         assertEq(huffplug.ownerOf(2), user);
 
-        huffplug.mint(user, 1024);
+        huffplug.plug(user, 1024);
         assertEq(huffplug.ownerOf(1024), user);
 
         // token id 1025 should not be mintable
         vm.expectRevert("INVALID_TOKEN_ID");
-        huffplug.mint(user, 1025);
+        huffplug.plug(user, 1025);
 
         // token id 0 should not be mintable
         vm.expectRevert("INVALID_TOKEN_ID");
-        huffplug.mint(user, 0);
+        huffplug.plug(user, 0);
         vm.stopPrank();
     }
 
     function testMint() public {
         vm.expectRevert("ONLY_MINTER");
-        huffplug.mint(user, 3);
+        huffplug.plug(user, 3);
 
         vm.startPrank(minter);
-        huffplug.mint(user, 3);
+        huffplug.plug(user, 3);
         assertEq(huffplug.ownerOf(3), user);
 
         // cant mint more than once
         vm.expectRevert();
-        huffplug.mint(makeAddr("otherUser"), 3);
+        huffplug.plug(makeAddr("otherUser"), 3);
 
         // cant mint more than once
         vm.expectRevert();
-        huffplug.mint(user, 3);
+        huffplug.plug(user, 3);
 
         vm.stopPrank();
     }
@@ -89,12 +89,12 @@ contract ButtplugTest is Test {
         vm.startPrank(minter);
         if (tokenId == 0 || tokenId > 1024) {
             vm.expectRevert("INVALID_TOKEN_ID");
-            huffplug.mint(to, tokenId);
+            huffplug.plug(to, tokenId);
         } else if (to == address(0)) {
             vm.expectRevert();
-            huffplug.mint(to, tokenId);
+            huffplug.plug(to, tokenId);
         } else {
-            huffplug.mint(to, tokenId);
+            huffplug.plug(to, tokenId);
             assertEq(huffplug.ownerOf(tokenId), to);
         }
         vm.stopPrank();

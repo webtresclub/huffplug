@@ -20,7 +20,7 @@
 // ***                    Interfaces                         ***
 // *************************************************************
 
-#define function mint(address, uint256) payable returns ()
+#define function plug(address, uint256) payable returns ()
 #define function totalSupply() view returns (uint256)
 
 // *************************************************************
@@ -137,7 +137,7 @@
     0x00 calldataload 0xE0 shr  // [sig]
 
     // Mint Functions
-    dup1 __FUNC_SIG(mint)                       eq mint jumpi
+    dup1 __FUNC_SIG(plug)                       eq mint jumpi
 
     dup1 __FUNC_SIG(approve)                    eq approve jumpi
     dup1 __FUNC_SIG(setApprovalForAll)          eq setApprovalForAll jumpi
