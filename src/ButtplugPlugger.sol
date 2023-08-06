@@ -59,22 +59,24 @@ contract ButtplugPlugger {
         uint256 _minted = minted;
         if (_minted >= MAX_SUPPLY) revert NoMoreUwU();
 
-        /// @dev This is inspired by the difficulty adjustment algorithm of Bitcoin    
+        /// @dev This is inspired by the difficulty adjustment algorithm of Bitcoin
         uint256 difficulty = _currentDifficulty(_minted);
         bytes32 bitmask = bytes32(2 ** (4 * difficulty) - 1 << 4 * (64 - difficulty));
-        
+
         // pseudo random number
         bytes32 random = keccak256(abi.encode(msg.sender, salt, nonce));
 
         // bool canPlug = keccak256(abi.encodePacked(msg.sender, salt, nonce)) & bitmask == 0;
         bool canPlug = (random & bitmask) == 0;
         if (!canPlug) revert YouHaveToGiveMeYourConsent();
-        
+
         // update salt
         salt = keccak256(abi.encodePacked(msg.sender, block.prevrandao, nonce));
 
         /// @dev We have to update the minted counter after the check, otherwise we could mint more than MAX_SUPPLY
-        unchecked { minted = _minted + 1; }
+        unchecked {
+            minted = _minted + 1;
+        }
 
         HUFFPLUG.plug(msg.sender, uint256(random) % 1024 + 1);
     }
@@ -87,7 +89,9 @@ contract ButtplugPlugger {
         claimed[msg.sender] = true;
 
         /// @dev We have to update the minted counter after the check, otherwise we could mint more than MAX_SUPPLY
-        unchecked { ++minted; }
+        unchecked {
+            ++minted;
+        }
 
         HUFFPLUG.plug(msg.sender, uint256(keccak256(abi.encode(msg.sender, salt))) % 1024 + 1);
     }

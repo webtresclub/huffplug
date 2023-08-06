@@ -5,14 +5,13 @@ import {Test, console2, Vm} from "forge-std/Test.sol";
 import {TokenRenderer} from "src/TokenRenderer.sol";
 import {LibString} from "solmate/utils/LibString.sol";
 
-
 contract RendererTest is Test {
     TokenRenderer renderer1;
     TokenRenderer renderer2;
 
     function setUp() public {
-      renderer1 = new TokenRenderer("https://huffplug1.com/");
-      renderer2 = new TokenRenderer("https://huffplug2.com/");
+        renderer1 = new TokenRenderer("https://huffplug1.com/");
+        renderer2 = new TokenRenderer("https://huffplug2.com/");
     }
 
     function testRenderer1(uint256 tokenId) public {
@@ -20,8 +19,8 @@ contract RendererTest is Test {
             vm.expectRevert();
             renderer1.tokenURI(tokenId);
         } else {
-          string memory expected = string.concat("https://huffplug1.com/", LibString.toString(tokenId), ".json");
-          assertEq(renderer1.tokenURI(tokenId), expected);
+            string memory expected = string.concat("https://huffplug1.com/", LibString.toString(tokenId), ".json");
+            assertEq(renderer1.tokenURI(tokenId), expected);
         }
     }
 
@@ -30,8 +29,8 @@ contract RendererTest is Test {
             vm.expectRevert();
             renderer2.tokenURI(tokenId);
         } else {
-          string memory expected = string.concat("https://huffplug2.com/", LibString.toString(tokenId), ".json");
-          assertEq(renderer2.tokenURI(tokenId), expected);
+            string memory expected = string.concat("https://huffplug2.com/", LibString.toString(tokenId), ".json");
+            assertEq(renderer2.tokenURI(tokenId), expected);
         }
     }
 }
