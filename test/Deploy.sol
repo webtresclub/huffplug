@@ -2,8 +2,8 @@ pragma solidity ^0.8.13;
 
 import {Vm} from "forge-std/Vm.sol";
 
-function compile(Vm vm, address tokenRenderer) returns (bytes memory) {
-    string[] memory cmd = new string[](7);
+function compile(Vm vm, address tokenRenderer, address minter) returns (bytes memory) {
+    string[] memory cmd = new string[](8);
     cmd[0] = "huffc";
     cmd[1] = "-e";
     cmd[2] = "shanghai";
@@ -11,10 +11,11 @@ function compile(Vm vm, address tokenRenderer) returns (bytes memory) {
     cmd[4] = "src/Huffplug.huff";
     cmd[5] = "-c";
     cmd[6] = string.concat("TOKEN_RENDERER=", bytesToString(abi.encodePacked(tokenRenderer)));
+    cmd[7] = string.concat("MINTER=", bytesToString(abi.encodePacked(minter)));
     return vm.ffi(cmd);
 }
 
-function bytes32ToString(bytes32 x) returns (string memory) {
+function bytes32ToString(bytes32 x) pure returns (string memory) {
     string memory result;
     for (uint256 j = 0; j < x.length; j++) {
         result = string.concat(result, string(abi.encodePacked(uint8(x[j]) % 26 + 97)));
@@ -22,7 +23,7 @@ function bytes32ToString(bytes32 x) returns (string memory) {
     return result;
 }
 
-function bytesToString(bytes memory data) returns (string memory) {
+function bytesToString(bytes memory data) pure returns (string memory) {
     bytes memory alphabet = "0123456789abcdef";
 
     bytes memory str = new bytes(2 + data.length * 2);

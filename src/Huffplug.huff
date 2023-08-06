@@ -7,9 +7,6 @@
 #include "Huff-Console/Console.huff"
 
 
-// @todo validacion de que solo el minter pueda mintear
-
-
 // *************************************************************
 // ***                    Constants                          ***
 // *************************************************************
@@ -48,10 +45,23 @@
 
     REQUIRE()                  // []
 }
-    
+
+// "ONLY_MINTER"
+#define constant ONLY_MINTER_ERROR = 0x4f4e4c595f4d494e544552000000000000000000000000000000000000000000
+// length = 11
+#define constant ONLY_MINTER_LENGTH = 0x0b
+
+/// @notice Reverts with an "ONLY_MINTER" msg.sender is not the minter
+#define macro ONLY_MINTER() = takes (0) returns (0) {
+    [ONLY_MINTER_ERROR]              // ["ONLY_MINTER"]
+    [ONLY_MINTER_LENGTH]             // [10 (length), "ONLY_MINTER"]
+    caller [MINTER] eq
+    REQUIRE()                       // []
+}
+
 
 #define macro MINT() = takes (0) returns (0) {
-    // ONLY_MINTER()
+    ONLY_MINTER()
     
     0x24 calldataload       // [tokenId]
     VALID_TOKEN_ID()        // [tokenId]

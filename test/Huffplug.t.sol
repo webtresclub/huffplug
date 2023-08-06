@@ -10,7 +10,6 @@ import {IHuffplug} from "src/IHuffplug.sol";
 
 using {compile} for Vm;
 
-
 contract ButtplugTest is Test {
     IHuffplug public huffplug;
 
@@ -21,7 +20,7 @@ contract ButtplugTest is Test {
     function setUp() public {
         TokenRenderer renderer = new TokenRenderer("https://huffplug.com/");
 
-        bytes memory bytecode = vm.compile(address(renderer));
+        bytes memory bytecode = vm.compile(address(renderer), minter);
 
         // send owner to the constructor
 
@@ -52,6 +51,7 @@ contract ButtplugTest is Test {
     }
 
     function testMintLimits() public {
+        vm.startPrank(minter);
         huffplug.mint(user, 1);
         assertEq(huffplug.ownerOf(1), user);
 
@@ -68,9 +68,14 @@ contract ButtplugTest is Test {
         // token id 0 should not be mintable
         vm.expectRevert("INVALID_TOKEN_ID");
         huffplug.mint(user, 0);
+        vm.stopPrank();
     }
 
     function testMint() public {
+        vm.expectRevert("ONLY_MINTER");
+        huffplug.mint(user, 3);
+
+        vm.startPrank(minter);
         huffplug.mint(user, 3);
         assertEq(huffplug.ownerOf(3), user);
 
@@ -81,9 +86,12 @@ contract ButtplugTest is Test {
         // cant mint more than once
         vm.expectRevert();
         huffplug.mint(user, 3);
+
+        vm.stopPrank();
     }
 
     function testMintFuzz(address to, uint256 tokenId) public {
+        vm.startPrank(minter);
         if (tokenId == 0 || tokenId > 1024) {
             vm.expectRevert("INVALID_TOKEN_ID");
             huffplug.mint(to, tokenId);
@@ -94,6 +102,7 @@ contract ButtplugTest is Test {
             huffplug.mint(to, tokenId);
             assertEq(huffplug.ownerOf(tokenId), to);
         }
+        vm.stopPrank();
     }
 
     function testMetadata() public {
