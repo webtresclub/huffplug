@@ -63,11 +63,12 @@ contract ButtplugPlugger {
         uint256 difficulty = _currentDifficulty(_minted);
         bytes32 bitmask = bytes32(2 ** (4 * difficulty) - 1 << 4 * (64 - difficulty));
         
-        bool canPlug = keccak256(abi.encodePacked(msg.sender, salt, nonce)) & bitmask == 0;
-        if (!canPlug) revert YouHaveToGiveMeYourConsent();
-
         // pseudo random number
         bytes32 random = keccak256(abi.encode(msg.sender, salt, nonce));
+
+        // bool canPlug = keccak256(abi.encodePacked(msg.sender, salt, nonce)) & bitmask == 0;
+        bool canPlug = (random & bitmask) == 0;
+        if (!canPlug) revert YouHaveToGiveMeYourConsent();
         
         // update salt
         salt = keccak256(abi.encodePacked(msg.sender, block.prevrandao, nonce));
