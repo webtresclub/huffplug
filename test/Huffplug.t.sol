@@ -7,6 +7,7 @@ import {IERC721} from "forge-std/interfaces/IERC721.sol";
 import {TokenRenderer} from "src/TokenRenderer.sol";
 
 import {LibString} from "solmate/utils/LibString.sol";
+
 using { compile } for Vm;
 using { create } for bytes;
 
@@ -22,10 +23,22 @@ interface IERC721Metadata is IERC721 {
 contract CounterTest is Test {
     IERC721Metadata public huffplug;
 
+    address public user = makeAddr("user");
+
     function setUp() public {
         TokenRenderer renderer = new TokenRenderer("https://huffplug.com/");
+
+        /*
+        string[] memory cmd = new string[](3);
+        cmd[0] = "huffc";
+        cmd[1] = "--bytecode";
+        cmd[2] = path;
+        return vm.ffi(cmd);
+        */
+
         huffplug = IERC721Metadata(vm.compile("src/Huffplug.huff").create({value: 0}));
     }
+
 
     function testRenderer() public {
         TokenRenderer renderer = new TokenRenderer("https://huffplug.com/");
@@ -41,11 +54,54 @@ contract CounterTest is Test {
             assertEq(huffplug.tokenURI(id), expected);
         }
     }
-    function testMint() public {
-        huffplug.mint(address(0x01), 3);
-        assertEq(huffplug.ownerOf(3), address(0x01));
+
+    function testMintLimits() public {
+        
+        huffplug.mint(user, 1);
+        assertEq(huffplug.ownerOf(1), user);
+
+        huffplug.mint(user, 2);
+        assertEq(huffplug.ownerOf(2), user);
+
+        huffplug.mint(user, 1024);
+        assertEq(huffplug.ownerOf(1024), user);
+
+        // token id 1025 should not be mintable
+        vm.expectRevert("INVALID_TOKEN_ID");
+        huffplug.mint(user, 1025);
+        
+        // token id 0 should not be mintable
+        vm.expectRevert("INVALID_TOKEN_ID");
+        huffplug.mint(user, 0);        
     }
 
+    function testMint() public {
+        huffplug.mint(user, 3);
+        assertEq(huffplug.ownerOf(3), user);
+
+        // cant mint more than once
+        vm.expectRevert();
+        huffplug.mint(makeAddr("otherUser"), 3);
+
+        // cant mint more than once
+        vm.expectRevert();
+        huffplug.mint(user, 3);
+    }
+
+    
+    function testMintFuzz(address to, uint256 tokenId) public {
+        if (tokenId == 0 || tokenId > 1024) {
+            vm.expectRevert("INVALID_TOKEN_ID");
+            huffplug.mint(to, tokenId);
+        } else if(to==address(0)) {
+            vm.expectRevert();
+            huffplug.mint(to, tokenId);
+        } else {
+            huffplug.mint(to, tokenId);
+            assertEq(huffplug.ownerOf(tokenId), to);
+        }
+    }
+    
     function testMetadata() public {
         assertEq(huffplug.symbol(), "UwU");
         assertEq(huffplug.name(), "Buttpluggy");
