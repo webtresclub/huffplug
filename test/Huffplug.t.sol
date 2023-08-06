@@ -3,29 +3,13 @@ pragma solidity ^0.8.13;
 
 import {Test, console2, Vm} from "forge-std/Test.sol";
 import {compile} from "./Deploy.sol";
-import {IERC721} from "forge-std/interfaces/IERC721.sol";
 import {TokenRenderer} from "src/TokenRenderer.sol";
 import {LibString} from "solmate/utils/LibString.sol";
 
+import {IHuffplug} from "src/IHuffplug.sol";
+
 using {compile} for Vm;
 
-interface IERC721Metadata is IERC721 {
-    function name() external view returns (string memory);
-    function symbol() external view returns (string memory);
-    function tokenURI(uint256 _tokenId) external view returns (string memory);
-}
-
-interface IOwnable is IERC721 {
-    function owner() external view returns (address);
-    function setOwner(address new_owner) external;
-
-    event OwnerUpdated(address indexed user, address indexed newOwner);
-}
-
-interface IHuffplug is IERC721Metadata, IOwnable {
-    // extra for minting
-    function mint(address who, uint256 tokenid) external;
-}
 
 contract ButtplugTest is Test {
     IHuffplug public huffplug;
