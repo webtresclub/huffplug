@@ -6,6 +6,7 @@ import {compile, create} from "huff-runner/Deploy.sol";
 import {IERC721} from "forge-std/interfaces/IERC721.sol";
 import {TokenRenderer} from "src/TokenRenderer.sol";
 
+import {LibString} from "solmate/utils/LibString.sol";
 using { compile } for Vm;
 using { create } for bytes;
 
@@ -31,6 +32,15 @@ contract CounterTest is Test {
         assertEq(renderer.tokenURI(3), "https://huffplug.com/3.json");
     }
 
+    function testRendererFuzz(uint256 id) public {
+        if (id == 0 || id > 1024) {
+            vm.expectRevert();
+            huffplug.tokenURI(id);
+        } else {
+            string memory expected = string.concat("https://huffplug.com/",LibString.toString(id),".json");
+            assertEq(huffplug.tokenURI(id), expected);
+        }
+    }
     function testMint() public {
         huffplug.mint(address(0x01), 3);
         assertEq(huffplug.ownerOf(3), address(0x01));
