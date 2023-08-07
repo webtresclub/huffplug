@@ -26,10 +26,8 @@ contract ButtplugPlugger {
 
     /// @notice The constructor of the contract
     /// @param _HUFFPLUG The address of the Huffplug contract
-    /// @param _premintedByMerkletree The number of Buttplug (UwU) that can be minted by the merkle tree
-    constructor(address _HUFFPLUG, bytes32 _merkleRoot, uint256 _premintedByMerkletree) {
+    constructor(address _HUFFPLUG, bytes32 _merkleRoot) {
         HUFFPLUG = IHuffplug(_HUFFPLUG);
-        minted = _premintedByMerkletree;
         MERKLE_ROOT = _merkleRoot;
 
         salt = keccak256(abi.encodePacked(msg.sender, block.prevrandao));
@@ -87,21 +85,16 @@ contract ButtplugPlugger {
 
     function mintWithMerkle(bytes32[] calldata proofs) external {
         require(!claimed[msg.sender], "already claimed");
-
-        // @todo chequear que msg.sender este en el merkle
-        require(
-            MerkleProofLib.verify(proofs, MERKLE_ROOT, keccak256(abi.encodePacked(msg.sender /* ??? */ ))),
-            "INVALID PROOF"
-        );
-
         /// @dev Tag that the user has claimed his Buttplug (UwU) and can't claim more
         claimed[msg.sender] = true;
+
+        require(MerkleProofLib.verify(proofs, MERKLE_ROOT, keccak256(abi.encodePacked(msg.sender))), "INVALID PROOF");
 
         /// @dev We have to update the minted counter after the check, otherwise we could mint more than MAX_SUPPLY
         unchecked {
             ++minted;
         }
 
-        HUFFPLUG.plug(msg.sender, uint256(keccak256(abi.encode(msg.sender, salt))) % 1024 + 1);
+        HUFFPLUG.plug(msg.sender, uint256(keccak256(abi.encode(msg.sender, gasleft(), salt))) % 1024 + 1);
     }
 }
