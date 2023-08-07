@@ -13,3 +13,4 @@ docs/
 # Dotenv file
 .env
 /mine-POC/node_modules/
+/merkletree-builder/node_modules/
