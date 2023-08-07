@@ -15,37 +15,47 @@ contract ButtplugPluggerTest is Test {
     address public minter = makeAddr("minter");
 
     function setUp() public {
-        
         mockHuffplug = address(new MockHuffplug());
         bytes32 merkleRoot = 0xab4c70ed72087150127cabad413b988ac94a154af200dad730246f0e33ebaed6;
         plugger = new ButtplugPlugger(mockHuffplug, merkleRoot);
     }
 
-    function testMintMerckle() public {
-        
+    function testMintMerkle() public {
         bytes32[] memory roots = new bytes32[](4);
         roots[0] = 0x000000000000000000000000fa14c6aaa1ab119f8963d6f521ae7664d632842b;
         roots[1] = 0x000000000000000000000000fd0e1f2fc10f7e43dcf80b1f17f0e4435e858035;
         roots[2] = 0x55a4a359c5c92c1f3c9dfc10a7209b60677e454a6878473e7661b04b08f25acd;
         roots[3] = 0xa8df132df2d9dc18699d7605abf4f2f19ad7e2fef7a46679a5cb44cc440a393f;
 
+        address user1 = 0xe7292962e48c18e04Bd26aB2AcCA00Ef794E8171;
 
-        
-        vm.prank(0xe7292962e48c18e04Bd26aB2AcCA00Ef794E8171);
-        (bool sucess, ) = address(plugger).call(abi.encodeWithSignature("mintWithMerkle(bytes32[])", roots));
-        require(sucess);
+        vm.prank(user1);
+        (bool sucess,) =
+            address(plugger).call{gas: 0xffffff}(abi.encodeWithSignature("mintWithMerkle(bytes32[])", roots));
+        require(sucess, "mint cant fail");
+
+        assertEq(MockHuffplug(mockHuffplug).lastMintTo(), user1);
+        // @dev hard to predict the next mint id, thats why if use fixed gas on call
+        assertEq(MockHuffplug(mockHuffplug).lastMintId(), 693);
+
+        vm.prank(user1);
+        (sucess,) = address(plugger).call{gas: 0xffffff}(abi.encodeWithSignature("mintWithMerkle(bytes32[])", roots));
+        require(!sucess, "mint should fail");
     }
-
 }
 
 contract MockHuffplug {
     event Mint(address to, uint256 tokenId);
+
+    address public lastMintTo;
+    uint256 public lastMintId;
+
     function plug(address to, uint256 tokenId) external {
+        lastMintTo = to;
+        lastMintId = tokenId;
         emit Mint(to, tokenId);
     }
-
 }
-
 
 /*
 
@@ -103,4 +113,3 @@ contract MockHuffplug {
   merkleRoot: '0xab4c70ed72087150127cabad413b988ac94a154af200dad730246f0e33ebaed6'
 }
 */
-
