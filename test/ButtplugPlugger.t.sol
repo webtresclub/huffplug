@@ -10,14 +10,31 @@ import {IHuffplug} from "src/IHuffplug.sol";
 contract ButtplugPluggerTest is Test {
     ButtplugPlugger public plugger;
     address public mockHuffplug;
+
     address public user = makeAddr("user");
-    address public owner = makeAddr("owner");
-    address public minter = makeAddr("minter");
 
     function setUp() public {
         mockHuffplug = address(new MockHuffplug());
         bytes32 merkleRoot = 0xab4c70ed72087150127cabad413b988ac94a154af200dad730246f0e33ebaed6;
         plugger = new ButtplugPlugger(mockHuffplug, merkleRoot);
+
+        // mock salt
+        vm.store(address(plugger), 0x00, keccak256("salt"));
+    }
+
+    function testSalt() public {
+        // @dev this is the expected salt on development
+        assertEq(plugger.salt(), keccak256("salt"));
+    }
+
+    function testMint() public {
+        uint256 nonce = 271021;
+
+        vm.expectRevert(ButtplugPlugger.YouHaveToGiveMeYourConsent.selector);
+        plugger.mint(nonce);
+
+        vm.prank(user);
+        plugger.mint(nonce);
     }
 
     function testMintMerkle() public {
@@ -36,7 +53,7 @@ contract ButtplugPluggerTest is Test {
 
         assertEq(MockHuffplug(mockHuffplug).lastMintTo(), user1);
         // @dev hard to predict the next mint id, thats why if use fixed gas on call
-        assertEq(MockHuffplug(mockHuffplug).lastMintId(), 693);
+        assertEq(MockHuffplug(mockHuffplug).lastMintId(), 192);
 
         vm.prank(user1);
         (sucess,) = address(plugger).call{gas: 0xffffff}(abi.encodeWithSignature("mintWithMerkle(bytes32[])", roots));
