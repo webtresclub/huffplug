@@ -33,11 +33,17 @@ contract ButtplugPluggerTest is Test {
         vm.expectRevert(ButtplugPlugger.YouHaveToGiveMeYourConsent.selector);
         plugger.mint(nonce);
 
+        assertEq(plugger.minted(), 0);
         vm.prank(user);
         plugger.mint(nonce);
+        assertEq(plugger.minted(), 1);
+
+        assertEq(MockHuffplug(mockHuffplug).lastMintTo(), user);
+        assertEq(MockHuffplug(mockHuffplug).lastMintId(), 478);
     }
 
     function testMintMerkle() public {
+      assertEq(plugger.minted(), 0);
         bytes32[] memory roots = new bytes32[](4);
         roots[0] = 0x000000000000000000000000fa14c6aaa1ab119f8963d6f521ae7664d632842b;
         roots[1] = 0x000000000000000000000000fd0e1f2fc10f7e43dcf80b1f17f0e4435e858035;
@@ -48,16 +54,18 @@ contract ButtplugPluggerTest is Test {
 
         vm.prank(user1);
         (bool sucess,) =
-            address(plugger).call{gas: 0xffffff}(abi.encodeWithSignature("mintWithMerkle(bytes32[])", roots));
+            address(plugger).call(abi.encodeWithSignature("mintWithMerkle(bytes32[])", roots));
         require(sucess, "mint cant fail");
 
         assertEq(MockHuffplug(mockHuffplug).lastMintTo(), user1);
-        // @dev hard to predict the next mint id, thats why if use fixed gas on call
-        assertEq(MockHuffplug(mockHuffplug).lastMintId(), 192);
+        // @dev hard to predict the next mint id
+        assertTrue(MockHuffplug(mockHuffplug).lastMintId() != 0);
 
         vm.prank(user1);
-        (sucess,) = address(plugger).call{gas: 0xffffff}(abi.encodeWithSignature("mintWithMerkle(bytes32[])", roots));
+        (sucess,) = address(plugger).call(abi.encodeWithSignature("mintWithMerkle(bytes32[])", roots));
         require(!sucess, "mint should fail");
+
+        assertEq(plugger.minted(), 1);
     }
 }
 
