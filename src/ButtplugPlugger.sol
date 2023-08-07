@@ -88,7 +88,7 @@ contract ButtplugPlugger {
         /// @dev Tag that the user has claimed his Buttplug (UwU) and can't claim more
         claimed[msg.sender] = true;
 
-        require(MerkleProofLib.verify(proofs, MERKLE_ROOT, keccak256(abi.encodePacked(msg.sender))), "INVALID PROOF");
+        require(MerkleProofLib.verify(proofs, MERKLE_ROOT, bytes32(uint256(uint160(msg.sender)))), "INVALID PROOF");
 
         /// @dev We have to update the minted counter after the check, otherwise we could mint more than MAX_SUPPLY
         unchecked {
