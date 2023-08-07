@@ -22,12 +22,9 @@ contract ButtplugPluggerTest is Test {
         vm.store(address(plugger), 0x00, keccak256("salt"));
     }
 
-    function testSalt() public {
-        // @dev this is the expected salt on development
-        assertEq(plugger.salt(), keccak256("salt"));
-    }
-
     function testMint() public {
+        assertEq(plugger.salt(), keccak256("salt"));
+
         uint256 nonce = 271021;
 
         vm.expectRevert(ButtplugPlugger.YouHaveToGiveMeYourConsent.selector);
@@ -40,10 +37,13 @@ contract ButtplugPluggerTest is Test {
 
         assertEq(MockHuffplug(mockHuffplug).lastMintTo(), user);
         assertEq(MockHuffplug(mockHuffplug).lastMintId(), 478);
+
+        // @dev after minting salt should be changed
+        assertNotEq(plugger.salt(), keccak256("salt"));
     }
 
     function testMintMerkle() public {
-      assertEq(plugger.minted(), 0);
+        assertEq(plugger.minted(), 0);
         bytes32[] memory roots = new bytes32[](4);
         roots[0] = 0x000000000000000000000000fa14c6aaa1ab119f8963d6f521ae7664d632842b;
         roots[1] = 0x000000000000000000000000fd0e1f2fc10f7e43dcf80b1f17f0e4435e858035;
@@ -53,19 +53,21 @@ contract ButtplugPluggerTest is Test {
         address user1 = 0xe7292962e48c18e04Bd26aB2AcCA00Ef794E8171;
 
         vm.prank(user1);
-        (bool sucess,) =
-            address(plugger).call(abi.encodeWithSignature("mintWithMerkle(bytes32[])", roots));
+        (bool sucess,) = address(plugger).call(abi.encodeWithSignature("mintWithMerkle(bytes32[])", roots));
         require(sucess, "mint cant fail");
 
         assertEq(MockHuffplug(mockHuffplug).lastMintTo(), user1);
         // @dev hard to predict the next mint id
-        assertTrue(MockHuffplug(mockHuffplug).lastMintId() != 0);
+        assertNotEq(MockHuffplug(mockHuffplug).lastMintId(), 0);
 
         vm.prank(user1);
         (sucess,) = address(plugger).call(abi.encodeWithSignature("mintWithMerkle(bytes32[])", roots));
         require(!sucess, "mint should fail");
 
         assertEq(plugger.minted(), 1);
+
+        // @dev after minting with merkle salt should NOT be changed
+        assertEq(plugger.salt(), keccak256("salt"));
     }
 }
 
