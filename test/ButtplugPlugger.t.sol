@@ -19,7 +19,8 @@ contract ButtplugPluggerTest is Test {
         plugger = new ButtplugPlugger(mockHuffplug, merkleRoot);
 
         // mock salt
-        vm.store(address(plugger), 0x00, keccak256("salt"));
+        vm.store(address(plugger), 0x00 /* slot of salt in ButtplugPlugger */, keccak256("salt"));
+        assertEq(plugger.salt(), keccak256("salt"));
     }
 
     function testMint() public {
