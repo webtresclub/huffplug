@@ -15,6 +15,7 @@
 // @dev contract that allows users to mint Buttpluggys
 #define constant MINTER =         0x0000000000000000000000000000000000000000000000000000000000000000
 
+#define constant _SUPPLY = FREE_STORAGE_POINTER()
 
 // *************************************************************
 // ***                    Interfaces                         ***
@@ -46,6 +47,20 @@
     REQUIRE()                  // []
 }
 
+/// @notice Checks if the tokenId is in interval [1, 1024]
+#define macro VALID_IMAGE_ID() = takes (1) returns (1) {
+    [INVALID_TOKEN_ID_ERROR]   // ["INVALID_TOKEN_ID"]
+    [INVALID_TOKEN_ID_LENGTH]  // [10 (length), "INVALID_TOKEN_ID"]
+    dup3                       // [tokenId, INVALID_TOKEN_ID_LENGTH, "INVALID_TOKEN_ID", tokenId]
+    0x0401                     // [1024, tokenId, INVALID_TOKEN_ID_LENGTH, "INVALID_TOKEN_ID", tokenId]
+    gt
+
+    dup4 iszero not            // [tokenId != 0 , tokenId < 1025, INVALID_TOKEN_ID_LENGTH, "INVALID_TOKEN_ID", tokenId]
+    and                        // [tokenId != 0 && tokenId < 1025, INVALID_TOKEN_ID_LENGTH, "INVALID_TOKEN_ID", tokenId]
+
+    REQUIRE()                  // []
+}
+
 // "ONLY_MINTER"
 #define constant ONLY_MINTER_ERROR = 0x4f4e4c595f4d494e544552000000000000000000000000000000000000000000
 // length = 11
@@ -59,14 +74,33 @@
     REQUIRE()                       // []
 }
 
+#define constant MASK_MAPPING = 0xFF00000000000000000000000000000000000000000000000000000000000000
 
 #define macro MINT() = takes (0) returns (0) {
     ONLY_MINTER()
+
+    0x24 calldataload       // [imageId]
+    VALID_IMAGE_ID()        // [imageId]
+    0x04 calldataload       // [to, imageId]
+
+    // totalSupply++;
+    [_SUPPLY] sload 0x01 add // [tokenId, to, imageId]
+    dup1                     // [tokenId, tokenId, to, imageId]
+    VALID_TOKEN_ID()
+
+    [_SUPPLY] sstore        // update total supply
     
-    0x24 calldataload       // [tokenId]
-    VALID_TOKEN_ID()        // [tokenId]
-    0x04 calldataload       // [to, tokenId]
+    // [tokenId, to, imageId]
+    dup1 [MASK_MAPPING] or   // [slotId, tokenId, to, imageId]
+
+    dup1                   // [slotId, slotId, tokenId, to, imageId]
+    swap4                  // [imageId, slotId, tokenId, to, slotId]
+    swap1                  // [slotId, imageId, tokenId, to, slotId]
+    sstore                 // [tokenId, to, slotId]
+    swap1                  // [to, tokenId, slotId]
+
     _MINT()
+    pop
     stop
 }
 

@@ -66,23 +66,24 @@ contract ButtplugTest is Test {
         vm.stopPrank();
     }
 
-    function testMint() public {
+    function testMint2() public {
         vm.expectRevert("ONLY_MINTER");
         huffplug.plug(user, 3);
 
         vm.startPrank(minter);
         huffplug.plug(user, 3);
-        assertEq(huffplug.ownerOf(3), user);
+        assertEq(huffplug.ownerOf(1), user);
 
-        // cant mint more than once
+        // cant mint more than once the same metadata
         vm.expectRevert();
         huffplug.plug(makeAddr("otherUser"), 3);
 
-        // cant mint more than once
+        // cant mint more than once same metadata
         vm.expectRevert();
         huffplug.plug(user, 3);
 
         vm.stopPrank();
+
     }
 
     function testMintFuzz(address to, uint256 tokenId) public {

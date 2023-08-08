@@ -18,7 +18,7 @@ interface IOwnable is IERC721 {
 
 interface IHuffplug is IERC721Metadata, IOwnable {
     // extra for minting
-    function plug(address who, uint256 tokenid) external;
+    function plug(address who, uint256 imageId) external;
 
     // total token supply
     function totalSupply() external view returns (uint256);
