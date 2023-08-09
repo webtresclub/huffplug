@@ -23,6 +23,7 @@ contract ButtplugPlugger {
 
     error NoMoreUwU();
     error YouHaveToGiveMeYourConsent();
+    error YouHaveClaimYourUwU();
 
     /// @notice The constructor of the contract
     /// @param _HUFFPLUG The address of the Huffplug contract
@@ -59,6 +60,8 @@ contract ButtplugPlugger {
 
     function mint(uint256 nonce) external {
         uint256 _minted = minted;
+
+        // if the totalMinted is >= MAX_SUPPLY, revert
         if (_minted >= MAX_SUPPLY) revert NoMoreUwU();
 
         /// @dev This is inspired by the difficulty adjustment algorithm of Bitcoin
@@ -83,7 +86,11 @@ contract ButtplugPlugger {
     }
 
     function mintWithMerkle(bytes32[] calldata proofs) external {
-        require(!claimed[msg.sender], "already claimed");
+        if (claimed[msg.sender]) revert YouHaveClaimYourUwU();
+
+        // if the totalMinted is >= MAX_SUPPLY, revert
+        if (minted >= MAX_SUPPLY) revert NoMoreUwU();
+
         /// @dev Tag that the user has claimed his Buttplug (UwU) and can't claim more
         claimed[msg.sender] = true;
 
