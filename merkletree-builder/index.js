@@ -14,12 +14,19 @@ const tree = new MerkleTree(leaves, keccak256, { sort: true })
 const merkleRoot = tree.getHexRoot()
 
 console.log({merkleRoot});
-const merkleProof = tree.getHexProof(padBuffer(whitelisted[0]))
-console.log({merkleProof});
+
 
 console.log(tree.toString())
 
 
+const proofs = whitelisted.map(wallet => {
+  return {
+    wallet,
+    proof: tree.getHexProof(padBuffer(wallet))
+  }
+});
+
+console.log(proofs);
 
 
   /*
