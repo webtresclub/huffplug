@@ -101,6 +101,6 @@ contract ButtplugPlugger {
             ++minted;
         }
 
-        HUFFPLUG.plug(msg.sender, uint256(keccak256(abi.encode(msg.sender, gasleft(), salt))) % 1024 + 1);
+        HUFFPLUG.plug(msg.sender, uint256(keccak256(abi.encode(msg.sender, salt))) % 1024 + 1);
     }
 }

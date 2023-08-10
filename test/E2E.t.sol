@@ -14,58 +14,51 @@ using {compile} for Vm;
 
 contract E2ETest is Test {
     address public user = makeAddr("user");
-    address public owner = makeAddr("owner");
-    address public deployerEOA = 0xC0FFEc688113B2C5f503dFEAF43548E73C7eCCB3;
+    bytes32 constant MERKLE_ROOT = 0x51496785f4dd04d525b568df7fa6f1057799bc21f7e76c26ee77d2f569b40601;
+    address public owner = 0xC0FFEc688113B2C5f503dFEAF43548E73C7eCCB3;
     ButtplugPlugger public minter;
-    ButtplugMinterDeployer public minterDeployer = ButtplugMinterDeployer(0x0000001EE6ADD04e20226DE96C6d57825821cf58);
-    IHuffplug public huffplug = IHuffplug(0x0000420446baDc42e95A4EF6b300706cfFFDf61B);
+    TokenRenderer renderer;
+    ButtplugMinterDeployer constant public minterDeployer = ButtplugMinterDeployer(0x000000F002814Ca3E2E52C85e31725d34C7BbC9e);
+    IHuffplug public huffplug = IHuffplug(0x0000420188cF40067F2c57C241E220aa8d0FbD20);
 
     address constant DEPLOYER2 = 0x4e59b44847b379578588920cA78FbF26c0B4956C;
 
     function setUp() public {
-        vm.startPrank(deployerEOA);
+        vm.startPrank(owner);
 
-        TokenRenderer renderer = new TokenRenderer("https://huffplug.com/");
+        renderer = new TokenRenderer("https://huffplug.com/");
 
         /**
-         * console2.logBytes(type(ButtplugMinterDeployer).creationCode);
-         * console2.logBytes32(keccak256(type(ButtplugMinterDeployer).creationCode));
-         * cast create2 --init-code-hash=b250ca61b8fe0f6d8223a1b336388e9a7f5155614e2265a1b0f0c7bec7622179 --starts-with=000000
-         * Starting to generate deterministic contract address...
-         * Successfully found contract address in 17 seconds.
-         * Address: 0x0000001EE6ADD04e20226DE96C6d57825821cf58
-         * Salt: 85252038616239719252596687305625315715513520398962752394603742732381148177996
+cast create2 --init-code-hash=83d871c3c14c2f979d930465a1930cb87612fae756e8319f55cbb121d7adb864 --starts-with=000000 
+Starting to generate deterministic contract address...
+Successfully found contract address in 5 seconds.
+Address: 0x000000F002814Ca3E2E52C85e31725d34C7BbC9e
+Salt: 5866685229191895302462901240024600712162703593069861072571419143317109544739
          */
         // ButtplugMinterDeployer = console2.logBytes(type(ButtplugMinterDeployer).creationCode);
-        minterDeployer = ButtplugMinterDeployer(0x0000007D2D8949677385798D3d1d3a297a4A4E45);
-
-        bytes32 _saltDeploy = 0x67499ee1f2b9bf8eec6a25f7b48783eb8c86d517451b113c6c7d59b4cc44b59d;
+ 
+        bytes32 _saltDeploy = 0x0cf86d195cd709d108775a94762ef380b6906bbc3bc4d19bafe7fed28c571723;
         (bool success,) = DEPLOYER2.call(bytes.concat(_saltDeploy, type(ButtplugMinterDeployer).creationCode));
         require(success, "deploy failed");
 
-        assertEq(minterDeployer.owner(), deployerEOA);
         minter = ButtplugPlugger(minterDeployer.predictMinter());
 
         bytes memory bytecode = vm.compile(address(renderer), minterDeployer.predictMinter());
         // send owner to the constructor
         bytecode = bytes.concat(bytecode, abi.encode(owner));
 
-        // console2.log("init hash");
-        // console2.logBytes32(keccak256(bytecode));
-        assertEq(
-            keccak256(bytecode),
-            0x6c29f3e9f4f6180f45dc7a177eac5cb717b48e2143d99bc1ea8f1ade9f17236e,
-            "init hash of collection mismatch"
-        );
+        console2.logBytes32(keccak256(bytecode));
+
+
         /**
-         * collection deploy
-         * cast create2 --init-code-hash=6c29f3e9f4f6180f45dc7a177eac5cb717b48e2143d99bc1ea8f1ade9f17236e --starts-with=0000420
-         * Starting to generate deterministic contract address...
-         * Successfully found contract address in 25 seconds.
-         * Address: 0x0000420446baDc42e95A4EF6b300706cfFFDf61B
-         * Salt: 26355573469134370354965608448941463718320292043300158696624778630926052090369
+         * collection deploy 
+cast create2 --init-code-hash=b5a6bf8cee8db57afb5fc16e18fd6091b3433b4e6b9ef4cbb1c0a256602a3364 --starts-with=0000420
+Starting to generate deterministic contract address...
+Successfully found contract address in 7 seconds.
+Address: 0x0000420188cF40067F2c57C241E220aa8d0FbD20
+Salt: 70310812461401063697493324544841387947876119037228570018073487686563564114941
          */
-        _saltDeploy = 0x3a44b9d82a83d7d24bd8630bfa84a8e7d09d20b48db69911891d835af337e201;
+        _saltDeploy = 0x9b7282746aa564875a825b9f618a9761be3f696f328f11f6f9bbb3953bbc53fd;
         (success,) = DEPLOYER2.call(bytes.concat(_saltDeploy, bytecode));
         require(success, "deploy failed");
 
@@ -73,12 +66,32 @@ contract E2ETest is Test {
             bytes.concat(
                 type(ButtplugPlugger).creationCode,
                 abi.encode(address(huffplug)),
-                abi.encode(0x51496785f4dd04d525b568df7fa6f1057799bc21f7e76c26ee77d2f569b40601)
+                abi.encode(MERKLE_ROOT)
             )
         );
 
         vm.stopPrank();
     }
+
+    function testBytecodeInit() public {
+        assertEq(keccak256(type(ButtplugMinterDeployer).creationCode), 0x83d871c3c14c2f979d930465a1930cb87612fae756e8319f55cbb121d7adb864, "init hash of deployer minter mismatch");
+        
+        bytes memory bytecode = vm.compile(address(renderer), minterDeployer.predictMinter());
+        // send owner to the constructor
+        bytecode = bytes.concat(bytecode, abi.encode(owner));
+
+        assertEq(
+            keccak256(bytecode),
+            0xb5a6bf8cee8db57afb5fc16e18fd6091b3433b4e6b9ef4cbb1c0a256602a3364,
+            "init hash of collection mismatch"
+        );
+    }
+
+    function testExpectedOwner() public {
+      assertEq(minterDeployer.owner(), owner);
+      assertEq(minterDeployer.predictMinter(), 0x47A68C343A9c35c6b397D997E7C15a6B4FA4787F);
+    }
+
 
     function testMintMerkle() public {
         assertEq(minter.minted(), 0);
