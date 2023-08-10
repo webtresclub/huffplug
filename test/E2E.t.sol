@@ -65,7 +65,7 @@ contract E2ETest is Test {
          * Address: 0x0000420446baDc42e95A4EF6b300706cfFFDf61B
          * Salt: 26355573469134370354965608448941463718320292043300158696624778630926052090369
          */
-        _saltDeploy = bytes32(uint256(26355573469134370354965608448941463718320292043300158696624778630926052090369));
+        _saltDeploy = 0x3a44b9d82a83d7d24bd8630bfa84a8e7d09d20b48db69911891d835af337e201;
         (success,) = DEPLOYER2.call(bytes.concat(_saltDeploy, bytecode));
         require(success, "deploy failed");
 
