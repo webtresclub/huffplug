@@ -14,9 +14,9 @@ using {compile} for Vm;
 
 contract HuffDeployScript is Script {
     address constant DEPLOYER2 = 0x4e59b44847b379578588920cA78FbF26c0B4956C;
-    ButtplugPlugger constant minter = ButtplugPlugger(0x19a7d5AD3093a0B48540fA3d6AF94cBe2E322952);
-    ButtplugMinterDeployer constant minterDeployer = ButtplugMinterDeployer(0x0000007D2D8949677385798D3d1d3a297a4A4E45);
-    IHuffplug constant huffplug = IHuffplug(0x0000420446baDc42e95A4EF6b300706cfFFDf61B);
+    ButtplugPlugger constant minter = ButtplugPlugger(0x47A68C343A9c35c6b397D997E7C15a6B4FA4787F);
+    ButtplugMinterDeployer constant minterDeployer = ButtplugMinterDeployer(0x000000F002814Ca3E2E52C85e31725d34C7BbC9e);
+    IHuffplug constant huffplug = IHuffplug(0x0000420188cF40067F2c57C241E220aa8d0FbD20);
 
     address constant owner = 0xC0FFEc688113B2C5f503dFEAF43548E73C7eCCB3;
 
@@ -26,7 +26,7 @@ contract HuffDeployScript is Script {
 
         TokenRenderer renderer = new TokenRenderer("https://huffplug.com/");
 
-        bytes32 _saltDeploy = 0x67499ee1f2b9bf8eec6a25f7b48783eb8c86d517451b113c6c7d59b4cc44b59d;
+        bytes32 _saltDeploy = 0x0cf86d195cd709d108775a94762ef380b6906bbc3bc4d19bafe7fed28c571723;
         (bool success,) = DEPLOYER2.call(bytes.concat(_saltDeploy, type(ButtplugMinterDeployer).creationCode));
         require(success, "minterDeployer deploy failed");
 
@@ -36,7 +36,7 @@ contract HuffDeployScript is Script {
         // send owner to the constructor
         bytecode = bytes.concat(bytecode, abi.encode(owner));
 
-        _saltDeploy = 0x3a44b9d82a83d7d24bd8630bfa84a8e7d09d20b48db69911891d835af337e201;
+        _saltDeploy = 0x9b7282746aa564875a825b9f618a9761be3f696f328f11f6f9bbb3953bbc53fd;
         (success,) = DEPLOYER2.call(bytes.concat(_saltDeploy, bytecode));
         require(success, "deploy failed");
 
