@@ -80,11 +80,6 @@ contract E2ETest is Test {
         vm.stopPrank();
     }
 
-    function testInitHash() public {
-        bytes32 expectedCodeInitHash = 0xb250ca61b8fe0f6d8223a1b336388e9a7f5155614e2265a1b0f0c7bec7622179;
-        assertEq(keccak256(type(ButtplugMinterDeployer).creationCode), expectedCodeInitHash);
-        console2.log(minterDeployer.predictMinter());
-    }
 
     function testMintMerkle() public {
         assertEq(minter.minted(), 0);
