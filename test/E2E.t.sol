@@ -16,9 +16,9 @@ contract E2ETest is Test {
     address public user = makeAddr("user");
     address public owner = makeAddr("owner");
     address public deployerEOA = 0xC0FFEc688113B2C5f503dFEAF43548E73C7eCCB3;
-    ButtplugPlugger public minter = ButtplugPlugger(0x91c99cAFB00845C73eb0A71Dde7bfc549e5fe554);
+    ButtplugPlugger public minter;
     ButtplugMinterDeployer public minterDeployer = ButtplugMinterDeployer(0x0000001EE6ADD04e20226DE96C6d57825821cf58);
-    IHuffplug public huffplug = IHuffplug(0x000042028Fc04d015D20BFB303Ee39261FC865A5);
+    IHuffplug public huffplug = IHuffplug(0x0000420446baDc42e95A4EF6b300706cfFFDf61B);
 
     address constant DEPLOYER2 = 0x4e59b44847b379578588920cA78FbF26c0B4956C;
 
@@ -37,14 +37,14 @@ contract E2ETest is Test {
          * Salt: 85252038616239719252596687305625315715513520398962752394603742732381148177996
          */
         // ButtplugMinterDeployer = console2.logBytes(type(ButtplugMinterDeployer).creationCode);
-        minterDeployer = new ButtplugMinterDeployer();
-
-        bytes32 _saltDeploy =
-            bytes32(uint256(85252038616239719252596687305625315715513520398962752394603742732381148177996));
+        minterDeployer = ButtplugMinterDeployer(0x0000007D2D8949677385798D3d1d3a297a4A4E45);
+         
+        bytes32 _saltDeploy = 0x67499ee1f2b9bf8eec6a25f7b48783eb8c86d517451b113c6c7d59b4cc44b59d;
         (bool success,) = DEPLOYER2.call(bytes.concat(_saltDeploy, type(ButtplugMinterDeployer).creationCode));
         require(success, "deploy failed");
 
         assertEq(minterDeployer.owner(), deployerEOA);
+        minter = ButtplugPlugger(minterDeployer.predictMinter());
 
         bytes memory bytecode = vm.compile(address(renderer), minterDeployer.predictMinter());
         // send owner to the constructor
@@ -54,18 +54,18 @@ contract E2ETest is Test {
         // console2.logBytes32(keccak256(bytecode));
         assertEq(
             keccak256(bytecode),
-            0xd8be2a9a4ce95a7e91398e430a499b95c54e7f0cea33e5167cbdbf8d299cdd55,
+            0x6c29f3e9f4f6180f45dc7a177eac5cb717b48e2143d99bc1ea8f1ade9f17236e,
             "init hash of collection mismatch"
         );
         /**
          * collection deploy 
-         * cast create2 --init-code-hash=d8be2a9a4ce95a7e91398e430a499b95c54e7f0cea33e5167cbdbf8d299cdd55 --starts-with=0000420
+         * cast create2 --init-code-hash=6c29f3e9f4f6180f45dc7a177eac5cb717b48e2143d99bc1ea8f1ade9f17236e --starts-with=0000420
          * Starting to generate deterministic contract address...
          * Successfully found contract address in 25 seconds.
-         * Address: 0x000042028Fc04d015D20BFB303Ee39261FC865A5
-         * Salt: 4739761059210677759287527462018206704666165100019620570296814331404442323372
+         * Address: 0x0000420446baDc42e95A4EF6b300706cfFFDf61B
+         * Salt: 26355573469134370354965608448941463718320292043300158696624778630926052090369
          */
-        _saltDeploy = bytes32(uint256(4739761059210677759287527462018206704666165100019620570296814331404442323372));
+        _saltDeploy = bytes32(uint256(26355573469134370354965608448941463718320292043300158696624778630926052090369));
         (success,) = DEPLOYER2.call(bytes.concat(_saltDeploy, bytecode));
         require(success, "deploy failed");
 
