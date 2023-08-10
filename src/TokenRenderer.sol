@@ -15,7 +15,7 @@ contract TokenRenderer is Owned(msg.sender) {
     }
 
     /// @dev just in case we need to update the collection, owner should renounceOwnership after everything is ok
-    function changeBaseurl(string memory newBaseurl) onlyOwner external {
+    function changeBaseurl(string memory newBaseurl) external onlyOwner {
         baseurl = newBaseurl;
         emit UpdateBaseurl(newBaseurl);
     }

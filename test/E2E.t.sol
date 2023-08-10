@@ -38,7 +38,7 @@ contract E2ETest is Test {
          */
         // ButtplugMinterDeployer = console2.logBytes(type(ButtplugMinterDeployer).creationCode);
         minterDeployer = ButtplugMinterDeployer(0x0000007D2D8949677385798D3d1d3a297a4A4E45);
-         
+
         bytes32 _saltDeploy = 0x67499ee1f2b9bf8eec6a25f7b48783eb8c86d517451b113c6c7d59b4cc44b59d;
         (bool success,) = DEPLOYER2.call(bytes.concat(_saltDeploy, type(ButtplugMinterDeployer).creationCode));
         require(success, "deploy failed");
@@ -58,7 +58,7 @@ contract E2ETest is Test {
             "init hash of collection mismatch"
         );
         /**
-         * collection deploy 
+         * collection deploy
          * cast create2 --init-code-hash=6c29f3e9f4f6180f45dc7a177eac5cb717b48e2143d99bc1ea8f1ade9f17236e --starts-with=0000420
          * Starting to generate deterministic contract address...
          * Successfully found contract address in 25 seconds.
@@ -79,7 +79,6 @@ contract E2ETest is Test {
 
         vm.stopPrank();
     }
-
 
     function testMintMerkle() public {
         assertEq(minter.minted(), 0);

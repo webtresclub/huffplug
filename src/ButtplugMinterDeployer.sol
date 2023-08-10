@@ -2,8 +2,10 @@
 pragma solidity 0.8.21;
 
 import {CREATE3} from "solmate/utils/CREATE3.sol";
+
 contract ButtplugMinterDeployer {
-    address immutable public owner = 0xC0FFEc688113B2C5f503dFEAF43548E73C7eCCB3;
+    address public immutable owner = 0xC0FFEc688113B2C5f503dFEAF43548E73C7eCCB3;
+
     function deployMinter(bytes memory bytecode) external {
         require(msg.sender == owner, "!owner");
         // H4X0RZ
