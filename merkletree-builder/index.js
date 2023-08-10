@@ -13,7 +13,6 @@ const leaves = whitelisted.map(account => padBuffer(account))
 const tree = new MerkleTree(leaves, keccak256, { sort: true })
 const merkleRoot = tree.getHexRoot()
 
-console.log({merkleRoot});
 
 
 console.log(tree.toString())
@@ -26,7 +25,9 @@ const proofs = whitelisted.map(wallet => {
   }
 });
 
-console.log(proofs);
+fs.writeFileSync('./proofs.json', JSON.stringify(proofs, null, 2));
+
+console.log({merkleRoot});
 
 
   /*

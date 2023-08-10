@@ -15,7 +15,7 @@ contract ButtplugPluggerTest is Test {
 
     function setUp() public {
         mockHuffplug = address(new MockHuffplug());
-        bytes32 merkleRoot = 0xab4c70ed72087150127cabad413b988ac94a154af200dad730246f0e33ebaed6;
+        bytes32 merkleRoot = 0x51496785f4dd04d525b568df7fa6f1057799bc21f7e76c26ee77d2f569b40601;
         plugger = new ButtplugPlugger(mockHuffplug, merkleRoot);
 
         // mock salt
@@ -45,11 +45,13 @@ contract ButtplugPluggerTest is Test {
 
     function testMintMerkle() public {
         assertEq(plugger.minted(), 0);
-        bytes32[] memory roots = new bytes32[](4);
-        roots[0] = 0x000000000000000000000000fa14c6aaa1ab119f8963d6f521ae7664d632842b;
-        roots[1] = 0x000000000000000000000000fd0e1f2fc10f7e43dcf80b1f17f0e4435e858035;
-        roots[2] = 0x55a4a359c5c92c1f3c9dfc10a7209b60677e454a6878473e7661b04b08f25acd;
-        roots[3] = 0xa8df132df2d9dc18699d7605abf4f2f19ad7e2fef7a46679a5cb44cc440a393f;
+        bytes32[] memory roots = new bytes32[](6);
+        roots[0] = 0x000000000000000000000000ee081f9fea22c5b578aa9ab1b4fc16e4335f5d2b;
+        roots[1] = 0xa3a47908ac03234744670fa693ee11af0774d84b1cec2d2edbcb2e77b7bdd37b;
+        roots[2] = 0x37b41dcb9d4ad8085237134780b7b724bc29b68c1d3a279d148f539f787684e7;
+        roots[3] = 0xc8f17160e0889a52c573378d6a8f22b32e6f19f793f6ca3955fb95865a047777;
+        roots[4] = 0xd61e2cc2664ae8ce0b12c5102373373dafd85bcb94ecc4e3981e1d24b304f80a;
+        roots[5] = 0x17fac14873233024352b293cc1b7b04296f09870d377591aef743942c10c67a1;
 
         address user1 = 0xe7292962e48c18e04Bd26aB2AcCA00Ef794E8171;
 
@@ -72,20 +74,29 @@ contract ButtplugPluggerTest is Test {
 
         address user2 = 0xBa910716Fd4b6b4447AeA613993898eeB63844Ad;
 
-        roots[0] = 0x000000000000000000000000b688cd6b039081521a01e779833c3b20cf8d7949;
-        roots[1] = 0xded162136ca0073735bee32d2726d12d33f6c1df0877febd86bc3594ee6b6f9f;
-        roots[2] = 0xf9f569e07fb2b4eb31e548b994285f915e35877601b186cbef218c3f7ed41523;
-        roots[3] = 0xa8df132df2d9dc18699d7605abf4f2f19ad7e2fef7a46679a5cb44cc440a393f;
+        roots = new bytes32[](8);
+        roots[0] = 0x000000000000000000000000bbe7c97e93647652bd76afe4edb40af9bb5ff4da;
+        roots[1] = 0x7b875b84c4396d7d349231f7a20640fe55e50326f18f663d53509a05e1df1984;
+        roots[2] = 0x928bb96acc89d83761f3900b115d8bdbcd413151f39da608e558902bf128fe9e;
+        roots[3] = 0xe4061ce29bf346faba11b18d137d58a90e2743a6c11ad85414108946026d66e6;
+        roots[4] = 0x8d88fcc5b0daffe3312a3e92b40dacd2c8a875d0a6bdf0091e4ecc226006fe67;
+        roots[5] = 0xc51614c1fe3ae718d12708408de048a36001d567b70b0d5df08ebf9f74a93e1c;
+        roots[6] = 0xddbd87db45817c0a681ec7cdee793c2410b735a39f1be91ed8834874259e8c01;
+        roots[7] = 0xfbbbfd743cceb9d2bdc8602f027333f04f9078b3684a73c5c33fb8d79e5baed5;
 
         vm.prank(user2);
         (sucess,) = address(plugger).call(abi.encodeWithSignature("mintWithMerkle(bytes32[])", roots));
         require(sucess, "mint cant fail");
 
         address user3 = 0x673437D956065Fa0dc416c4A519CC5c37f6AD389;
-        roots[0] = 0x0000000000000000000000006e414fd1468f7258cbb898ff1efb4124bddc47fc;
-        roots[1] = 0x2dc6babcd41e65079f7ba43232f56475a28e14d7b93a4d0c64bb88603e7ed839;
-        roots[2] = 0xe07e54a91e7fed964c5b63c31db7fecdc2dd8c1e403f59f2dc499b80d5bab014;
-        roots[3] = 0x0117255f50bf10ae1efe44f07cb4fd382fad994c35d39803f5b55e3cb1f05ec0;
+        roots[0] = 0x0000000000000000000000006666ec43deb25910121dd544e89301a86165fa6b;
+        roots[1] = 0x31e85a3621abd6389b837e72024a8e2e97a34ad7d669b4f2c6d769747b089fa6;
+        roots[2] = 0x85da31bd83f18a50b924a96880222d70f2899ec83143aa8fdd97dc0c70f9b809;
+        roots[3] = 0x18610d990ae73613d1d1e5d6b7dff0beffb091df917a2b589fb91e8de43e13e2;
+        roots[4] = 0xc58f6e1b828a1b25a219d212596904a829dc6209c1f922036949ed75bdfae350;
+        roots[5] = 0xf7f97a6790805d13b9b30da262c4bc167c5f4ce84fdfd8e31f8adbd9c24aa5c3;
+        roots[6] = 0x352f1d855d1a93eb69ad310d832a1f4bdf1de4320c08eb9d12cc6710334670d2;
+        roots[7] = 0xfbbbfd743cceb9d2bdc8602f027333f04f9078b3684a73c5c33fb8d79e5baed5;
         vm.prank(user3);
         (sucess,) = address(plugger).call(abi.encodeWithSignature("mintWithMerkle(bytes32[])", roots));
         require(sucess, "mint cant fail");
