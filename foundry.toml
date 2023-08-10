@@ -6,6 +6,9 @@ libs = ["lib"]
 solc = "0.8.21"
 evm_version = 'shanghai'
 
+optimize = true
+optimize_runs = 20000
+
 ffi=true
 
 # See more config options https://github.com/foundry-rs/foundry/tree/master/config
