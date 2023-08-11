@@ -18,7 +18,7 @@ Webtr3s is a collective of talented hackers, primarily Spanish-speaking, dedicat
 
 There are two unique methods for minting a Buttplug:
 
-1. **Merkle Tree Method**: Only those whose Ethereum addresses are listed on our Merkle tree can mint Buttplugs. To become eligible, a user must have at least two POAPs. So if you're an active participant in the Ethereum community, you might just be on our list!
+1. **Merkle Tree Method**: Only those whose Ethereum addresses are listed on our Merkle tree can mint Buttplugs. To become eligible, a user must have at least two POAPs. So if you're an active participant in the Ethereum community, you might just be on our list! [You could find more details here](merkletree-builder/README.md)
 
 2. **Nonce Challenge Method**: Inspired by the classic MoonCats Rescue mechanism, users can also mint by finding a nonce that, when hashed, produces a digest with a certain number of leading zeros. This method ensures fairness and accessibility to all, while also introducing an element of skill and challenge. As time progresses, the difficulty adjusts based on the number of days since the contract deployment in relation to the number of Buttplugs that have been minted.
 
