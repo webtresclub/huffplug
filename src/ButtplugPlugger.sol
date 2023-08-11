@@ -2,27 +2,36 @@
 pragma solidity 0.8.21;
 
 import {MerkleProofLib} from "solmate/utils/MerkleProofLib.sol";
+import {FixedPointMathLib} from "solmate/utils/FixedPointMathLib.sol";
 import {IHuffplug} from "src/IHuffplug.sol";
 
 contract ButtplugPlugger {
     /// @dev The difficulty is the number of 0s that the hash of the address and the nonce must have
-    ///      5 means 0x00000, anf im expecting to take a few secs to find a nonce
-    uint256 public constant DEFAULT_DIFFICULTY = 5;
+    ///      6 means 0x000000, im expecting to take a few secs to find a nonce
+    uint256 public constant DEFAULT_DIFFICULTY = 6;
     uint256 public constant MAX_DIFFICULTY = 32;
     /// @dev The maximum number of Buttplug (UwU) that can be minted
     uint256 public constant MAX_SUPPLY = 1024;
 
+    /// @dev The address of the Huffplug ERC721 contract
     IHuffplug immutable HUFFPLUG;
+    /// @dev The timestamp when the collection started, useful to calculate the difficulty
     uint256 immutable COLLECTION_START = block.timestamp;
-
+    /// @dev The merkle root of the merkle tree that contains the proofs of the users that can claim their Buttplug (UwU)
     bytes32 immutable MERKLE_ROOT;
 
+    /// @dev The salt used to generate the pseudo random number for the minting
     bytes32 public salt;
+    /// @dev The mapping of the users that have claimed their Buttplug (UwU)
     mapping(address => bool) public claimed;
+    /// @dev The number of Buttplug (UwU) that have been minted, useful to calculate the difficulty
     uint256 public minted;
 
+    /// @notice The error that is thrown when the user tries to mint more than MAX_SUPPLY
     error NoMoreUwU();
+    /// @notice The error that is thrown when the user tries to mint without the correct nonce
     error YouHaveToGiveMeYourConsent();
+    /// @notice The error that is thrown when the user tries to mint more than one Buttplug using the merkle tree
     error YouHaveClaimYourUwU();
 
     /// @notice The constructor of the contract
@@ -45,13 +54,12 @@ contract ButtplugPlugger {
             /// @dev We expect to mint 1 Buttplug (UwU) per day
             uint256 delta = (block.timestamp - COLLECTION_START) / 1 days;
 
-            /// @dev If we have minted less than we supposed to, we are in the first phase
-            if (delta < tSupply + 1) {
+            /// @dev If we have minted less than we supposed to difficulty is 6 (easy)
+            if (delta > tSupply) {
                 return DEFAULT_DIFFICULTY;
             }
 
-            // uint256 ret = 2 ** (tSupply - delta);
-            uint256 ret = (tSupply - delta) / 10;
+            uint256 ret = FixedPointMathLib.sqrt(tSupply - delta) + DEFAULT_DIFFICULTY;
             if (ret < DEFAULT_DIFFICULTY) return DEFAULT_DIFFICULTY;
             if (ret > MAX_DIFFICULTY) return MAX_DIFFICULTY;
             return ret;
@@ -85,6 +93,9 @@ contract ButtplugPlugger {
         HUFFPLUG.plug(msg.sender, uint256(random) % 1024 + 1);
     }
 
+    /// @notice Mint a Buttplug (UwU) using a merkle proof
+    /// @param proofs The merkle proofs of the user
+    /// @dev Users with at least two poap of the community can mint a Buttplug (UwU) using a merkle proof
     function mintWithMerkle(bytes32[] calldata proofs) external {
         if (claimed[msg.sender]) revert YouHaveClaimYourUwU();
 
