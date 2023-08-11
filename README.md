@@ -1,66 +1,61 @@
-## Foundry
+# Buttplug NFT Project
 
-**Foundry is a blazing fast, portable and modular toolkit for Ethereum application development written in Rust.**
+## Introduction
 
-Foundry consists of:
+Welcome to the _Buttplug_ NFT collection. Despite the playful name, these aren't what you might think! They're truly unique and visually captivating oscilloscopes, crafted with passion and ingenuity by the Webtr3s community.
+This is also the first NFT Collection written in Huff and deplyed on mainnet. We have no certainties about this fact, but neither do we have doubts.
 
--   **Forge**: Ethereum testing framework (like Truffle, Hardhat and DappTools).
--   **Cast**: Swiss army knife for interacting with EVM smart contracts, sending transactions and getting chain data.
--   **Anvil**: Local Ethereum node, akin to Ganache, Hardhat Network.
--   **Chisel**: Fast, utilitarian, and verbose solidity REPL.
+## What is Webtr3s?
 
-## Documentation
+Webtr3s is a collective of talented hackers, primarily Spanish-speaking, dedicated to innovative and exciting projects in the blockchain space. With our diverse set of skills, we've come together to bring the _Buttplug_ collection to life!
 
-https://book.getfoundry.sh/
+## Contract Details
 
-## Usage
+- **Name**: `Huffplug.huff`
+- **Language**: The contract is written in Huff, using the `Huffmate` libraries. For those unfamiliar with Huff, it's a low-level language that gives us the power and flexibility to ensure optimal performance.
 
-### Build
+## Minting Buttplugs
 
-```shell
-$ forge build
-```
+There are two unique methods for minting a Buttplug:
 
-### Test
+1. **Merkle Tree Method**: Only those whose Ethereum addresses are listed on our Merkle tree can mint Buttplugs. To become eligible, a user must have at least two POAPs. So if you're an active participant in the Ethereum community, you might just be on our list!
 
-```shell
-$ forge test
-```
+2. **Nonce Challenge Method**: Inspired by the classic MoonCats Rescue mechanism, users can also mint by finding a nonce that, when hashed, produces a digest with a certain number of leading zeros. This method ensures fairness and accessibility to all, while also introducing an element of skill and challenge. As time progresses, the difficulty adjusts based on the number of days since the contract deployment in relation to the number of Buttplugs that have been minted.
 
-### Format
+## Difficulty Adjustment
 
-```shell
-$ forge fmt
-```
+To keep the minting process challenging and exciting, the difficulty will adjust over time. As more days pass since the contract deployment and as more Buttplugs are minted, the nonce challenge will adjust accordingly, ensuring a balanced minting rate.
 
-### Gas Snapshots
+## Exclusive Rights
 
-```shell
-$ forge snapshot
-```
+To maintain the integrity and uniqueness of our project, only our primary contract, _ButtplugPlugger_, has the authority to mint Buttplugs. This ensures that each piece in this collection is authentic and truly valuable.
 
-### Anvil
+## Join the Movement
 
-```shell
-$ anvil
-```
+Interested in joining our vibrant and ever-growing community? Follow Webtr3s on our social media channels, participate in our events, and immerse yourself in a space filled with creativity, innovation, and passion.
 
-### Deploy
+---
 
-```shell
-$ forge script script/Counter.s.sol:CounterScript --rpc-url <your_rpc_url> --private-key <your_private_key>
-```
+**Special thanks to every hacker, artist, and enthusiast in the Webtr3s community. Your support and passion drive us to create and innovate every day.**
 
-### Cast
+---
 
-```shell
-$ cast <subcommand>
-```
+## Disclaimer
 
-### Help
+The name _Buttplug_ is chosen for its playful connotation and represents oscilloscopes in our collection. We urge the community to approach this with an open mind and a sense of humor. Enjoy the collection!
 
-```shell
-$ forge --help
-$ anvil --help
-$ cast --help
-```
+--- 
+
+**Note**: Always make sure to do your own research and due diligence when participating in any blockchain project.
+
+--- 
+
+**Connect with Webtr3s**:
+
+[Website](https://webtres.club/)
+[Twitter](https://twitter.com/webtresclub)
+[Discord](https://discord.gg/eegRCDmwbM)
+
+---
+
+_Este proyecto es orgullosamente presentado por la comunidad Webtr3s. ¡Gracias por ser parte de esta aventura!_ 🚀🎨🔌
