@@ -103,11 +103,14 @@
 
     // Revert if call is unsuccessful
     cont jumpi
-    0x00 dup1 revert
+    0x00 0x00 revert
     cont:
 
+    returndatasize
+    0x00
+    returndatacopy
     // Load the result
-    0x60 0x00 return
+    returndatasize 0x00 return
 }
 
 #define macro SYMBOL() = takes (0) {
@@ -160,6 +163,7 @@
 
     dup1 __FUNC_SIG(totalSupply)                    eq totalSupply jumpi
 
+    /// @dev owner is only used to admin opensea collection page
     // owned functions dispatcher
     OWNED_MAIN()
 

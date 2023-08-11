@@ -18,12 +18,11 @@ contract ButtplugTest is Test {
     address public minter = makeAddr("minter");
 
     function setUp() public {
-        TokenRenderer renderer = new TokenRenderer("https://huffplug.com/");
+        TokenRenderer renderer = new TokenRenderer("ipfs://bafybeia7h7n6osru3b4mvivjb3h2fkonvmotobvboqw3k3v4pvyv5oyzse/");
 
         bytes memory bytecode = vm.compile(address(renderer), minter);
 
-        // send owner to the constructor
-
+        // send owner to the constructor, owner is only for opensea main page admin
         bytecode = bytes.concat(bytecode, abi.encode(owner));
 
         address deployed;
@@ -40,7 +39,7 @@ contract ButtplugTest is Test {
             vm.expectRevert();
             huffplug.tokenURI(id);
         } else {
-            string memory expected = string.concat("https://huffplug.com/", LibString.toString(id), ".json");
+            string memory expected = string.concat("ipfs://bafybeia7h7n6osru3b4mvivjb3h2fkonvmotobvboqw3k3v4pvyv5oyzse/", LibString.toString(id), ".json");
             assertEq(huffplug.tokenURI(id), expected);
         }
     }
