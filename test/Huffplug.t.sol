@@ -17,8 +17,10 @@ contract ButtplugTest is Test {
     address public owner = makeAddr("owner");
     address public minter = makeAddr("minter");
 
+    string baseUrl = "ipfs://bafybeia7h7n6osru3b4mvivjb3h2fkonvmotobvboqw3k3v4pvyv5oyzse/";
+
     function setUp() public {
-        TokenRenderer renderer = new TokenRenderer("ipfs://bafybeia7h7n6osru3b4mvivjb3h2fkonvmotobvboqw3k3v4pvyv5oyzse/");
+        TokenRenderer renderer = new TokenRenderer(baseUrl);
 
         bytes memory bytecode = vm.compile(address(renderer), minter);
 
@@ -39,7 +41,7 @@ contract ButtplugTest is Test {
             vm.expectRevert();
             huffplug.tokenURI(id);
         } else {
-            string memory expected = string.concat("ipfs://bafybeia7h7n6osru3b4mvivjb3h2fkonvmotobvboqw3k3v4pvyv5oyzse/", LibString.toString(id), ".json");
+            string memory expected = string.concat(baseUrl, LibString.toString(id), ".json");
             assertEq(huffplug.tokenURI(id), expected);
         }
     }
@@ -106,15 +108,15 @@ contract ButtplugTest is Test {
     }
 
     function testTokenUri() public {
-        assertEq(huffplug.tokenURI(3), "https://huffplug.com/3.json");
-        assertEq(huffplug.tokenURI(10), "https://huffplug.com/10.json");
+        assertEq(huffplug.tokenURI(3), string.concat(baseUrl, "3.json"));
+        assertEq(huffplug.tokenURI(10), string.concat(baseUrl, "10.json"));
         vm.expectRevert();
         huffplug.tokenURI(0);
 
         vm.expectRevert();
         huffplug.tokenURI(1025);
 
-        assertEq(huffplug.tokenURI(1024), "https://huffplug.com/1024.json");
+        assertEq(huffplug.tokenURI(1024), string.concat(baseUrl, "1024.json"));
     }
 
     function testOwner() public {
