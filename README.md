@@ -2,12 +2,12 @@
 
 ## Introduction
 
-Welcome to the _Buttplug_ NFT collection. Despite the playful name, these aren't what you might think! They're truly unique and visually captivating oscilloscopes, crafted with passion and ingenuity by the Webtr3s community.
+Welcome to the _Buttplug_ NFT collection. Despite the playful name, these aren't what you might think! They're truly unique and visually captivating oscilloscopes, crafted with passion and ingenuity by the WebtrES community.
 This is also the first NFT Collection written in Huff and deplyed on mainnet. We have no certainties about this fact, but neither do we have doubts.
 
-## What is Webtr3s?
+## What is WebtrES?
 
-Webtr3s is a collective of talented hackers, primarily Spanish-speaking, dedicated to innovative and exciting projects in the blockchain space. With our diverse set of skills, we've come together to bring the _Buttplug_ collection to life!
+WebtrES is a collective of talented hackers, primarily Spanish-speaking, dedicated to innovative and exciting projects in the blockchain space. With our diverse set of skills, we've come together to bring the _Buttplug_ collection to life!
 
 ## Contract Details
 
@@ -18,7 +18,7 @@ Webtr3s is a collective of talented hackers, primarily Spanish-speaking, dedicat
 
 There are two unique methods for minting a Buttplug:
 
-1. **Merkle Tree Method**: Only those whose Ethereum addresses are listed on our Merkle tree can mint Buttplugs. To become eligible, a user must have at least two POAPs. So if you're an active participant in the Ethereum community, you might just be on our list! [You could find more details here](merkletree-builder/README.md)
+1. **Merkle Tree Method**: Only those whose Ethereum addresses are listed on our Merkle tree can mint Buttplugs. To become eligible, a user must have at least two POAPs. So if you're an active participant in the Ethereum community, you might just be on our list! [You could find more details here](./merkletree-builder/README.md)
 
 2. **Nonce Challenge Method**: Inspired by the classic MoonCats Rescue mechanism, users can also mint by finding a nonce that, when hashed, produces a digest with a certain number of leading zeros. This method ensures fairness and accessibility to all, while also introducing an element of skill and challenge. As time progresses, the difficulty adjusts based on the number of days since the contract deployment in relation to the number of Buttplugs that have been minted.
 
@@ -32,11 +32,11 @@ To maintain the integrity and uniqueness of our project, only our primary contra
 
 ## Join the Movement
 
-Interested in joining our vibrant and ever-growing community? Follow Webtr3s on our social media channels, participate in our events, and immerse yourself in a space filled with creativity, innovation, and passion.
+Interested in joining our vibrant and ever-growing community? Follow WebtrES on our social media channels, participate in our events, and immerse yourself in a space filled with creativity, innovation, and passion.
 
 ---
 
-**Special thanks to every hacker, artist, and enthusiast in the Webtr3s community. Your support and passion drive us to create and innovate every day.**
+**Special thanks to every hacker, artist, and enthusiast in the WebtrES community. Your support and passion drive us to create and innovate every day.**
 
 ---
 
@@ -50,7 +50,7 @@ The name _Buttplug_ is chosen for its playful connotation and represents oscillo
 
 --- 
 
-**Connect with Webtr3s**:
+**Connect with WebtrES**:
 
 [Website](https://webtres.club/)
 [Twitter](https://twitter.com/webtresclub)
@@ -58,4 +58,4 @@ The name _Buttplug_ is chosen for its playful connotation and represents oscillo
 
 ---
 
-_Este proyecto es orgullosamente presentado por la comunidad Webtr3s. ¡Gracias por ser parte de esta aventura!_ 🚀🎨🔌
+_Este proyecto es orgullosamente presentado por la comunidad WebtrES. ¡Gracias por ser parte de esta aventura!_ 🚀🎨🔌
