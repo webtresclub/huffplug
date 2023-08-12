@@ -27,25 +27,6 @@
 // ***                      Macros                           ***
 // *************************************************************
 
-// "INVALID_TOKEN_ID"
-#define constant INVALID_TOKEN_ID_ERROR = 0x494e56414c49445f544f4b454e5f494400000000000000000000000000000000
-// length = 16
-#define constant INVALID_TOKEN_ID_LENGTH = 0x10
-
-/// @notice Checks if the tokenId is in interval [1, 1024]
-#define macro VALID_TOKEN_ID() = takes (1) returns (1) {
-    [INVALID_TOKEN_ID_ERROR]   // ["INVALID_TOKEN_ID"]
-    [INVALID_TOKEN_ID_LENGTH]  // [10 (length), "INVALID_TOKEN_ID"]
-    dup3                       // [tokenId, INVALID_TOKEN_ID_LENGTH, "INVALID_TOKEN_ID", tokenId]
-    0x0401                     // [1024, tokenId, INVALID_TOKEN_ID_LENGTH, "INVALID_TOKEN_ID", tokenId]
-    gt
-
-    dup4 iszero not            // [tokenId != 0 , tokenId < 1025, INVALID_TOKEN_ID_LENGTH, "INVALID_TOKEN_ID", tokenId]
-    and                        // [tokenId != 0 && tokenId < 1025, INVALID_TOKEN_ID_LENGTH, "INVALID_TOKEN_ID", tokenId]
-
-    REQUIRE()                  // []
-}
-
 // "ONLY_MINTER"
 #define constant ONLY_MINTER_ERROR = 0x4f4e4c595f4d494e544552000000000000000000000000000000000000000000
 // length = 11
@@ -64,7 +45,8 @@
     ONLY_MINTER()
     
     0x24 calldataload       // [tokenId]
-    VALID_TOKEN_ID()        // [tokenId]
+    // we have rremove the validation, the minter is responsible for that
+    // VALID_TOKEN_ID()        // [tokenId]
     0x04 calldataload       // [to, tokenId]
     _MINT()
     stop

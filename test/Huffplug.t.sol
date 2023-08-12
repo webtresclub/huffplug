@@ -57,13 +57,6 @@ contract ButtplugTest is Test {
         huffplug.plug(user, 1024);
         assertEq(huffplug.ownerOf(1024), user);
 
-        // token id 1025 should not be mintable
-        vm.expectRevert("INVALID_TOKEN_ID");
-        huffplug.plug(user, 1025);
-
-        // token id 0 should not be mintable
-        vm.expectRevert("INVALID_TOKEN_ID");
-        huffplug.plug(user, 0);
         vm.stopPrank();
     }
 
@@ -87,11 +80,9 @@ contract ButtplugTest is Test {
     }
 
     function testMintFuzz(address to, uint256 tokenId) public {
+        tokenId = bound(tokenId, 1, 1024);
         vm.startPrank(minter);
-        if (tokenId == 0 || tokenId > 1024) {
-            vm.expectRevert("INVALID_TOKEN_ID");
-            huffplug.plug(to, tokenId);
-        } else if (to == address(0)) {
+        if (to == address(0)) {
             vm.expectRevert();
             huffplug.plug(to, tokenId);
         } else {
