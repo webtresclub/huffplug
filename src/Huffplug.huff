@@ -111,12 +111,12 @@
 // *************************************************************
 
 #define macro MAIN() = takes (0) returns (0) {
-    NON_PAYABLE()                               // []
-
     0x00 calldataload 0xE0 shr  // [sig]
 
-    // Mint Functions
+    // Mint Functions, avoid non-payable check, this is only call by minter
     dup1 __FUNC_SIG(plug)                       eq mint jumpi
+
+    NON_PAYABLE()                               // []
 
     dup1 __FUNC_SIG(approve)                    eq approve jumpi
     dup1 __FUNC_SIG(setApprovalForAll)          eq setApprovalForAll jumpi
@@ -144,7 +144,7 @@
     OWNED_MAIN()
 
     // Revert on failed dispatch
-    0x00 dup1 revert
+    0x00 0x00 revert
 
     totalSupply:
         TOTAL_SUPPLY()
