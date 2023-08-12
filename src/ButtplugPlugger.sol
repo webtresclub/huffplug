@@ -94,7 +94,7 @@ contract ButtplugPlugger {
         }
 
         // update salt
-        salt = keccak256(abi.encodePacked(msg.sender, block.prevrandao, nonce));
+        salt = blockhash(block.number - 1);
 
         /// @dev We have to update the minted counter after the check, otherwise we could mint more than MAX_SUPPLY
         unchecked {
