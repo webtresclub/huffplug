@@ -77,14 +77,15 @@ contract ButtplugPlugger {
 
         /// @dev This is inspired by the difficulty adjustment algorithm of Bitcoin
         uint256 difficulty = _currentDifficulty(_minted);
-        bool canPlug;
         assembly {
             // bitmask = bytes32(type(uint256).max << ((64-difficulty)*4));
             let bitmask := shl(sub(256, difficulty), not(0))
-            // canPlug = random & bitmask == 0;
-            canPlug := iszero(and(random, bitmask))
+            //if (!(random & bitmask == 0)) revert YouHaveToGiveMeYourConsent();
+            if and(random, bitmask) { 
+                mstore(0x00, 0xae8c9b06) //revert YouHaveToGiveMeYourConsent();
+                revert(0x1c, 0x04)
+            }
         }
-        if (!canPlug) revert YouHaveToGiveMeYourConsent();
 
         // update salt
         salt = keccak256(abi.encodePacked(msg.sender, block.prevrandao, nonce));
@@ -92,9 +93,8 @@ contract ButtplugPlugger {
         /// @dev We have to update the minted counter after the check, otherwise we could mint more than MAX_SUPPLY
         unchecked {
             minted = _minted + 1;
+            HUFFPLUG.plug(msg.sender, uint256(random) % 1024 + 1);
         }
-
-        HUFFPLUG.plug(msg.sender, uint256(random) % 1024 + 1);
     }
 
     /// @notice Mint a Buttplug (UwU) using a merkle proof
@@ -114,8 +114,7 @@ contract ButtplugPlugger {
         /// @dev We have to update the minted counter after the check, otherwise we could mint more than MAX_SUPPLY
         unchecked {
             ++minted;
+            HUFFPLUG.plug(msg.sender, uint256(keccak256(abi.encode(msg.sender, salt))) % 1024 + 1);
         }
-
-        HUFFPLUG.plug(msg.sender, uint256(keccak256(abi.encode(msg.sender, salt))) % 1024 + 1);
     }
 }
