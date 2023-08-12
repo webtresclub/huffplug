@@ -93,11 +93,11 @@ contract ButtplugPlugger {
             }
         }
 
-        // update salt
-        salt = blockhash(block.number - 1);
-
         /// @dev We have to update the minted counter after the check, otherwise we could mint more than MAX_SUPPLY
         unchecked {
+            // update salt
+            salt = blockhash(block.number - 1);
+
             minted = _minted + 1;
             HUFFPLUG.plug(msg.sender, uint256(random) % 1024 + 1);
         }
