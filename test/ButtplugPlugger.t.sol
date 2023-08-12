@@ -108,27 +108,27 @@ contract ButtplugPluggerTest is Test {
         vm.warp(10000000);
         plugger = new ButtplugPlugger(mockHuffplug, keccak256("root"));
 
-        assertEq(plugger.currentDifficulty(), 6, "difficulty should be 6");
+        assertEq(plugger.currentDifficulty(), 5, "difficulty should be 5");
         vm.store(address(plugger), bytes32(uint256(2)), bytes32(uint256(2)));
-        assertEq(plugger.currentDifficulty(), 7, "difficulty should be 7");
+        assertEq(plugger.currentDifficulty(), 6, "difficulty should be 7");
         vm.store(address(plugger), bytes32(uint256(2)), bytes32(uint256(20)));
-        assertEq(plugger.currentDifficulty(), 10, "difficulty should be 10");
+        assertEq(plugger.currentDifficulty(), 9, "difficulty should be 9");
 
         // if there are no new mint the difficulty shoud decay after some time
         vm.warp(10000000 + 1 days);
-        assertEq(plugger.currentDifficulty(), 10, "difficulty should be 10");
-        vm.warp(10000000 + 4 days);
-        assertEq(plugger.currentDifficulty(), 10, "difficulty should be 10");
-        vm.warp(10000000 + 5 days);
         assertEq(plugger.currentDifficulty(), 9, "difficulty should be 9");
-        vm.warp(10000000 + 12 days);
+        vm.warp(10000000 + 4 days);
+        assertEq(plugger.currentDifficulty(), 9, "difficulty should be 9");
+        vm.warp(10000000 + 5 days);
         assertEq(plugger.currentDifficulty(), 8, "difficulty should be 8");
-        vm.warp(10000000 + 17 days);
+        vm.warp(10000000 + 12 days);
         assertEq(plugger.currentDifficulty(), 7, "difficulty should be 7");
+        vm.warp(10000000 + 17 days);
+        assertEq(plugger.currentDifficulty(), 6, "difficulty should be 6");
         vm.warp(10000000 + 20 days);
-        assertEq(plugger.currentDifficulty(), 6, "difficulty should be 6");
+        assertEq(plugger.currentDifficulty(), 5, "difficulty should be 5");
         vm.warp(10000000 + 300 days);
-        assertEq(plugger.currentDifficulty(), 6, "difficulty should be 6");
+        assertEq(plugger.currentDifficulty(), 5, "difficulty should be 5");
     }
 }
 
