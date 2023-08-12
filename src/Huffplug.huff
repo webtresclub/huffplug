@@ -76,7 +76,6 @@
 }
 
 #define macro NAME() = takes (0) {
-    NON_PAYABLE()                               // []
     0x42757474706c7567677900000000000000000000000000000000000000000000 // Buttpluggy
     0x0a
     0x20 0x00 mstore                            // [name_length, name_value]
@@ -108,7 +107,6 @@
 }
 
 #define macro SYMBOL() = takes (0) {
-    NON_PAYABLE()                               // []
     0x5577550000000000000000000000000000000000000000000000000000000000 // UwU
     0x03
     0x20 0x00 mstore                            // [symbol_length, symbol_value]
@@ -131,6 +129,8 @@
 // *************************************************************
 
 #define macro MAIN() = takes (0) returns (0) {
+    NON_PAYABLE()                               // []
+
     0x00 calldataload 0xE0 shr  // [sig]
 
     // Mint Functions
