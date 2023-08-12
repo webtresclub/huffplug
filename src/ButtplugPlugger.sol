@@ -49,17 +49,23 @@ contract ButtplugPlugger {
         return _currentDifficulty(minted);
     }
 
-    function _currentDifficulty(uint256 tSupply) private view returns (uint256) {
+    /// @dev Returns the current difficulty, calculated using VERGA curve
+    ///      The difficulty is calculated using the following formula:
+    ///      difficulty = sqrt(totalMinted - delta) + 5
+    ///      where delta is the number of Buttplug minted for today (1UwU per day)
+    ///      and totalMinted is the number of Buttplug (UwU) that have been minted
+    /// @param totalMinted The total minted supply of Buttplug (UwU)
+    function _currentDifficulty(uint256 totalMinted) private view returns (uint256) {
         unchecked {
             /// @dev We expect to mint 1 Buttplug (UwU) per day
             uint256 delta = (block.timestamp - COLLECTION_START) / 1 days;
 
             /// @dev If we have minted less than we supposed to difficulty is 6 (easy)
-            if (delta > tSupply) {
+            if (delta > totalMinted) {
                 return DEFAULT_DIFFICULTY;
             }
 
-            uint256 ret = FixedPointMathLib.sqrt(tSupply - delta) + DEFAULT_DIFFICULTY;
+            uint256 ret = FixedPointMathLib.sqrt(totalMinted - delta) + DEFAULT_DIFFICULTY;
             if (ret < DEFAULT_DIFFICULTY) return DEFAULT_DIFFICULTY;
             if (ret > MAX_DIFFICULTY) return MAX_DIFFICULTY;
             return ret;
