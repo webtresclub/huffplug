@@ -11,9 +11,9 @@
 // ***                    Constants                          ***
 // *************************************************************
 
-#define constant TOKEN_RENDERER = 0x0000000000000000000000000000000000000000000000000000000000000000
+#define constant TOKEN_RENDERER = 0x00
 // @dev contract that allows users to mint Buttpluggys
-#define constant MINTER =         0x0000000000000000000000000000000000000000000000000000000000000000
+#define constant MINTER =         0x00
 
 
 // *************************************************************
@@ -58,7 +58,7 @@
 }
 
 #define macro NAME() = takes (0) {
-    0x42757474706c7567677900000000000000000000000000000000000000000000 // Buttpluggy
+    __RIGHTPAD(0x42757474706c75676779) // Buttpluggy
     0x0a
     0x20 0x00 mstore                            // [name_length, name_value]
     0x20 mstore                                 // [name_value]
@@ -89,7 +89,7 @@
 }
 
 #define macro SYMBOL() = takes (0) {
-    0x5577550000000000000000000000000000000000000000000000000000000000 // UwU
+    __RIGHTPAD(0x557755) // UwU
     0x03
     0x20 0x00 mstore                            // [symbol_length, symbol_value]
     0x20 mstore                                 // [symbol_value]
