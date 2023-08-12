@@ -55,7 +55,7 @@ contract ButtplugPlugger {
     ///      where delta is the number of Buttplug minted for today (1UwU per day)
     ///      and totalMinted is the number of Buttplug (UwU) that have been minted
     /// @param totalMinted The total minted supply of Buttplug (UwU)
-    function _currentDifficulty(uint256 totalMinted) private view returns (uint256) {
+    function _currentDifficulty(uint256 totalMinted) private view returns (uint256 difficulty) {
         unchecked {
             /// @dev We expect to mint 1 Buttplug (UwU) per day
             uint256 delta = (block.timestamp - COLLECTION_START) / 1 days;
@@ -65,10 +65,10 @@ contract ButtplugPlugger {
                 return DEFAULT_DIFFICULTY;
             }
 
-            uint256 ret = FixedPointMathLib.sqrt(totalMinted - delta) + DEFAULT_DIFFICULTY;
-            if (ret < DEFAULT_DIFFICULTY) return DEFAULT_DIFFICULTY;
-            if (ret > MAX_DIFFICULTY) return MAX_DIFFICULTY;
-            return ret;
+            difficulty = FixedPointMathLib.sqrt(totalMinted - delta) + DEFAULT_DIFFICULTY;
+            if (difficulty < DEFAULT_DIFFICULTY) return DEFAULT_DIFFICULTY;
+            if (difficulty > MAX_DIFFICULTY) return MAX_DIFFICULTY;
+            return difficulty;
         }
     }
 
