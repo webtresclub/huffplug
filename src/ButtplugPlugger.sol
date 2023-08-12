@@ -7,8 +7,8 @@ import {IHuffplug} from "src/IHuffplug.sol";
 
 contract ButtplugPlugger {
     /// @dev The difficulty is the number of 0s that the hash of the address and the nonce must have
-    ///      6 means 0x000000, im expecting to take a few secs to find a nonce
-    uint256 public constant DEFAULT_DIFFICULTY = 6;
+    ///      5 means 0x00000, im expecting to take a few secs to find a nonce
+    uint256 public constant DEFAULT_DIFFICULTY = 5;
     uint256 public constant MAX_DIFFICULTY = 32;
     /// @dev The maximum number of Buttplug (UwU) that can be minted
     uint256 public constant MAX_SUPPLY = 1024;
@@ -72,14 +72,18 @@ contract ButtplugPlugger {
         // if the totalMinted is >= MAX_SUPPLY, revert
         if (_minted >= MAX_SUPPLY) revert NoMoreUwU();
 
-        /// @dev This is inspired by the difficulty adjustment algorithm of Bitcoin
-        uint256 difficulty = _currentDifficulty(_minted);
-        bytes32 bitmask = bytes32(2 ** (4 * difficulty) - 1 << 4 * (64 - difficulty));
-
         // pseudo random number
         bytes32 random = keccak256(abi.encodePacked(msg.sender, salt, nonce));
-        // bool canPlug = keccak256(abi.encodePacked(msg.sender, salt, nonce)) & bitmask == 0;
-        bool canPlug = (random & bitmask) == 0;
+
+        /// @dev This is inspired by the difficulty adjustment algorithm of Bitcoin
+        uint256 difficulty = _currentDifficulty(_minted);
+        bool canPlug;
+        assembly {
+            // bitmask = bytes32(type(uint256).max << ((64-difficulty)*4));
+            let bitmask := shl(sub(256, difficulty), not(0))
+            // canPlug = random & bitmask == 0;
+            canPlug := iszero(and(random, bitmask))
+        }
         if (!canPlug) revert YouHaveToGiveMeYourConsent();
 
         // update salt
