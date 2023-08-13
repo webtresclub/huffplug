@@ -28,15 +28,10 @@
 // ***                      Macros                           ***
 // *************************************************************
 
-// "ONLY_MINTER"
-#define constant ONLY_MINTER_ERROR = 0x4f4e4c595f4d494e544552000000000000000000000000000000000000000000
-// length = 11
-#define constant ONLY_MINTER_LENGTH = 0x0b
-
-/// @notice Reverts with an "ONLY_MINTER" msg.sender is not the minter
+/// @notice Reverts with an "ONLY_MINTER" if msg.sender is not the minter
 #define macro ONLY_MINTER() = takes (0) returns (0) {
-    [ONLY_MINTER_ERROR]              // ["ONLY_MINTER"]
-    [ONLY_MINTER_LENGTH]             // [10 (length), "ONLY_MINTER"]
+    __RIGHTPAD(0x4f4e4c595f4d494e544552)     // ["ONLY_MINTER"]
+    0x0b                                     // [11 (length), "ONLY_MINTER"]
     caller [MINTER] eq
     REQUIRE()                       // []
 }
