@@ -12,6 +12,7 @@
 // ***                    Constants                          ***
 // *************************************************************
 
+// @dev This is the address of the contract that will render the tokenURI
 #define constant TOKEN_RENDERER = 0x00
 // @dev contract that allows users to mint Buttpluggys
 #define constant MINTER =         0x00
