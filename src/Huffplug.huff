@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: MIT
 #include "huffmate/tokens/ERC721.huff"
 #include "huffmate/auth/Owned.huff"
 
