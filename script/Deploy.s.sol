@@ -24,7 +24,7 @@ contract HuffDeployScript is Script {
         require(tx.origin == owner, "deployer should be 0xC0FFE");
         vm.startBroadcast();
 
-        TokenRenderer renderer = new TokenRenderer("https://huffplug.com/");
+        TokenRenderer renderer = new TokenRenderer("ipfs://bafybeia7h7n6osru3b4mvivjb3h2fkonvmotobvboqw3k3v4pvyv5oyzse/");
 
         bytes32 _saltDeploy = 0x0cf86d195cd709d108775a94762ef380b6906bbc3bc4d19bafe7fed28c571723;
         (bool success,) = DEPLOYER2.call(bytes.concat(_saltDeploy, type(ButtplugMinterDeployer).creationCode));
