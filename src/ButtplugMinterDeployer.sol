@@ -3,6 +3,10 @@ pragma solidity 0.8.21;
 
 import {CREATE3} from "solmate/utils/CREATE3.sol";
 
+// Buttplug minter deployer contract
+// source code: https://github.com/webtresclub/huffplug
+// mint on goerli: https://buttplug-homepage.vercel.app/
+
 contract ButtplugMinterDeployer {
     address public immutable owner = 0xC0FFEc688113B2C5f503dFEAF43548E73C7eCCB3;
 

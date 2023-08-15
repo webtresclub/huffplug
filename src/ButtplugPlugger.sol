@@ -1,6 +1,9 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.21;
 
+// Minter contract for the Huffplugs
+// source code: https://github.com/webtresclub/huffplug
+// mint on goerli: https://buttplug-homepage.vercel.app/
 import {MerkleProofLib} from "solmate/utils/MerkleProofLib.sol";
 import {FixedPointMathLib} from "solmate/utils/FixedPointMathLib.sol";
 import {IHuffplug} from "src/IHuffplug.sol";

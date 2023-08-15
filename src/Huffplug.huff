@@ -1,5 +1,9 @@
 // SPDX-License-Identifier: MIT
 
+// Huffplugs erc721 contract
+// source code: https://github.com/webtresclub/huffplug
+// mint on goerli: https://buttplug-homepage.vercel.app/
+
 #include "huffmate/tokens/ERC721.huff"
 // @dev Owner pattern is only use to gain access to the Opensea collection admin functions
 #include "huffmate/auth/Owned.huff"

@@ -1,6 +1,10 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.21;
 
+// Render contract for the Huffplugs
+// source code: https://github.com/webtresclub/huffplug
+// mint on goerli: https://buttplug-homepage.vercel.app/
+
 import {Owned} from "solmate/auth/Owned.sol";
 import {LibString} from "solmate/utils/LibString.sol";
 
