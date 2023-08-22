@@ -4,6 +4,8 @@
 // source code: https://github.com/webtresclub/huffplug
 // mint on goerli: https://buttplug-homepage.vercel.app/
 
+#include "./Plugger.huff"
+
 #include "huffmate/tokens/ERC721.huff"
 // @dev Owner pattern is only use to gain access to the Opensea collection admin functions
 #include "huffmate/auth/Owned.huff"
@@ -23,43 +25,30 @@
 
 // @dev This is the address of the contract that will render the tokenURI
 #define constant TOKEN_RENDERER = 0x00
-// @dev contract that allows users to mint Buttpluggys
-#define constant MINTER =         0x00
 
 
 // *************************************************************
 // ***                    Interfaces                         ***
 // *************************************************************
 
-#define function plug(address, uint256) payable returns ()
+#define function mint(uint256) nonpayable returns ()
 #define function totalSupply() view returns (uint256)
+#define function currentDifficulty() view returns (uint256)
+#define function totalMinted() view returns (uint256)
+#define function salt() view returns (bytes32)
 
 // *************************************************************
 // ***                      Macros                           ***
 // *************************************************************
 
-/// @notice Reverts with an "ONLY_MINTER" if msg.sender is not the minter
-#define macro ONLY_MINTER() = takes (0) returns (0) {
-    __RIGHTPAD(0x4f4e4c595f4d494e544552)     // ["ONLY_MINTER"]
-    0x0b                                     // [11 (length), "ONLY_MINTER"]
-    caller [MINTER] eq
-    REQUIRE()                       // []
-}
-
-
-#define macro MINT() = takes (0) returns (0) {
-    ONLY_MINTER()
-    
-    0x24 calldataload       // [tokenId]
-    // we have rremove the validation, the minter is responsible for that
-    // VALID_TOKEN_ID()        // [tokenId]
-    0x04 calldataload       // [to, tokenId]
-    _MINT()
-    stop
+#define macro TOTAL_MINTED() = takes (0) returns (0) {
+    [MINTED_STORAGE_SLOT] sload
+    0x00 mstore
+    0x20 0x00 return
 }
 
 #define macro TOTAL_SUPPLY() = takes (0) returns (0) {
-    0x0400 0x00 mstore
+    [MAX_SUPPLY] 0x00 mstore
     0x20 0x00 return
 }
 
@@ -104,6 +93,7 @@
 
 #define macro CONSTRUCTOR() = takes (0) returns (0) {
     OWNED_CONSTRUCTOR()
+    CONSTRUCTOR_PLUGGER()
 }
 
 
@@ -114,10 +104,9 @@
 #define macro MAIN() = takes (0) returns (0) {
     0x00 calldataload 0xE0 shr  // [sig]
 
-    // Mint Functions, avoid non-payable check, this is only call by minter
-    dup1 __FUNC_SIG(plug)                       eq mint jumpi
-
     NON_PAYABLE()                               // []
+
+    dup1 __FUNC_SIG(mint)                       eq mint jumpi
 
     dup1 __FUNC_SIG(approve)                    eq approve jumpi
     dup1 __FUNC_SIG(setApprovalForAll)          eq setApprovalForAll jumpi
@@ -138,7 +127,11 @@
 
     dup1 __FUNC_SIG("safeTransferFrom(address,address,uint256,bytes)") eq safeTransferFromData jumpi
 
-    dup1 __FUNC_SIG(totalSupply)                    eq totalSupply jumpi
+    dup1 __FUNC_SIG(totalSupply)                eq totalSupply jumpi
+    dup1 __FUNC_SIG(totalMinted)                eq totalMinted jumpi
+    
+    dup1 __FUNC_SIG(salt)                       eq salt jumpi
+    dup1 __FUNC_SIG(currentDifficulty)          eq currentDifficulty jumpi
 
     /// @dev owner is only used to admin opensea collection page
     // owned functions dispatcher
@@ -150,8 +143,19 @@
     totalSupply:
         TOTAL_SUPPLY()
 
+    totalMinted:
+        TOTAL_MINTED()
+
     mint:
         MINT()
+
+    currentDifficulty:
+        // imported from Plugger.huff
+        GET_DIFFICULTY()
+    
+    salt:
+        // imported from Plugger.huff
+        GET_SALT()
 
     approve:
         APPROVE()

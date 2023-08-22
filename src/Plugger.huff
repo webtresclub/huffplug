@@ -1,0 +1,204 @@
+// Minter contract for the Huffplugs
+// source code: https://github.com/webtresclub/huffplug
+// mint on goerli: https://buttplug-homepage.vercel.app/
+#include "huffmate/math/Math.huff"
+#include "huffmate/tokens/ERC721.huff"
+
+// @dev Usage LOG_STACK_1(0x00), LOG_STACK_2(0x00), ..., etc
+#include "Huff-Console/Console.huff"
+
+// @dev this is for import the macro REQUIRE()
+#include "huffmate/utils/Errors.huff"
+
+#include "./VergaCurve.huff"
+
+/// @dev The maximum number of Buttplug (UwU) that can be minted
+#define constant MAX_SUPPLY         = 0x0400
+
+/// @dev The merkle root of the merkle tree that contains the proofs of the users that can claim their Buttplug (UwU)
+#define constant MERKLE_ROOT = 0x00
+
+
+/// @dev The number of Buttplug (UwU) that have been minted, useful to calculate the difficulty
+#define constant MINTED_STORAGE_SLOT = FREE_STORAGE_POINTER()
+
+/// @dev The salt used to generate the pseudo random number for the minting
+#define constant SALT_STORAGE_SLOT = FREE_STORAGE_POINTER()
+
+/// @dev The mapping of the users that have claimed their Buttplug (UwU)
+#define constant CLAIMED_STORAGE_SLOT = FREE_STORAGE_POINTER() //mapping(address => bool) public claimed;
+
+#define macro CONSTRUCTOR_PLUGGER() = takes(0) returns(0) {
+    0x01 number sub blockhash // blockhash(block.number - 1);
+    [SALT_STORAGE_SLOT] sstore
+}
+
+#define macro GET_SALT() = takes(0) returns(0) {
+    [SALT_STORAGE_SLOT] sload
+    0x00 mstore
+    0x20 0x00 return
+}
+
+#define macro GET_DIFFICULTY() = takes(0) returns(0) {
+    [MINTED_STORAGE_SLOT] sload
+    CURRENT_DIFFICULTY()
+    // [difficulty, totalMinted]
+    0x00 mstore
+    pop
+    0x20 0x00 return
+}
+
+#define macro MINT() = takes(0) returns(0) {  
+    // uint256 _minted = minted;
+    
+    [MINTED_STORAGE_SLOT] sload
+    // if the totalMinted + 1 > MAX_SUPPLY, revert
+    
+    __RIGHTPAD(0x4e6f206d6f726520557755)     // ["No more UwU"]
+    0x0b                                     // [11 (length), "No more UwU"]
+    dup3 [MAX_SUPPLY] gt
+    REQUIRE()                       // []
+    
+    // pseudo random number
+    //    bytes32 random = keccak256(abi.encodePacked(msg.sender, salt, nonce));
+    caller 0x60 shl 0x00 mstore
+    [SALT_STORAGE_SLOT] sload
+    0x14 mstore
+    0x04 calldataload // nonce from user
+    0x34 mstore
+    0x54 0x00 sha3
+
+    // random, minted
+    swap1  // minted, random 
+    
+    CURRENT_DIFFICULTY() // difficulty, minted, random 
+    
+    0x0100 sub // 256 - difficulty, minted, random 
+    
+    dup3  // random, 256 - difficulty, minted, random 
+    swap1 // 256 - difficulty, random, minted, random 
+    
+    
+    shr   // expected all 0, minted, random 
+    
+    __RIGHTPAD(0x57524f4e475f53414c54)       // ["WRONG_SALT"]
+    0x0a                                     // [10 (length), "WRONG_SALT"]
+    dup3 iszero
+    REQUIRE()                       // []
+    pop
+    
+    // [minted, random]
+
+    // minted = _minted + 1;
+    0x01 add [MINTED_STORAGE_SLOT] sstore
+    
+    // update salt
+    // salt = blockhash(block.number - 1);
+    0x01 number sub blockhash // blockhash(block.number - 1);
+    [SALT_STORAGE_SLOT] sstore
+
+    // [random]
+    [MAX_SUPPLY] swap1 mod 0x01 add // uint256(random) % 1024 + 1
+
+    // [nftId]
+
+    caller // [nftId, msg.sender]
+    
+    _MINT()
+    // mint(msg.sender, uint256(random) % 1024 + 1);
+    stop
+}
+
+/*
+import {MerkleProofLib} from "solmate/utils/MerkleProofLib.sol";
+import {FixedPointMathLib} from "solmate/utils/FixedPointMathLib.sol";
+import {IHuffplug} from "src/IHuffplug.sol";
+
+contract ButtplugPlugger {
+
+
+
+    /// @notice The error that is thrown when the user tries to mint more than MAX_SUPPLY
+    error NoMoreUwU();
+    /// @notice The error that is thrown when the user tries to mint without the correct nonce
+    error YouHaveToGiveMeYourConsent();
+    /// @notice The error that is thrown when the user tries to mint more than one Buttplug using the merkle tree
+    error YouHaveClaimYourUwU();
+
+    /// @notice The constructor of the contract
+    /// @param _HUFFPLUG The address of the Huffplug contract
+    constructor(address _HUFFPLUG, bytes32 _merkleRoot) {
+        HUFFPLUG = IHuffplug(_HUFFPLUG);
+        MERKLE_ROOT = _merkleRoot;
+
+        salt = keccak256(abi.encodePacked(msg.sender, block.prevrandao));
+    }
+
+    /// @dev Returns the current difficulty, calculated using VERGA curve
+    /// @return The current difficulty, calculated using VERGA curve between 5 and 32
+    function currentDifficulty() public view returns (uint256) {
+        return _currentDifficulty(minted);
+    }
+
+
+
+    function mint(uint256 nonce) external {
+        uint256 _minted = minted;
+
+        // if the totalMinted is >= MAX_SUPPLY, revert
+        if (_minted >= MAX_SUPPLY) revert NoMoreUwU();
+
+        // pseudo random number
+        //    bytes32 random = keccak256(abi.encodePacked(msg.sender, salt, nonce));
+        caller 0x60 shl  0x00 mstore
+        [SALT_STORAGE_SLOT] sload
+        0x14 mstore
+        [NONCE_STORAGE_SLOT] sload
+        0x34 mstore
+        0x54 0x00 sha3
+
+
+        /// @dev This is inspired by the difficulty adjustment algorithm of Bitcoin
+        uint256 difficulty = _currentDifficulty(_minted);
+        assembly {
+            // bitmask = bytes32(type(uint256).max << ((64-difficulty)*4));
+            let bitmask := shl(sub(256, difficulty), not(0))
+            //if (!(random & bitmask == 0)) revert YouHaveToGiveMeYourConsent();
+            if and(random, bitmask) { 
+                mstore(0x00, 0xae8c9b06) //revert YouHaveToGiveMeYourConsent();
+                revert(0x1c, 0x04)
+            }
+        }
+
+        /// @dev We have to update the minted counter after the check, otherwise we could mint more than MAX_SUPPLY
+        unchecked {
+            // update salt
+            salt = blockhash(block.number - 1);
+
+            minted = _minted + 1;
+            HUFFPLUG.plug(msg.sender, uint256(random) % 1024 + 1);
+        }
+    }
+
+    /// @notice Mint a Buttplug (UwU) using a merkle proof
+    /// @param proofs The merkle proofs of the user
+    /// @dev Users with at least two poap of the community can mint a Buttplug (UwU) using a merkle proof
+    function mintWithMerkle(bytes32[] calldata proofs) external {
+        if (claimed[msg.sender]) revert YouHaveClaimYourUwU();
+
+        // if the totalMinted is >= MAX_SUPPLY, revert
+        if (minted >= MAX_SUPPLY) revert NoMoreUwU();
+
+        /// @dev Tag that the user has claimed his Buttplug (UwU) and can't claim more
+        claimed[msg.sender] = true;
+
+        require(MerkleProofLib.verify(proofs, MERKLE_ROOT, bytes32(uint256(uint160(msg.sender)))), "INVALID PROOF");
+
+        /// @dev We have to update the minted counter after the check, otherwise we could mint more than MAX_SUPPLY
+        unchecked {
+            ++minted;
+            HUFFPLUG.plug(msg.sender, uint256(keccak256(abi.encode(msg.sender, salt))) % 1024 + 1);
+        }
+    }
+}
+*/

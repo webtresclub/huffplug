@@ -12,6 +12,9 @@ using {compile} for Vm;
 
 contract ButtplugTest is Test {
     IHuffplug public huffplug;
+    
+    bytes32 SALT_SLOT = bytes32(uint256(0x01));
+    bytes32 TOTAL_MINTED_SLOT = bytes32(uint256(0x02));
 
     address public user = makeAddr("user");
     address public owner = makeAddr("owner");
@@ -20,9 +23,10 @@ contract ButtplugTest is Test {
     string baseUrl = "ipfs://bafybeia7h7n6osru3b4mvivjb3h2fkonvmotobvboqw3k3v4pvyv5oyzse/";
 
     function setUp() public {
+        vm.warp(1000000);
         TokenRenderer renderer = new TokenRenderer(baseUrl);
 
-        bytes memory bytecode = vm.compile(address(renderer), minter);
+        bytes memory bytecode = vm.compile(address(renderer), 0x51496785f4dd04d525b568df7fa6f1057799bc21f7e76c26ee77d2f569b40601);
 
         // send owner to the constructor, owner is only for opensea main page admin
         bytecode = bytes.concat(bytecode, abi.encode(owner));
@@ -36,6 +40,101 @@ contract ButtplugTest is Test {
         huffplug = IHuffplug(deployed);
     }
 
+    function testDifficulty() public {
+        assertEq(huffplug.totalMinted(), 0, "total minted should be 0");
+        assertEq(huffplug.currentDifficulty(), 5, "difficulty should be 5");
+        
+        vm.store(address(huffplug), TOTAL_MINTED_SLOT, /* slot of totalminted */ bytes32(uint256(10)));
+        assertEq(huffplug.totalMinted(), 10, "total minted should be 10");
+        assertEq(huffplug.currentDifficulty(), 8);
+        vm.store(address(huffplug), TOTAL_MINTED_SLOT, /* slot of totalminted */ bytes32(uint256(0)));
+    
+        assertEq(huffplug.currentDifficulty(), 5, "difficulty should be 5");
+        
+        vm.store(address(huffplug), TOTAL_MINTED_SLOT, bytes32(uint256(2)));
+        assertEq(huffplug.currentDifficulty(), 6, "difficulty should be 6");
+        
+        vm.store(address(huffplug), TOTAL_MINTED_SLOT, bytes32(uint256(20)));
+        assertEq(huffplug.currentDifficulty(), 9, "difficulty should be 9");
+        
+        uint256 start = block.timestamp;
+        // if there are no new mint the difficulty shoud decay after some time
+        vm.warp(start + 1 days);
+        assertEq(huffplug.currentDifficulty(), 9, "difficulty should be 9");
+        
+        vm.warp(start + 4 days);
+        assertEq(huffplug.currentDifficulty(), 9, "difficulty should be 9");
+        vm.warp(start + 5 days);
+        assertEq(huffplug.currentDifficulty(), 8, "difficulty should be 8");
+        
+        vm.warp(start + 12 days);
+        assertEq(huffplug.currentDifficulty(), 7, "difficulty should be 7");
+        vm.warp(start + 17 days);
+        assertEq(huffplug.currentDifficulty(), 6, "difficulty should be 6");
+        vm.warp(start + 20 days);
+        assertEq(huffplug.currentDifficulty(), 5, "difficulty should be 5");
+        vm.warp(start + 300 days);
+        assertEq(huffplug.currentDifficulty(), 5, "difficulty should be 5");
+
+        vm.warp(start + 1 days);
+        vm.store(address(huffplug), TOTAL_MINTED_SLOT, /* slot of totalminted */ bytes32(uint256(1000)));
+        assertEq(huffplug.currentDifficulty(), 32, "difficulty should be 32");
+    }
+
+    function testTotalMinted() public {
+        assertEq(huffplug.totalMinted(), 0);
+        vm.store(address(huffplug), TOTAL_MINTED_SLOT, /* slot of totalminted */ bytes32(uint256(10)));
+        assertEq(huffplug.totalMinted(), 10);
+    }
+
+    function testMint() public {
+        vm.store(address(huffplug), SALT_SLOT, /* slot of salt in ButtplugPlugger */ keccak256("salt"));
+
+        assertEq(huffplug.salt(), keccak256("salt"));
+
+        uint256 nonce = 271021;
+
+        vm.expectRevert();
+        huffplug.mint(nonce);
+
+        assertEq(huffplug.totalMinted(), 0);
+        
+        vm.prank(user);
+        huffplug.mint(nonce);
+        assertEq(huffplug.totalMinted(), 1);
+
+        assertEq(huffplug.balanceOf(user), 1);
+        assertEq(huffplug.ownerOf(478), user);
+        
+        assertNotEq(huffplug.salt(), keccak256("salt"));
+    }
+
+    function testMintReverts() public {
+        uint256 nonce = 271021;
+        vm.store(address(huffplug), TOTAL_MINTED_SLOT, /* slot of totalminted */ bytes32(uint256(1023)));
+        vm.store(address(huffplug), SALT_SLOT, /* slot of salt in ButtplugPlugger */ keccak256("salt"));
+
+        assertEq(huffplug.totalMinted(), 1023);
+        assertEq(huffplug.currentDifficulty(), 32);
+        
+        vm.expectRevert("WRONG_SALT");
+        vm.prank(user);
+        huffplug.mint(nonce);
+        
+        assertEq(huffplug.totalMinted(), 1023);
+        
+        vm.warp(block.timestamp + 1024 days);
+        assertEq(huffplug.currentDifficulty(), 5);
+
+        vm.prank(user);
+        huffplug.mint(nonce);
+
+        vm.expectRevert("No more UwU");
+        huffplug.mint(nonce);
+
+    }
+
+
     function testRendererFuzz(uint256 id) public {
         if (id == 0 || id > 1024) {
             vm.expectRevert();
@@ -44,52 +143,6 @@ contract ButtplugTest is Test {
             string memory expected = string.concat(baseUrl, LibString.toString(id), ".json");
             assertEq(huffplug.tokenURI(id), expected);
         }
-    }
-
-    function testMintLimits() public {
-        vm.startPrank(minter);
-        huffplug.plug(user, 1);
-        assertEq(huffplug.ownerOf(1), user);
-
-        huffplug.plug(user, 2);
-        assertEq(huffplug.ownerOf(2), user);
-
-        huffplug.plug(user, 1024);
-        assertEq(huffplug.ownerOf(1024), user);
-
-        vm.stopPrank();
-    }
-
-    function testMint() public {
-        vm.expectRevert("ONLY_MINTER");
-        huffplug.plug(user, 3);
-
-        vm.startPrank(minter);
-        huffplug.plug(user, 3);
-        assertEq(huffplug.ownerOf(3), user);
-
-        // cant mint more than once
-        vm.expectRevert();
-        huffplug.plug(makeAddr("otherUser"), 3);
-
-        // cant mint more than once
-        vm.expectRevert();
-        huffplug.plug(user, 3);
-
-        vm.stopPrank();
-    }
-
-    function testMintFuzz(address to, uint256 tokenId) public {
-        tokenId = bound(tokenId, 1, 1024);
-        vm.startPrank(minter);
-        if (to == address(0)) {
-            vm.expectRevert();
-            huffplug.plug(to, tokenId);
-        } else {
-            huffplug.plug(to, tokenId);
-            assertEq(huffplug.ownerOf(tokenId), to);
-        }
-        vm.stopPrank();
     }
 
     function testMetadata() public {

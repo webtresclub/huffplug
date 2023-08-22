@@ -1,0 +1,74 @@
+/// @dev The timestamp when the collection started, useful to calculate the difficulty
+#define constant COLLECTION_START = 0x00
+
+/// @dev The difficulty is the number of 0s that the hash of the address and the nonce must have
+///      5 means 0x00000, im expecting to take a few secs to find a nonce
+#define constant DEFAULT_DIFFICULTY = 0x05
+#define constant MAX_DIFFICULTY     = 0x20
+
+
+/// @dev Returns the current difficulty, calculated using VERGA curve
+///      The difficulty is calculated using the following formula:
+///      difficulty = sqrt(totalMinted - delta) + 5
+///      where delta is the number of Buttplug minted for today (1UwU per day)
+///      and totalMinted is the number of Buttplug (UwU) that have been minted
+#define macro CURRENT_DIFFICULTY() = takes (1) returns (2) {
+  // [totalMinted]
+  
+  dup1 // [totalMinted, totalMinted]
+
+  /// @dev We expect to mint 1 Buttplug (UwU) per day
+  // uint256 delta = (block.timestamp - COLLECTION_START) / 1 days;
+  0x015180 // 1 day = 86400 = 0x015180
+  
+  [COLLECTION_START] timestamp // [timestamp, COLLECTION_START, 0x015180, totalMinted, totalMinted]
+
+  sub // [COLLECTION_START - timestamp, 0x015180, totalMinted, totalMinted]
+  
+  div // [COLLECTION_START - timestamp / 0x015180, totalMinted, totalMinted]
+  
+
+  // [delta, totalMinted, totalMinted]
+  swap1
+  // [totalMinted, delta, totalMinted]
+  dup2 // [delta, totalMinted, delta, totalMinted]
+  swap1
+  // [totalMinted, delta, delta, totalMinted]
+  
+  
+  /// @dev If we have minted less than we supposed to difficulty is DEFAULT_DIFFICULTY
+  gt iszero returnDefault jumpi // [delta > totalMinted, totalMinted, delta]
+  
+  // [delta, totalMinted]
+  
+  dup2 // [totalMinted, delta, totalMinted]
+  sub // [totalMinted - delta, totalMinted]
+  
+  SQRT() [DEFAULT_DIFFICULTY] add
+  // [calculateDifficulty, totalMinted]
+
+  [DEFAULT_DIFFICULTY]
+  // [DEFAULT_DIFFICULTY ,calculateDifficulty, totalMinted]
+  
+  // if (difficulty < DEFAULT_DIFFICULTY) return DEFAULT_DIFFICULTY;
+  dup2 lt returnDefault jumpi
+  
+  [MAX_DIFFICULTY]
+  dup2 gt returnMaxDefault jumpi
+  
+  // if (difficulty > MAX_DIFFICULTY) return MAX_DIFFICULTY;
+  // return difficulty;
+  
+  endF jump
+
+
+  returnDefault:
+    pop
+    [DEFAULT_DIFFICULTY]
+    endF jump
+  returnMaxDefault:
+    pop
+    [MAX_DIFFICULTY]
+
+  endF:
+}
