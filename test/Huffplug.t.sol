@@ -134,6 +134,67 @@ contract ButtplugTest is Test {
 
     }
 
+    function testMintMerkle() public {
+        assertEq(huffplug.totalMinted(), 0);
+        bytes32[] memory roots = new bytes32[](6);
+        roots[0] = 0x000000000000000000000000ee081f9fea22c5b578aa9ab1b4fc16e4335f5d2b;
+        roots[1] = 0xa3a47908ac03234744670fa693ee11af0774d84b1cec2d2edbcb2e77b7bdd37b;
+        roots[2] = 0x37b41dcb9d4ad8085237134780b7b724bc29b68c1d3a279d148f539f787684e7;
+        roots[3] = 0xc8f17160e0889a52c573378d6a8f22b32e6f19f793f6ca3955fb95865a047777;
+        roots[4] = 0xd61e2cc2664ae8ce0b12c5102373373dafd85bcb94ecc4e3981e1d24b304f80a;
+        roots[5] = 0x17fac14873233024352b293cc1b7b04296f09870d377591aef743942c10c67a1;
+
+        address user1 = 0xe7292962e48c18e04Bd26aB2AcCA00Ef794E8171;
+
+        vm.prank(user1);
+        huffplug.mintWithMerkle(roots);
+        /*
+        assertEq(MockHuffplug(mockHuffplug).lastMintTo(), user1);
+        // @dev hard to predict the next mint id
+        assertNotEq(MockHuffplug(mockHuffplug).lastMintId(), 0);
+
+        vm.prank(user1);
+        (sucess,) = address(plugger).call(abi.encodeWithSignature("mintWithMerkle(bytes32[])", roots));
+        require(!sucess, "mint should fail");
+
+        assertEq(plugger.minted(), 1);
+
+        // @dev after minting with merkle salt should NOT be changed
+        assertEq(plugger.salt(), keccak256("salt"));
+
+        address user2 = 0xBa910716Fd4b6b4447AeA613993898eeB63844Ad;
+
+        roots = new bytes32[](8);
+        roots[0] = 0x000000000000000000000000bbe7c97e93647652bd76afe4edb40af9bb5ff4da;
+        roots[1] = 0x7b875b84c4396d7d349231f7a20640fe55e50326f18f663d53509a05e1df1984;
+        roots[2] = 0x928bb96acc89d83761f3900b115d8bdbcd413151f39da608e558902bf128fe9e;
+        roots[3] = 0xe4061ce29bf346faba11b18d137d58a90e2743a6c11ad85414108946026d66e6;
+        roots[4] = 0x8d88fcc5b0daffe3312a3e92b40dacd2c8a875d0a6bdf0091e4ecc226006fe67;
+        roots[5] = 0xc51614c1fe3ae718d12708408de048a36001d567b70b0d5df08ebf9f74a93e1c;
+        roots[6] = 0xddbd87db45817c0a681ec7cdee793c2410b735a39f1be91ed8834874259e8c01;
+        roots[7] = 0xfbbbfd743cceb9d2bdc8602f027333f04f9078b3684a73c5c33fb8d79e5baed5;
+
+        vm.prank(user2);
+        (sucess,) = address(plugger).call(abi.encodeWithSignature("mintWithMerkle(bytes32[])", roots));
+        require(sucess, "mint cant fail");
+
+        address user3 = 0x673437D956065Fa0dc416c4A519CC5c37f6AD389;
+        roots[0] = 0x0000000000000000000000006666ec43deb25910121dd544e89301a86165fa6b;
+        roots[1] = 0x31e85a3621abd6389b837e72024a8e2e97a34ad7d669b4f2c6d769747b089fa6;
+        roots[2] = 0x85da31bd83f18a50b924a96880222d70f2899ec83143aa8fdd97dc0c70f9b809;
+        roots[3] = 0x18610d990ae73613d1d1e5d6b7dff0beffb091df917a2b589fb91e8de43e13e2;
+        roots[4] = 0xc58f6e1b828a1b25a219d212596904a829dc6209c1f922036949ed75bdfae350;
+        roots[5] = 0xf7f97a6790805d13b9b30da262c4bc167c5f4ce84fdfd8e31f8adbd9c24aa5c3;
+        roots[6] = 0x352f1d855d1a93eb69ad310d832a1f4bdf1de4320c08eb9d12cc6710334670d2;
+        roots[7] = 0xfbbbfd743cceb9d2bdc8602f027333f04f9078b3684a73c5c33fb8d79e5baed5;
+        vm.prank(user3);
+        (sucess,) = address(plugger).call(abi.encodeWithSignature("mintWithMerkle(bytes32[])", roots));
+        require(sucess, "mint cant fail");
+
+        assertEq(plugger.minted(), 3, "buttplugs minted should be 3");
+        */
+    }
+
 
     function testRendererFuzz(uint256 id) public {
         if (id == 0 || id > 1024) {

@@ -21,6 +21,7 @@ interface IHuffplug is IERC721Metadata, IOwnable {
     function plug(address who, uint256 tokenid) external;
 
     function mint(uint256 nonce) external;
+    function mintWithMerkle(bytes32[] memory) external;
 
     // total token supply
     function totalSupply() external view returns (uint256);

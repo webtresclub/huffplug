@@ -32,6 +32,7 @@
 // *************************************************************
 
 #define function mint(uint256) nonpayable returns ()
+#define function mintWithMerkle(bytes32[]) nonpayable returns ()
 #define function totalSupply() view returns (uint256)
 #define function currentDifficulty() view returns (uint256)
 #define function totalMinted() view returns (uint256)
@@ -107,6 +108,7 @@
     NON_PAYABLE()                               // []
 
     dup1 __FUNC_SIG(mint)                       eq mint jumpi
+    dup1 __FUNC_SIG(mintWithMerkle)         eq mintWithMerkle jumpi
 
     dup1 __FUNC_SIG(approve)                    eq approve jumpi
     dup1 __FUNC_SIG(setApprovalForAll)          eq setApprovalForAll jumpi
@@ -138,7 +140,7 @@
     OWNED_MAIN()
 
     // Revert on failed dispatch
-    0x00 0x00 revert
+    invalid
 
     totalSupply:
         TOTAL_SUPPLY()
@@ -148,6 +150,9 @@
 
     mint:
         MINT()
+    
+    mintWithMerkle:
+        MINT_WITH_MERKLE()
 
     currentDifficulty:
         // imported from Plugger.huff
