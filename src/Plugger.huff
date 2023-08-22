@@ -27,9 +27,6 @@
 /// @dev The salt used to generate the pseudo random number for the minting
 #define constant SALT_STORAGE_SLOT = FREE_STORAGE_POINTER()
 
-/// @dev The mapping of the users that have claimed their Buttplug (UwU)
-#define constant CLAIMED_STORAGE_SLOT = FREE_STORAGE_POINTER() //mapping(address => bool) public claimed;
-
 #define macro CONSTRUCTOR_PLUGGER() = takes(0) returns(0) {
     0x01 number sub blockhash // blockhash(block.number - 1);
     [SALT_STORAGE_SLOT] sstore
@@ -50,39 +47,68 @@
     0x20 0x00 return
 }
 
+#define macro REQUIRE_NOT_CLAIMED() = takes (0) returns (0) {
+    __RIGHTPAD(0x414c52454144595f434c41494d4544)       // ["ALREADY_CLAIMED"]
+    0x0f                                     // [(length), "ALREADY_CLAIMED"]
+    caller sload iszero
+    REQUIRE()
+}
+
+#define macro REQUIRE_VALID_PROOF() = takes (0) returns (0) {
+    __RIGHTPAD(0x494e56414c49442050524f4f46)       // ["INVALID PROOF"]
+    0x0d                                     // [16 (length), "INVALID PROOF"]
+    
+    [MERKLE_ROOT]   // [root]
+    caller          // [leaf, root]
+    0x24                // [proof_cd_ptr, leaf, root]
+    VERIFY_PROOF()      // [is_valid]
+    REQUIRE()
+}
+
+#define macro REQUIRE_MINT_LIMIT() = takes(1) returns(1) {  
+    __RIGHTPAD(0x4e6f206d6f726520557755)     // ["No more UwU"]
+    0x0b                                     // [11 (length), "No more UwU"]
+    dup3 [MAX_SUPPLY] gt
+    REQUIRE()                       // []
+}
 
 /// @notice Mint a Buttplug (UwU) using a merkle proof
 /// @param proofs The merkle proofs of the user
 /// @dev Users with at least two poap of the community can mint a Buttplug (UwU) using a merkle proof
 #define macro MINT_WITH_MERKLE() = takes (0) returns (0) {
     // @todo check is supply is not over
-    // @todo check if user has already claimed
-    [MERKLE_ROOT]   // [root]
-    caller          // [leaf, root]
-    0x24                // [proof_cd_ptr, leaf, root]
-    VERIFY_PROOF()      // [is_valid]
     
-    __RIGHTPAD(0x494e56414c49442050524f4f46)       // ["INVALID PROOF"]
-    0x10                                     // [16 (length), "INVALID PROOF"]
-    dup3
-    REQUIRE()
-    // @todo minted = _minted + 1;
-    // @todo set user as claim
+    REQUIRE_NOT_CLAIMED()
+    REQUIRE_VALID_PROOF()
 
-    0x00 mstore         // []
-    0x20 0x00 return
+    [MINTED_STORAGE_SLOT] sload
+    REQUIRE_MINT_LIMIT()
+
+    0x01
+    dup1 caller sstore // set user as claim
+    // [0x01, minted]
+    add dup1 [MINTED_STORAGE_SLOT] sstore // minted = minted + 1
+    
+    caller add // this number is the pseudo random     
+    [MAX_SUPPLY] 
+    
+    swap1 mod 0x01 add // pseudorandom % 1024 + 1       
+    // [nftId]
+
+    caller // [nftId, msg.sender]
+    
+    _MINT()
+    // mint(msg.sender, uint256(random) % 1024 + 1);
+    stop
 }
 
 #define macro MINT() = takes(0) returns(0) {  
     // uint256 _minted = minted;
     
     [MINTED_STORAGE_SLOT] sload
-    // if the totalMinted + 1 > MAX_SUPPLY, revert
+    // if the totalMinted >= MAX_SUPPLY, revert
     
-    __RIGHTPAD(0x4e6f206d6f726520557755)     // ["No more UwU"]
-    0x0b                                     // [11 (length), "No more UwU"]
-    dup3 [MAX_SUPPLY] gt
-    REQUIRE()                       // []
+    REQUIRE_MINT_LIMIT()
     
     // pseudo random number
     //    bytes32 random = keccak256(abi.encodePacked(msg.sender, salt, nonce));

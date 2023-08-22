@@ -131,10 +131,23 @@ contract ButtplugTest is Test {
 
         vm.expectRevert("No more UwU");
         huffplug.mint(nonce);
+    }
 
+    function testMintMerkleFail() public {
+        bytes32[] memory roots = new bytes32[](2);
+        roots[0] = 0x000000000000000000000000ee081f9fea22c5b578aa9ab1b4fc16e4335f5d2b;
+        roots[1] = 0xa3a47908ac03234744670fa693ee11af0774d84b1cec2d2edbcb2e77b7bdd37b;
+        
+        address user1 = 0xe7292962e48c18e04Bd26aB2AcCA00Ef794E8171;
+
+        vm.prank(user1);
+        vm.expectRevert("INVALID PROOF");
+        huffplug.mintWithMerkle(roots);
     }
 
     function testMintMerkle() public {
+        vm.store(address(huffplug), SALT_SLOT, /* slot of salt in ButtplugPlugger */ keccak256("salt"));
+
         assertEq(huffplug.totalMinted(), 0);
         bytes32[] memory roots = new bytes32[](6);
         roots[0] = 0x000000000000000000000000ee081f9fea22c5b578aa9ab1b4fc16e4335f5d2b;
@@ -148,20 +161,18 @@ contract ButtplugTest is Test {
 
         vm.prank(user1);
         huffplug.mintWithMerkle(roots);
-        /*
-        assertEq(MockHuffplug(mockHuffplug).lastMintTo(), user1);
-        // @dev hard to predict the next mint id
-        assertNotEq(MockHuffplug(mockHuffplug).lastMintId(), 0);
+
+        assertEq(huffplug.totalMinted(), 1);
+        assertEq(huffplug.balanceOf(user1), 1);
+        assertEq(huffplug.ownerOf(371), user1);
 
         vm.prank(user1);
-        (sucess,) = address(plugger).call(abi.encodeWithSignature("mintWithMerkle(bytes32[])", roots));
-        require(!sucess, "mint should fail");
-
-        assertEq(plugger.minted(), 1);
+        vm.expectRevert("ALREADY_CLAIMED");
+        huffplug.mintWithMerkle(roots);
 
         // @dev after minting with merkle salt should NOT be changed
-        assertEq(plugger.salt(), keccak256("salt"));
-
+        assertEq(huffplug.salt(), keccak256("salt"));
+        
         address user2 = 0xBa910716Fd4b6b4447AeA613993898eeB63844Ad;
 
         roots = new bytes32[](8);
@@ -175,8 +186,8 @@ contract ButtplugTest is Test {
         roots[7] = 0xfbbbfd743cceb9d2bdc8602f027333f04f9078b3684a73c5c33fb8d79e5baed5;
 
         vm.prank(user2);
-        (sucess,) = address(plugger).call(abi.encodeWithSignature("mintWithMerkle(bytes32[])", roots));
-        require(sucess, "mint cant fail");
+        huffplug.mintWithMerkle(roots);
+
 
         address user3 = 0x673437D956065Fa0dc416c4A519CC5c37f6AD389;
         roots[0] = 0x0000000000000000000000006666ec43deb25910121dd544e89301a86165fa6b;
@@ -187,12 +198,13 @@ contract ButtplugTest is Test {
         roots[5] = 0xf7f97a6790805d13b9b30da262c4bc167c5f4ce84fdfd8e31f8adbd9c24aa5c3;
         roots[6] = 0x352f1d855d1a93eb69ad310d832a1f4bdf1de4320c08eb9d12cc6710334670d2;
         roots[7] = 0xfbbbfd743cceb9d2bdc8602f027333f04f9078b3684a73c5c33fb8d79e5baed5;
+        
+        vm.label(user3, "user3");
         vm.prank(user3);
-        (sucess,) = address(plugger).call(abi.encodeWithSignature("mintWithMerkle(bytes32[])", roots));
-        require(sucess, "mint cant fail");
+        huffplug.mintWithMerkle(roots);
 
-        assertEq(plugger.minted(), 3, "buttplugs minted should be 3");
-        */
+        assertEq(huffplug.totalMinted(), 3, "buttplugs minted should be 3");
+
     }
 
 
