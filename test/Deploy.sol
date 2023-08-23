@@ -2,16 +2,18 @@ pragma solidity ^0.8.13;
 
 import {Vm} from "forge-std/Vm.sol";
 
-function compile(Vm vm, address tokenRenderer, address minter) returns (bytes memory) {
-    string[] memory cmd = new string[](8);
+function compile(Vm vm, address tokenRenderer, bytes32 merkleRoot) returns (bytes memory) {
+    string[] memory cmd = new string[](9);
     cmd[0] = "huffc";
     cmd[1] = "-e";
     cmd[2] = "shanghai";
     cmd[3] = "--bytecode";
     cmd[4] = "src/Huffplug.huff";
-    cmd[5] = "-c";
-    cmd[6] = string.concat("TOKEN_RENDERER=", bytesToString(abi.encodePacked(tokenRenderer)));
-    cmd[7] = string.concat("MINTER=", bytesToString(abi.encodePacked(minter)));
+    cmd[5] = "--optimize";
+    cmd[6] = "-c";
+    cmd[7] = string.concat("TOKEN_RENDERER=", bytesToString(abi.encodePacked(tokenRenderer)));
+    cmd[8] = string.concat("MERKLE_ROOT=", bytesToString(abi.encode(merkleRoot)));
+    
     return vm.ffi(cmd);
 }
 

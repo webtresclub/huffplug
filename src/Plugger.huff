@@ -1,0 +1,191 @@
+// Minter contract for the Huffplugs
+// source code: https://github.com/webtresclub/huffplug
+// mint on goerli: https://buttplug-homepage.vercel.app/
+#include "huffmate/math/Math.huff"
+#include "huffmate/tokens/ERC721.huff"
+
+// @dev Usage LOG_STACK_1(0x00), LOG_STACK_2(0x00), ..., etc
+#include "Huff-Console/Console.huff"
+
+#include "huffmate/utils/MerkleProofLib.huff"
+
+// @dev this is for import the macro REQUIRE()
+#include "huffmate/utils/Errors.huff"
+
+#include "./VergaCurve.huff"
+
+/// @dev The maximum number of Buttplug (UwU) that can be minted
+#define constant MAX_SUPPLY         = 0x0400
+
+/// @dev The merkle root of the merkle tree that contains the proofs of the users that can claim their Buttplug (UwU)
+#define constant MERKLE_ROOT = 0x00
+
+
+/// @dev The number of Buttplug (UwU) that have been minted, useful to calculate the difficulty
+#define constant MINTED_STORAGE_SLOT = FREE_STORAGE_POINTER()
+
+/// @dev The salt used to generate the pseudo random number for the minting
+#define constant SALT_STORAGE_SLOT = FREE_STORAGE_POINTER()
+
+#define macro CONSTRUCTOR_PLUGGER() = takes(0) returns(0) {
+    0x01 number sub blockhash // blockhash(block.number - 1);
+    [SALT_STORAGE_SLOT] sstore
+}
+
+#define macro GET_SALT() = takes(0) returns(0) {
+    [SALT_STORAGE_SLOT] sload
+    0x00 mstore
+    0x20 0x00 return
+}
+
+#define macro GET_DIFFICULTY() = takes(0) returns(0) {
+    [MINTED_STORAGE_SLOT] sload
+    CURRENT_DIFFICULTY()
+    // [difficulty, totalMinted]
+    0x00 mstore
+    pop
+    0x20 0x00 return
+}
+
+#define macro REQUIRE_NOT_CLAIMED() = takes (0) returns (0) {
+    __RIGHTPAD(0x414c52454144595f434c41494d4544)       // ["ALREADY_CLAIMED"]
+    0x0f                                     // [(length), "ALREADY_CLAIMED"]
+    caller sload iszero
+    REQUIRE()
+}
+
+#define macro REQUIRE_VALID_PROOF() = takes (0) returns (0) {
+    __RIGHTPAD(0x494e56414c49442050524f4f46)       // ["INVALID PROOF"]
+    0x0d                                     // [16 (length), "INVALID PROOF"]
+    
+    [MERKLE_ROOT]   // [root]
+    caller          // [leaf, root]
+    0x24                // [proof_cd_ptr, leaf, root]
+    VERIFY_PROOF()      // [is_valid]
+    REQUIRE()
+}
+
+#define macro REQUIRE_MINT_LIMIT() = takes(1) returns(1) {  
+    __RIGHTPAD(0x4e6f206d6f726520557755)     // ["No more UwU"]
+    0x0b                                     // [11 (length), "No more UwU"]
+    dup3 [MAX_SUPPLY] gt
+    REQUIRE()                       // []
+}
+
+/// @notice Mint a Buttplug (UwU) using a merkle proof
+/// @param proofs The merkle proofs of the user
+/// @dev Users with at least two poap of the community can mint a Buttplug (UwU) using a merkle proof
+#define macro MINT_WITH_MERKLE() = takes (0) returns (0) {
+    // @todo check is supply is not over
+    
+    REQUIRE_NOT_CLAIMED()
+    REQUIRE_VALID_PROOF()
+
+    [MINTED_STORAGE_SLOT] sload
+    REQUIRE_MINT_LIMIT()
+
+    0x01
+    dup1 caller sstore // set user as claim
+    // [0x01, minted]
+    add dup1 [MINTED_STORAGE_SLOT] sstore // minted = minted + 1
+    
+    caller add // this number is the pseudo random     
+    [MAX_SUPPLY] 
+    
+    swap1 mod 0x01 add // pseudorandom % 1024 + 1       
+    // [nftId]
+
+    caller // [nftId, msg.sender]
+    
+    _MINT()
+    // mint(msg.sender, uint256(random) % 1024 + 1);
+    stop
+}
+
+#define macro MINT() = takes(0) returns(0) {  
+    // uint256 _minted = minted;
+    
+    [MINTED_STORAGE_SLOT] sload
+    // if the totalMinted >= MAX_SUPPLY, revert
+    
+    REQUIRE_MINT_LIMIT()
+    
+    // pseudo random number
+    //    bytes32 random = keccak256(abi.encodePacked(msg.sender, salt, nonce));
+    caller 0x60 shl 0x00 mstore
+    [SALT_STORAGE_SLOT] sload
+    0x14 mstore
+    0x04 calldataload // nonce from user
+    0x34 mstore
+    0x54 0x00 sha3
+
+    // random, minted
+    swap1  // minted, random 
+    
+    CURRENT_DIFFICULTY() // difficulty, minted, random 
+    
+    0x0100 sub // 256 - difficulty, minted, random 
+    
+    dup3  // random, 256 - difficulty, minted, random 
+    swap1 // 256 - difficulty, random, minted, random 
+    
+    
+    shr   // expected all 0, minted, random 
+    
+    __RIGHTPAD(0x57524f4e475f53414c54)       // ["WRONG_SALT"]
+    0x0a                                     // [10 (length), "WRONG_SALT"]
+    dup3 iszero
+    REQUIRE()                       // []
+    pop
+    
+    // [minted, random]
+
+    // minted = _minted + 1;
+    0x01 add [MINTED_STORAGE_SLOT] sstore
+    
+    // update salt
+    // salt = blockhash(block.number - 1);
+    0x01 number sub blockhash // blockhash(block.number - 1);
+    [SALT_STORAGE_SLOT] sstore
+
+    // [random]
+    [MAX_SUPPLY] swap1 mod 0x01 add // uint256(random) % 1024 + 1
+
+    // [nftId]
+
+    caller // [nftId, msg.sender]
+    
+    _MINT()
+    // mint(msg.sender, uint256(random) % 1024 + 1);
+    stop
+}
+
+/*
+import {MerkleProofLib} from "solmate/utils/MerkleProofLib.sol";
+import {FixedPointMathLib} from "solmate/utils/FixedPointMathLib.sol";
+import {IHuffplug} from "src/IHuffplug.sol";
+
+contract ButtplugPlugger {
+
+    /// @notice Mint a Buttplug (UwU) using a merkle proof
+    /// @param proofs The merkle proofs of the user
+    /// @dev Users with at least two poap of the community can mint a Buttplug (UwU) using a merkle proof
+    function mintWithMerkle(bytes32[] calldata proofs) external {
+        if (claimed[msg.sender]) revert YouHaveClaimYourUwU();
+
+        // if the totalMinted is >= MAX_SUPPLY, revert
+        if (minted >= MAX_SUPPLY) revert NoMoreUwU();
+
+        /// @dev Tag that the user has claimed his Buttplug (UwU) and can't claim more
+        claimed[msg.sender] = true;
+
+        require(MerkleProofLib.verify(proofs, MERKLE_ROOT, bytes32(uint256(uint160(msg.sender)))), "INVALID PROOF");
+
+        /// @dev We have to update the minted counter after the check, otherwise we could mint more than MAX_SUPPLY
+        unchecked {
+            ++minted;
+            HUFFPLUG.plug(msg.sender, uint256(keccak256(abi.encode(msg.sender, salt))) % 1024 + 1);
+        }
+    }
+}
+*/
