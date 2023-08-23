@@ -1,11 +1,16 @@
-/// @dev The timestamp when the collection started, useful to calculate the difficulty
-#define constant COLLECTION_START = 0x00
 
 /// @dev The difficulty is the number of 0s that the hash of the address and the nonce must have
 ///      5 means 0x00000, im expecting to take a few secs to find a nonce
 #define constant DEFAULT_DIFFICULTY = 0x05
 #define constant MAX_DIFFICULTY     = 0x20
 
+
+/// @dev The timestamp when the collection started, useful to calculate the difficulty
+#define constant COLLECTION_START_SLOT = FREE_STORAGE_POINTER()
+
+#define macro VERGA_CONSTRUCTOR() = takes (0) returns (0) {
+  timestamp [COLLECTION_START_SLOT] sstore
+}
 
 /// @dev Returns the current difficulty, calculated using VERGA curve
 ///      The difficulty is calculated using the following formula:
@@ -21,7 +26,7 @@
   // uint256 delta = (block.timestamp - COLLECTION_START) / 1 days;
   0x015180 // 1 day = 86400 = 0x015180
   
-  [COLLECTION_START] timestamp // [timestamp, COLLECTION_START, 0x015180, totalMinted, totalMinted]
+  [COLLECTION_START_SLOT] sload timestamp // [timestamp, COLLECTION_START, 0x015180, totalMinted, totalMinted]
 
   sub // [COLLECTION_START - timestamp, 0x015180, totalMinted, totalMinted]
   

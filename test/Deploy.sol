@@ -9,11 +9,10 @@ function compile(Vm vm, address tokenRenderer, bytes32 merkleRoot) returns (byte
     cmd[2] = "shanghai";
     cmd[3] = "--bytecode";
     cmd[4] = "src/Huffplug.huff";
-    cmd[5] = "-c"; // add --optimize ?
-    cmd[6] = string.concat("TOKEN_RENDERER=", bytesToString(abi.encodePacked(tokenRenderer)));
-    cmd[7] = string.concat("COLLECTION_START=", bytesToString(abi.encode(block.timestamp)));
+    cmd[5] = "--optimize";
+    cmd[6] = "-c";
+    cmd[7] = string.concat("TOKEN_RENDERER=", bytesToString(abi.encodePacked(tokenRenderer)));
     cmd[8] = string.concat("MERKLE_ROOT=", bytesToString(abi.encode(merkleRoot)));
-    // cmd[9] = "--optimize";
     
     return vm.ffi(cmd);
 }
