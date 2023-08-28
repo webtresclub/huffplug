@@ -131,13 +131,15 @@
 
     // pseudo random number
     //    bytes32 random = keccak256(abi.encodePacked(msg.sender, salt, nonce));
-    caller 0x60 shl                       // [(caller << 0x60), totalMinted]      mem = []
-    0x00 mstore                           // [totalMinted]                        mem = [(caller << 0x60)]
-    [SALT_STORAGE_SLOT] sload             // [salt, totalMinted]                  mem = [(caller << 0x60)]
-    0x14 mstore                           // [totalMinted]                        mem = [(caller << 0x60), salt]
-    0x04 calldataload                     // [nonce, totalMinted]                 mem = [(caller << 0x60), salt]
-    0x34 mstore                           // [totalMinted]                        mem = [(caller << 0x60), salt, nonce]
-    0x54 0x00 sha3                        // [random, totalMinted]
+    caller                                // [caller, totalMinted]                mem = []
+    0x00 mstore                           // [totalMinted]                        mem = [caller]
+    [SALT_STORAGE_SLOT] sload             // [salt, totalMinted]                  mem = [caller]
+    0x20 mstore                           // [totalMinted]                        mem = [caller, salt]
+    0x04 calldataload                     // [nonce, totalMinted]                 mem = [caller, salt]
+    0x40 mstore                           // [totalMinted]                        mem = [caller, salt, nonce]
+    
+    // @dev use 0x0c to empty bytes from caller address, and emulate abi.encodePacked(msg.sender, salt, nonce)
+    0x54 0x0c sha3                        // [random, totalMinted]
 
     swap1                                 // [totalMinted, random]
 
