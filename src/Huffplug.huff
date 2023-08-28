@@ -136,13 +136,15 @@
     dup1 __FUNC_SIG(totalSupply)                eq totalSupply jumpi
     dup1 __FUNC_SIG(totalMinted)                eq totalMinted jumpi
 
-    dup1 __FUNC_SIG(claimed)                    eq claimed jumpi    
-    dup1 __FUNC_SIG(salt)                       eq salt jumpi
-    dup1 __FUNC_SIG(currentDifficulty)          eq currentDifficulty jumpi
-
     /// @dev owner is only used to admin opensea collection page
     // owned functions dispatcher
     OWNED_MAIN()
+
+    dup1 __FUNC_SIG(claimed)                    eq claimed jumpi    
+    dup1 __FUNC_SIG(salt)                       eq salt jumpi
+    // last one doesnt need dup1
+    __FUNC_SIG(currentDifficulty)          eq currentDifficulty jumpi
+
 
     // Revert on failed dispatch
     invalid
