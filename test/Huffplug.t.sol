@@ -159,8 +159,12 @@ contract ButtplugTest is Test {
 
         address user1 = 0xe7292962e48c18e04Bd26aB2AcCA00Ef794E8171;
 
+        assertFalse(huffplug.claimed(user1), "user1 should not have claimed");
+
         vm.prank(user1);
         huffplug.mintWithMerkle(roots);
+
+        assertTrue(huffplug.claimed(user1), "user1 should have claimed");
 
         assertEq(huffplug.totalMinted(), 1);
         assertEq(huffplug.balanceOf(user1), 1);

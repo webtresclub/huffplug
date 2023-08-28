@@ -33,6 +33,7 @@
 
 #define function mint(uint256) nonpayable returns ()
 #define function mintWithMerkle(bytes32[]) nonpayable returns ()
+#define function claimed(address) view returns (bool)
 #define function totalSupply() view returns (uint256)
 #define function currentDifficulty() view returns (uint256)
 #define function totalMinted() view returns (uint256)
@@ -132,7 +133,8 @@
 
     dup1 __FUNC_SIG(totalSupply)                eq totalSupply jumpi
     dup1 __FUNC_SIG(totalMinted)                eq totalMinted jumpi
-    
+
+    dup1 __FUNC_SIG(claimed)                    eq claimed jumpi    
     dup1 __FUNC_SIG(salt)                       eq salt jumpi
     dup1 __FUNC_SIG(currentDifficulty)          eq currentDifficulty jumpi
 
@@ -162,6 +164,10 @@
     salt:
         // imported from Plugger.huff
         GET_SALT()
+    
+    claimed:
+        // imported from Plugger.huff
+        GET_CLAIMED()
 
     approve:
         APPROVE()

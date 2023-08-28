@@ -54,6 +54,13 @@
     0x20 0x00 return                // []
 }
 
+/// @dev Macro defined for
+/// function claimed(address user) external view returns (bool)
+#define macro GET_CLAIMED() = takes(0) returns(0) {
+    0x04 calldataload sload         // [USER_CLAIMED? (0 or 1)]
+    0x00 mstore                     // []
+    0x20 0x00 return                // []
+}
 #define macro GET_DIFFICULTY() = takes(0) returns(0) {
     [MINTED_STORAGE_SLOT] sload     // [TOTAL_MINTED]
     CURRENT_DIFFICULTY()            // [DIFFICULTY, TOTAL_MINTED]
