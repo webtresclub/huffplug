@@ -142,7 +142,7 @@
     swap1                                 // [totalMinted, random]
 
     CURRENT_DIFFICULTY()                  // [difficulty, totalMinted, random]
-    0x04 mul                              // [difficulty * 4, totalMinted, random]
+    0x02 shl                              // [difficulty * 4, totalMinted, random]
 
     0x0100 sub                            // [256 - (difficulty * 4), totalMinted, random]
 
