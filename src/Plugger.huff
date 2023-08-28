@@ -28,135 +28,139 @@
 #define constant SALT_STORAGE_SLOT = FREE_STORAGE_POINTER()
 
 #define macro CONSTRUCTOR_PLUGGER() = takes(0) returns(0) {
-    0x01 number sub blockhash // blockhash(block.number - 1);
-    [SALT_STORAGE_SLOT] sstore
+    0x01 number sub blockhash       // [blockhash(block.number - 1)]
+    [SALT_STORAGE_SLOT] sstore      // []
 }
 
 #define macro GET_SALT() = takes(0) returns(0) {
-    [SALT_STORAGE_SLOT] sload
-    0x00 mstore
-    0x20 0x00 return
+    [SALT_STORAGE_SLOT] sload       // [SALT]
+    0x00 mstore                     // []
+    0x20 0x00 return                // []
 }
 
 #define macro GET_DIFFICULTY() = takes(0) returns(0) {
-    [MINTED_STORAGE_SLOT] sload
-    CURRENT_DIFFICULTY()
-    // [difficulty, totalMinted]
-    0x00 mstore
-    pop
-    0x20 0x00 return
+    [MINTED_STORAGE_SLOT] sload     // [TOTAL_MINTED]
+    CURRENT_DIFFICULTY()            // [DIFFICULTY, TOTAL_MINTED]
+    0x00 mstore                     // [TOTAL_MINTED]
+    0x20 0x00 return                // [TOTAL_MINTED]
 }
 
 #define macro REQUIRE_NOT_CLAIMED() = takes (0) returns (0) {
     __RIGHTPAD(0x414c52454144595f434c41494d4544)       // ["ALREADY_CLAIMED"]
-    0x0f                                     // [(length), "ALREADY_CLAIMED"]
-    caller sload iszero
-    REQUIRE()
+    0x0f                                               // [(length=15), "ALREADY_CLAIMED"]
+    caller sload iszero                                // [CLAIMED(caller) == 0, (length=15), "ALREADY_CLAIMED"]
+    REQUIRE()                                          // []
 }
 
-#define macro REQUIRE_VALID_PROOF() = takes (0) returns (0) {
+#define macro REQUIRE_VALID_PROOF(PROOF_CD_POINTER) = takes (0) returns (0) {
     __RIGHTPAD(0x494e56414c49442050524f4f46)       // ["INVALID PROOF"]
-    0x0d                                     // [16 (length), "INVALID PROOF"]
-    
-    [MERKLE_ROOT]   // [root]
-    caller          // [leaf, root]
-    0x24                // [proof_cd_ptr, leaf, root]
-    VERIFY_PROOF()      // [is_valid]
-    REQUIRE()
+    0x0d                                           // [(length=13), "INVALID PROOF"]
+
+    [MERKLE_ROOT]                                  // [root, (length=13), "INVALID PROOF"]
+    caller                                         // [leaf, root, (length=13), "INVALID PROOF"]
+    <PROOF_CD_POINTER>                             // [PROOF_CD_POINTER, leaf, root, (length=13), "INVALID PROOF"]
+    VERIFY_PROOF()                                 // [is_valid, (length=13), "INVALID PROOF"]
+    REQUIRE()                                      // []
 }
 
-#define macro REQUIRE_MINT_LIMIT() = takes(1) returns(1) {  
-    __RIGHTPAD(0x4e6f206d6f726520557755)     // ["No more UwU"]
-    0x0b                                     // [11 (length), "No more UwU"]
-    dup3 [MAX_SUPPLY] gt
-    REQUIRE()                       // []
+#define macro REQUIRE_MINT_LIMIT() = takes(1) returns(1) {
+    // input state is [totalMinted]
+    __RIGHTPAD(0x4e6f206d6f726520557755)     // ["No more UwU", totalMinted]
+    0x0b                                     // [(length=11), "No more UwU", totalMinted]
+    dup3 [MAX_SUPPLY] gt                     // [MAX_SUPPLY > totalMinted, (length=11), "No more UwU", totalMinted]
+    REQUIRE()                                // []
 }
 
 /// @notice Mint a Buttplug (UwU) using a merkle proof
 /// @param proofs The merkle proofs of the user
 /// @dev Users with at least two poap of the community can mint a Buttplug (UwU) using a merkle proof
 #define macro MINT_WITH_MERKLE() = takes (0) returns (0) {
-    // @todo check is supply is not over
-    
-    REQUIRE_NOT_CLAIMED()
-    REQUIRE_VALID_PROOF()
+    REQUIRE_NOT_CLAIMED()                        // []
+    // 0x24 is the calldata offset to the merkle proof
+    REQUIRE_VALID_PROOF(0x24)                    // []
 
-    [MINTED_STORAGE_SLOT] sload
-    REQUIRE_MINT_LIMIT()
+    [MINTED_STORAGE_SLOT] sload                  // [totalMinted]
+    REQUIRE_MINT_LIMIT()                         // [totalMinted]
 
-    0x01
-    dup1 caller sstore // set user as claim
-    // [0x01, minted]
-    add dup1 [MINTED_STORAGE_SLOT] sstore // minted = minted + 1
-    
-    caller add // this number is the pseudo random     
-    [MAX_SUPPLY] 
-    
-    swap1 mod 0x01 add // pseudorandom % 1024 + 1       
-    // [nftId]
+    0x01                                         // [0x01, totalMinted]
+    // set user as claim (claimed(caller) = 1)
+    dup1 caller sstore                           // [0x01, totalMinted]
 
-    caller // [nftId, msg.sender]
-    
-    _MINT()
+    // increase total minted
+    add                                          // [newTotalMinted]
+    // update storage with newTotalMinted
+    dup1 [MINTED_STORAGE_SLOT] sstore            // [newTotalMinted]
+
+    // this number is the pseudo random
+    caller add                                   // [(PSEUDO_RANDOM=newTotalMinted+caller)]
+    [MAX_SUPPLY]                                 // [MAX_SUPPLY, PSEUDO_RANDOM]
+
+    // Calculate pseudorandom % 1024 + 1
+    // 0 <= pseudorandom % 1024 <= 1023 ==> 1 <= pseudorandom % 1024 + 1 <= 1024
+    swap1 mod                                    // [PSEUDO_RANDOM % MAX_SUPPLY]
+    0x01 add                                     // [(PSEUDO_RANDOM % MAX_SUPPLY) + 1=nftId]
+
+    caller                                       // [msg.sender, nftId]
+
     // mint(msg.sender, uint256(random) % 1024 + 1);
+    _MINT()                                      // []
+
     stop
 }
 
-#define macro MINT() = takes(0) returns(0) {  
-    // uint256 _minted = minted;
-    
-    [MINTED_STORAGE_SLOT] sload
-    // if the totalMinted >= MAX_SUPPLY, revert
-    
-    REQUIRE_MINT_LIMIT()
-    
+#define macro MINT() = takes(0) returns(0) {
+    [MINTED_STORAGE_SLOT] sload           // [totalMinted]
+
+    REQUIRE_MINT_LIMIT()                  // [totalMinted]
+
     // pseudo random number
     //    bytes32 random = keccak256(abi.encodePacked(msg.sender, salt, nonce));
-    caller 0x60 shl 0x00 mstore
-    [SALT_STORAGE_SLOT] sload
-    0x14 mstore
-    0x04 calldataload // nonce from user
-    0x34 mstore
-    0x54 0x00 sha3
+    caller 0x60 shl                       // [(caller << 0x60), totalMinted]      mem = []
+    0x00 mstore                           // [totalMinted]                        mem = [(caller << 0x60)]
+    [SALT_STORAGE_SLOT] sload             // [salt, totalMinted]                  mem = [(caller << 0x60)]
+    0x14 mstore                           // [totalMinted]                        mem = [(caller << 0x60), salt]
+    0x04 calldataload                     // [nonce, totalMinted]                 mem = [(caller << 0x60), salt]
+    0x34 mstore                           // [totalMinted]                        mem = [(caller << 0x60), salt, nonce]
+    0x54 0x00 sha3                        // [random, totalMinted]
 
-    // random, minted
-    swap1  // minted, random 
-    
-    CURRENT_DIFFICULTY() // difficulty, minted, random 
-    
-    0x0100 sub // 256 - difficulty, minted, random 
-    
-    dup3  // random, 256 - difficulty, minted, random 
-    swap1 // 256 - difficulty, random, minted, random 
-    
-    
-    shr   // expected all 0, minted, random 
-    
-    __RIGHTPAD(0x57524f4e475f53414c54)       // ["WRONG_SALT"]
-    0x0a                                     // [10 (length), "WRONG_SALT"]
-    dup3 iszero
-    REQUIRE()                       // []
-    pop
-    
-    // [minted, random]
+    swap1                                 // [totalMinted, random]
+
+    CURRENT_DIFFICULTY()                  // [difficulty, totalMinted, random]
+    0x04 mul                              // [difficulty * 4, totalMinted, random]
+
+    0x0100 sub                            // [256 - (difficulty * 4), totalMinted, random]
+
+    dup3                                  // [random, 256 - (difficulty * 4), totalMinted, random]
+    swap1                                 // [256 - (difficulty * 4), random, totalMinted, random]
+
+    // shift random by (256 - (difficulty * 4)) bits
+    // 000...00XXX...XXX >> (256 - difficulty in bits)
+    // 0000000.00XXX..XX
+    shr                                   // [shiftedRandom, totalMinted, random]
+
+    __RIGHTPAD(0x57524f4e475f53414c54)    // ["WRONG_SALT", shiftedRandom, totalMinted, random]
+    0x0a                                  // [10 (length), "WRONG_SALT", shiftedRandom, totalMinted, random]
+    dup3 iszero                           // [shiftedRandom == 0, 10 (length), "WRONG_SALT", shiftedRandom, totalMinted, random]
+    REQUIRE()                             // [shiftedRandom, totalMinted, random]
+    pop                                   // [totalMinted, random]
 
     // minted = _minted + 1;
-    0x01 add [MINTED_STORAGE_SLOT] sstore
-    
+    0x01 add                              // [totalMinted + 1, random]
+    [MINTED_STORAGE_SLOT] sstore          // [random]
+
     // update salt
     // salt = blockhash(block.number - 1);
-    0x01 number sub blockhash // blockhash(block.number - 1);
-    [SALT_STORAGE_SLOT] sstore
+    0x01 number sub blockhash             // [blockhash(block.number - 1), random]
+    [SALT_STORAGE_SLOT] sstore            // [random]
 
-    // [random]
-    [MAX_SUPPLY] swap1 mod 0x01 add // uint256(random) % 1024 + 1
+    [MAX_SUPPLY] swap1                    // [random, MAX_SUPPLY]
+    mod 0x01 add                          // [random) % MAX_SUPPLY + 1 = nftId]
 
-    // [nftId]
+    caller                                // [msg.sender, nftId]
 
-    caller // [nftId, msg.sender]
-    
-    _MINT()
     // mint(msg.sender, uint256(random) % 1024 + 1);
+    _MINT()                               // []
+
     stop
 }
 
