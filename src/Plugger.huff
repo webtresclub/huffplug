@@ -1,11 +1,12 @@
 // Minter contract for the Huffplugs
 // source code: https://github.com/webtresclub/huffplug
 // mint on goerli: https://buttplug-homepage.vercel.app/
+
 #include "huffmate/math/Math.huff"
 #include "huffmate/tokens/ERC721.huff"
 
 // @dev Usage LOG_STACK_1(0x00), LOG_STACK_2(0x00), ..., etc
-#include "Huff-Console/Console.huff"
+// #include "Huff-Console/Console.huff"
 
 #include "huffmate/utils/MerkleProofLib.huff"
 
@@ -14,23 +15,38 @@
 
 #include "./VergaCurve.huff"
 
+// *************************************************************
+// ***                    Constants                          ***
+// *************************************************************
+
 /// @dev The maximum number of Buttplug (UwU) that can be minted
 #define constant MAX_SUPPLY         = 0x0400
 
 /// @dev The merkle root of the merkle tree that contains the proofs of the users that can claim their Buttplug (UwU)
-#define constant MERKLE_ROOT = 0x00
+#define constant MERKLE_ROOT        = 0x00
 
+// *************************************************************
+// ***                      Storage                          ***
+// *************************************************************
 
 /// @dev The number of Buttplug (UwU) that have been minted, useful to calculate the difficulty
 #define constant MINTED_STORAGE_SLOT = FREE_STORAGE_POINTER()
 
 /// @dev The salt used to generate the pseudo random number for the minting
-#define constant SALT_STORAGE_SLOT = FREE_STORAGE_POINTER()
+#define constant SALT_STORAGE_SLOT   = FREE_STORAGE_POINTER()
+
+// *************************************************************
+// ***                   Constructor                         ***
+// *************************************************************
 
 #define macro CONSTRUCTOR_PLUGGER() = takes(0) returns(0) {
     0x01 number sub blockhash       // [blockhash(block.number - 1)]
     [SALT_STORAGE_SLOT] sstore      // []
 }
+
+// *************************************************************
+// ***                      Macros                           ***
+// *************************************************************
 
 #define macro GET_SALT() = takes(0) returns(0) {
     [SALT_STORAGE_SLOT] sload       // [SALT]
