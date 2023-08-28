@@ -48,6 +48,8 @@
 // ***                      Macros                           ***
 // *************************************************************
 
+/// @dev Macro defined for
+/// function salt() external view returns (bytes32)
 #define macro GET_SALT() = takes(0) returns(0) {
     [SALT_STORAGE_SLOT] sload       // [SALT]
     0x00 mstore                     // []
@@ -61,6 +63,9 @@
     0x00 mstore                     // []
     0x20 0x00 return                // []
 }
+
+/// @dev Macro defined for
+/// function currentDifficulty() external view returns (uint256)
 #define macro GET_DIFFICULTY() = takes(0) returns(0) {
     [MINTED_STORAGE_SLOT] sload     // [TOTAL_MINTED]
     CURRENT_DIFFICULTY()            // [DIFFICULTY, TOTAL_MINTED]
@@ -97,6 +102,7 @@
 /// @notice Mint a Buttplug (UwU) using a merkle proof
 /// @param proofs The merkle proofs of the user
 /// @dev Users with at least two poap of the community can mint a Buttplug (UwU) using a merkle proof
+/// function mintWithMerkle(bytes32[] memory) external
 #define macro MINT_WITH_MERKLE() = takes (0) returns (0) {
     REQUIRE_NOT_CLAIMED()                        // []
     // 0x24 is the calldata offset to the merkle proof
@@ -131,6 +137,9 @@
     stop
 }
 
+/// @notice Mint a Buttplug (UwU) using a pseudo random number
+/// @param nonce The nonce used to generate the pseudo random number
+/// function mint(uint256 nonce) external;
 #define macro MINT() = takes(0) returns(0) {
     [MINTED_STORAGE_SLOT] sload           // [totalMinted]
 
