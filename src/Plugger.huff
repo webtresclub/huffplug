@@ -163,33 +163,3 @@
 
     stop
 }
-
-/*
-import {MerkleProofLib} from "solmate/utils/MerkleProofLib.sol";
-import {FixedPointMathLib} from "solmate/utils/FixedPointMathLib.sol";
-import {IHuffplug} from "src/IHuffplug.sol";
-
-contract ButtplugPlugger {
-
-    /// @notice Mint a Buttplug (UwU) using a merkle proof
-    /// @param proofs The merkle proofs of the user
-    /// @dev Users with at least two poap of the community can mint a Buttplug (UwU) using a merkle proof
-    function mintWithMerkle(bytes32[] calldata proofs) external {
-        if (claimed[msg.sender]) revert YouHaveClaimYourUwU();
-
-        // if the totalMinted is >= MAX_SUPPLY, revert
-        if (minted >= MAX_SUPPLY) revert NoMoreUwU();
-
-        /// @dev Tag that the user has claimed his Buttplug (UwU) and can't claim more
-        claimed[msg.sender] = true;
-
-        require(MerkleProofLib.verify(proofs, MERKLE_ROOT, bytes32(uint256(uint160(msg.sender)))), "INVALID PROOF");
-
-        /// @dev We have to update the minted counter after the check, otherwise we could mint more than MAX_SUPPLY
-        unchecked {
-            ++minted;
-            HUFFPLUG.plug(msg.sender, uint256(keccak256(abi.encode(msg.sender, salt))) % 1024 + 1);
-        }
-    }
-}
-*/
