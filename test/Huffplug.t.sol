@@ -14,7 +14,7 @@ contract ButtplugTest is Test {
     IHuffplug public huffplug;
     
     bytes32 SALT_SLOT = bytes32(uint256(0x01));
-    bytes32 TOTAL_MINTED_SLOT = bytes32(uint256(0x03));
+    bytes32 TOTAL_MINTED_SLOT = bytes32(uint256(0x02));
 
     address public user = makeAddr("user");
     address public owner = makeAddr("owner");

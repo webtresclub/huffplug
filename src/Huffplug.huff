@@ -96,6 +96,8 @@
 #define macro CONSTRUCTOR() = takes (0) returns (0) {
     OWNED_CONSTRUCTOR()
     CONSTRUCTOR_PLUGGER()
+
+    // this will setup the immutable and return de code with the immutable
     VERGA_CONSTRUCTOR()
 }
 

@@ -154,7 +154,7 @@
     0x04 calldataload                     // [nonce, totalMinted]                 mem = [caller, salt]
     0x40 mstore                           // [totalMinted]                        mem = [caller, salt, nonce]
     
-    // @dev use 0x0c to empty bytes from caller address, and emulate abi.encodePacked(msg.sender, salt, nonce)
+    // @dev use 0x0c skip empty bytes from caller address, and emulate abi.encodePacked(msg.sender, salt, nonce)
     0x54 0x0c sha3                        // [random, totalMinted]
 
     swap1                                 // [totalMinted, random]
