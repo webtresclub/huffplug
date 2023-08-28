@@ -69,11 +69,12 @@
 
     // STATICCALL(ret_size,ret_offset,arg_size,arg_offset,to,maxgas)
     STATICCALL(0x00,0x00,0x24,0x00,TOKEN_RENDERER,gas)
-    
+
+    // we dont care if this revert    
     // Revert if call is unsuccessful
-    cont jumpi
-    0x00 0x00 revert
-    cont:
+    //    cont jumpi
+    //    0x00 0x00 revert
+    //    cont:
 
     returndatasize 0x00 0x00 returndatacopy
     // Load the result
