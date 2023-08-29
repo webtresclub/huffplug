@@ -12,24 +12,27 @@ using {compile} for Vm;
 
 contract ButtplugTest is Test {
     IHuffplug public huffplug;
+    TokenRenderer public tokenRenderer;
     
-    bytes32 SALT_SLOT = bytes32(uint256(0x01));
-    bytes32 TOTAL_MINTED_SLOT = bytes32(uint256(0x02));
+    bytes32 SALT_SLOT = bytes32(uint256(0x00));
+    bytes32 TOTAL_MINTED_SLOT = bytes32(uint256(0x01));
 
     address public user = makeAddr("user");
     address public owner = makeAddr("owner");
     address public minter = makeAddr("minter");
 
     string baseUrl = "ipfs://bafybeia7h7n6osru3b4mvivjb3h2fkonvmotobvboqw3k3v4pvyv5oyzse/";
+    string contractURI = "ipfs://CONTRACTURI/";
 
     function setUp() public {
         vm.warp(1000000);
-        TokenRenderer renderer = new TokenRenderer(baseUrl);
+        vm.prank(owner);
+        TokenRenderer renderer = new TokenRenderer(baseUrl, contractURI);
 
         bytes memory bytecode = vm.compile(address(renderer), 0x51496785f4dd04d525b568df7fa6f1057799bc21f7e76c26ee77d2f569b40601);
 
         // send owner to the constructor, owner is only for opensea main page admin
-        bytecode = bytes.concat(bytecode, abi.encode(owner));
+        bytecode = bytes.concat(bytecode);
 
         address deployed;
         assembly {
@@ -213,7 +216,7 @@ contract ButtplugTest is Test {
 
 
     function testRendererFuzz(uint256 id) public {
-        /*
+        
         if (id == 0 || id > 1024) {
             vm.expectRevert();
             huffplug.tokenURI(id);
@@ -221,7 +224,7 @@ contract ButtplugTest is Test {
             string memory expected = string.concat(baseUrl, LibString.toString(id), ".json");
             assertEq(huffplug.tokenURI(id), expected);
         }
-        */
+        
         id = bound(id, 1, 1024);
         string memory expected = string.concat(baseUrl, LibString.toString(id), ".json");
         assertEq(huffplug.tokenURI(id), expected);
@@ -254,11 +257,11 @@ contract ButtplugTest is Test {
 
         vm.prank(new_owner);
         vm.expectRevert();
-        huffplug.setOwner(new_owner);
+        tokenRenderer.transferOwnership(new_owner);
         assertEq(owner, huffplug.owner());
 
         vm.prank(owner);
-        huffplug.setOwner(new_owner);
+        tokenRenderer.transferOwnership(new_owner);
         assertEq(new_owner, huffplug.owner());
     }
 }

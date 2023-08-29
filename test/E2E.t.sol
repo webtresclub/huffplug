@@ -23,7 +23,7 @@ contract E2ETest is Test {
         vm.createSelectFork("https://ethereum-goerli.publicnode.com");
         vm.startPrank(owner);
 
-        TokenRenderer renderer = new TokenRenderer("ipfs://bafybeia7h7n6osru3b4mvivjb3h2fkonvmotobvboqw3k3v4pvyv5oyzse/");
+        TokenRenderer renderer = new TokenRenderer("ipfs://bafybeia7h7n6osru3b4mvivjb3h2fkonvmotobvboqw3k3v4pvyv5oyzse/", "contract uri");
 
         bytes memory bytecode = vm.compile(address(renderer), MERKLE_ROOT);
         // send owner to the constructor

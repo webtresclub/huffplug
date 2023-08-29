@@ -10,8 +10,8 @@ contract RendererTest is Test {
     TokenRenderer renderer2;
 
     function setUp() public {
-        renderer1 = new TokenRenderer("https://huffplug1.com/");
-        renderer2 = new TokenRenderer("https://huffplug2.com/");
+        renderer1 = new TokenRenderer("https://huffplug1.com/", "contracturi1");
+        renderer2 = new TokenRenderer("https://huffplug2.com/", "contracturi2");
     }
 
     function testRenderer1(uint256 tokenId) public {

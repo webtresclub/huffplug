@@ -7,8 +7,6 @@
 #include "./Plugger.huff"
 
 #include "huffmate/tokens/ERC721.huff"
-// @dev Owner pattern is only use to gain access to the Opensea collection admin functions
-#include "huffmate/auth/Owned.huff"
 
 // @dev this is for import the macro STATICCALL()
 #include "huffmate/utils/Calls.huff"
@@ -38,6 +36,8 @@
 #define function currentDifficulty() view returns (uint256)
 #define function totalMinted() view returns (uint256)
 #define function salt() view returns (bytes32)
+#define function contractURI() view returns (string)
+#define function owner() view returns (address)
 
 // *************************************************************
 // ***                      Macros                           ***
@@ -63,18 +63,17 @@
     0x60 0x00 return
 }
 
-#define macro TOKEN_URI() = takes (0) {
+#define macro DELEGATE_TOKENRENDERER() = takes (0) {
     // tokenURI SIG + token id
     0x24 0x00 0x00 calldatacopy
 
     // STATICCALL(ret_size,ret_offset,arg_size,arg_offset,to,maxgas)
     STATICCALL(0x00,0x00,0x24,0x00,TOKEN_RENDERER,gas)
 
-    // we dont care if this revert    
     // Revert if call is unsuccessful
-    //    cont jumpi
-    //    0x00 0x00 revert
-    //    cont:
+    cont jumpi
+    0x00 0x00 revert
+    cont:
 
     returndatasize 0x00 0x00 returndatacopy
     // Load the result
@@ -95,7 +94,6 @@
 // *************************************************************
 
 #define macro CONSTRUCTOR() = takes (0) returns (0) {
-    OWNED_CONSTRUCTOR()
     CONSTRUCTOR_PLUGGER()
 
     // this will setup the immutable and return de code with the immutable
@@ -113,7 +111,7 @@
     NON_PAYABLE()                               // []
 
     dup1 __FUNC_SIG(mint)                       eq mint jumpi
-    dup1 __FUNC_SIG(mintWithMerkle)         eq mintWithMerkle jumpi
+    dup1 __FUNC_SIG(mintWithMerkle)             eq mintWithMerkle jumpi
 
     dup1 __FUNC_SIG(approve)                    eq approve jumpi
     dup1 __FUNC_SIG(setApprovalForAll)          eq setApprovalForAll jumpi
@@ -123,8 +121,12 @@
 
     dup1 __FUNC_SIG(name)                       eq name jumpi
     dup1 __FUNC_SIG(symbol)                     eq symbol jumpi
-    dup1 __FUNC_SIG(tokenURI)                   eq tokenURI jumpi
     dup1 __FUNC_SIG(supportsInterface)          eq supportsInterface jumpi
+    
+    /// @dev this functions are delegate to the TokenRenderer
+    dup1 __FUNC_SIG(tokenURI)                   eq delegateTokenRenderer jumpi
+    dup1 __FUNC_SIG(contractURI)                eq delegateTokenRenderer jumpi
+    dup1 __FUNC_SIG(owner)                      eq delegateTokenRenderer jumpi
 
     dup1 __FUNC_SIG(getApproved)                eq getApproved jumpi
     dup1 __FUNC_SIG(isApprovedForAll)           eq isApprovedForAll jumpi
@@ -136,10 +138,6 @@
 
     dup1 __FUNC_SIG(totalSupply)                eq totalSupply jumpi
     dup1 __FUNC_SIG(totalMinted)                eq totalMinted jumpi
-
-    /// @dev owner is only used to admin opensea collection page
-    // owned functions dispatcher
-    OWNED_MAIN()
 
     dup1 __FUNC_SIG(claimed)                    eq claimed jumpi    
     dup1 __FUNC_SIG(salt)                       eq salt jumpi
@@ -190,8 +188,8 @@
         NAME()
     symbol:
         SYMBOL()
-    tokenURI:
-        TOKEN_URI()
+    delegateTokenRenderer:
+        DELEGATE_TOKENRENDERER()
     supportsInterface:
         SUPPORTS_INTERFACE()
 
