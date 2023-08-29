@@ -224,10 +224,6 @@ contract ButtplugTest is Test {
             string memory expected = string.concat(baseUrl, LibString.toString(id), ".json");
             assertEq(huffplug.tokenURI(id), expected);
         }
-        
-        id = bound(id, 1, 1024);
-        string memory expected = string.concat(baseUrl, LibString.toString(id), ".json");
-        assertEq(huffplug.tokenURI(id), expected);
     }
 
     function testMetadata() public {
