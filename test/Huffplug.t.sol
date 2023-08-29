@@ -13,7 +13,7 @@ using {compile} for Vm;
 contract ButtplugTest is Test {
     IHuffplug public huffplug;
     TokenRenderer public tokenRenderer;
-    
+
     bytes32 SALT_SLOT = bytes32(uint256(0x00));
     bytes32 TOTAL_MINTED_SLOT = bytes32(uint256(0x01));
 
@@ -24,12 +24,15 @@ contract ButtplugTest is Test {
     string baseUrl = "ipfs://bafybeia7h7n6osru3b4mvivjb3h2fkonvmotobvboqw3k3v4pvyv5oyzse/";
     string contractURI = "ipfs://CONTRACTURI/";
 
+    uint256 constant start = 1000000;
+
     function setUp() public {
         vm.warp(1000000);
         vm.prank(owner);
         TokenRenderer renderer = new TokenRenderer(baseUrl, contractURI);
 
-        bytes memory bytecode = vm.compile(address(renderer), 0x51496785f4dd04d525b568df7fa6f1057799bc21f7e76c26ee77d2f569b40601);
+        bytes memory bytecode =
+            vm.compile(address(renderer), 0x51496785f4dd04d525b568df7fa6f1057799bc21f7e76c26ee77d2f569b40601);
 
         // send owner to the constructor, owner is only for opensea main page admin
         bytecode = bytes.concat(bytecode);
@@ -46,30 +49,30 @@ contract ButtplugTest is Test {
     function testDifficulty() public {
         assertEq(huffplug.totalMinted(), 0, "total minted should be 0");
         assertEq(huffplug.currentDifficulty(), 5, "difficulty should be 5");
-        
+
         vm.store(address(huffplug), TOTAL_MINTED_SLOT, /* slot of totalminted */ bytes32(uint256(10)));
         assertEq(huffplug.totalMinted(), 10, "total minted should be 10");
         assertEq(huffplug.currentDifficulty(), 8);
         vm.store(address(huffplug), TOTAL_MINTED_SLOT, /* slot of totalminted */ bytes32(uint256(0)));
-    
+
         assertEq(huffplug.currentDifficulty(), 5, "difficulty should be 5");
-        
+
         vm.store(address(huffplug), TOTAL_MINTED_SLOT, bytes32(uint256(2)));
         assertEq(huffplug.currentDifficulty(), 6, "difficulty should be 6");
-        
+
         vm.store(address(huffplug), TOTAL_MINTED_SLOT, bytes32(uint256(20)));
         assertEq(huffplug.currentDifficulty(), 9, "difficulty should be 9");
-        
-        uint256 start = block.timestamp;
+
+        console2.logUint(start);
         // if there are no new mint the difficulty shoud decay after some time
         vm.warp(start + 1 days);
         assertEq(huffplug.currentDifficulty(), 9, "difficulty should be 9");
-        
+
         vm.warp(start + 4 days);
         assertEq(huffplug.currentDifficulty(), 9, "difficulty should be 9");
         vm.warp(start + 5 days);
         assertEq(huffplug.currentDifficulty(), 8, "difficulty should be 8");
-        
+
         vm.warp(start + 12 days);
         assertEq(huffplug.currentDifficulty(), 7, "difficulty should be 7");
         vm.warp(start + 17 days);
@@ -101,14 +104,14 @@ contract ButtplugTest is Test {
         huffplug.mint(nonce);
 
         assertEq(huffplug.totalMinted(), 0);
-        
+
         vm.prank(user);
         huffplug.mint(nonce);
         assertEq(huffplug.totalMinted(), 1);
 
         assertEq(huffplug.balanceOf(user), 1);
         assertEq(huffplug.ownerOf(478), user);
-        
+
         assertNotEq(huffplug.salt(), keccak256("salt"));
     }
 
@@ -119,13 +122,13 @@ contract ButtplugTest is Test {
 
         assertEq(huffplug.totalMinted(), 1023);
         assertEq(huffplug.currentDifficulty(), 32);
-        
+
         vm.expectRevert("WRONG_SALT");
         vm.prank(user);
         huffplug.mint(nonce);
-        
+
         assertEq(huffplug.totalMinted(), 1023);
-        
+
         vm.warp(block.timestamp + 1024 days);
         assertEq(huffplug.currentDifficulty(), 5);
 
@@ -140,7 +143,7 @@ contract ButtplugTest is Test {
         bytes32[] memory roots = new bytes32[](2);
         roots[0] = 0x000000000000000000000000ee081f9fea22c5b578aa9ab1b4fc16e4335f5d2b;
         roots[1] = 0xa3a47908ac03234744670fa693ee11af0774d84b1cec2d2edbcb2e77b7bdd37b;
-        
+
         address user1 = 0xe7292962e48c18e04Bd26aB2AcCA00Ef794E8171;
 
         vm.prank(user1);
@@ -179,7 +182,7 @@ contract ButtplugTest is Test {
 
         // @dev after minting with merkle salt should NOT be changed
         assertEq(huffplug.salt(), keccak256("salt"));
-        
+
         address user2 = 0xBa910716Fd4b6b4447AeA613993898eeB63844Ad;
 
         roots = new bytes32[](8);
@@ -195,7 +198,6 @@ contract ButtplugTest is Test {
         vm.prank(user2);
         huffplug.mintWithMerkle(roots);
 
-
         address user3 = 0x673437D956065Fa0dc416c4A519CC5c37f6AD389;
         roots[0] = 0x0000000000000000000000006666ec43deb25910121dd544e89301a86165fa6b;
         roots[1] = 0x31e85a3621abd6389b837e72024a8e2e97a34ad7d669b4f2c6d769747b089fa6;
@@ -205,18 +207,15 @@ contract ButtplugTest is Test {
         roots[5] = 0xf7f97a6790805d13b9b30da262c4bc167c5f4ce84fdfd8e31f8adbd9c24aa5c3;
         roots[6] = 0x352f1d855d1a93eb69ad310d832a1f4bdf1de4320c08eb9d12cc6710334670d2;
         roots[7] = 0xfbbbfd743cceb9d2bdc8602f027333f04f9078b3684a73c5c33fb8d79e5baed5;
-        
+
         vm.label(user3, "user3");
         vm.prank(user3);
         huffplug.mintWithMerkle(roots);
 
         assertEq(huffplug.totalMinted(), 3, "buttplugs minted should be 3");
-
     }
 
-
     function testRendererFuzz(uint256 id) public {
-        
         if (id == 0 || id > 1024) {
             vm.expectRevert();
             huffplug.tokenURI(id);
