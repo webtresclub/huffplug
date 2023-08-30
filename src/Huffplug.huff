@@ -139,8 +139,10 @@
     dup1 __FUNC_SIG("safeTransferFrom(address,address,uint256,bytes)") eq safeTransferFromData jumpi
 
     /// @dev owner pattern dispatcher
-    OWNED_MAIN()
-        dup1 __FUNC_SIG(setUri)               eq setUri jumpi
+    dup1 __FUNC_SIG(setOwner) eq set_owner jumpi
+    dup1 __FUNC_SIG(owner)    eq owner jumpi
+    
+    dup1 __FUNC_SIG(setUri)               eq setUri jumpi
 
 
     dup1 __FUNC_SIG(totalSupply)                eq totalSupply jumpi
@@ -212,6 +214,14 @@
         TOKEN_URI_METADATA()
     contractURI:
         CONTRACT_URI_METADATA()
+    
+    
     setUri:
         SET_URI()
+
+    set_owner:
+      SET_OWNER()
+    owner:
+          OWNER()
+
 }
