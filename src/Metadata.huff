@@ -1,14 +1,15 @@
-// @dev Usage LOG_STACK_1(0x00), LOG_STACK_2(0x00), ..., etc
-#include "Huff-Console/Console.huff"
+#include "huffmate/auth/Owned.huff"
 
 #include "huffmate/utils/Errors.huff"
 
+// @dev Usage LOG_STACK_1(0x00), LOG_STACK_2(0x00), ..., etc
+#include "Huff-Console/Console.huff"
 
 #define constant URI_SLOT_POINTER = FREE_STORAGE_POINTER()
 // keccak256("tokenUri") - 1
 #define constant URI_POINTER = 0x3f62dec5b8b67ab667ad08e83a2c3ba1db7fdb4ab8dc3a33c057c4fddec8d3dd
 
-#define macro CONSTRUCTOR() = takes (0) returns (0) {
+#define macro METADATA_CONSTRUCTOR() = takes (0) returns (0) {
     [URI_SLOT_POINTER] [URI_POINTER] sstore
     [URI_POINTER] 0x00 sstore // length 0
     // URI should be empty
@@ -30,7 +31,33 @@
     REQUIRE()
 }
 
-#define macro tokenURI() = takes (0) returns (0) {
+#define macro SET_URI() = takes(0) returns (0) {
+    ONLY_OWNER()
+    [URI_POINTER]
+        
+        0x24 calldataload   // length, [URI_POINTER]
+        dup2                // [URI_POINTER], length, [URI_POINTER]
+        sstore              // [URI_POINTER]
+
+        0x44 calldataload   // str(0), [URI_POINTER]
+        dup2 0x20 add       // [URI_POINTER+0x20], [URI_POINTER]
+        sstore              // [URI_POINTER]
+        
+        0x64 calldataload   // str(1), [URI_POINTER]
+        dup2 0x40 add       // [URI_POINTER+0x40], [URI_POINTER]
+        sstore              // [URI_POINTER]
+
+        0x84 calldataload   // str(2), [URI_POINTER]
+        dup2 0x60 add       // [URI_POINTER+0x60], [URI_POINTER]
+        sstore              // [URI_POINTER]
+
+        0x84 calldataload   // str(2), [URI_POINTER]
+        dup2 0x80 add       // [URI_POINTER+0x80], [URI_POINTER]
+        sstore              // [URI_POINTER]
+        stop
+}
+
+#define macro TOKEN_URI_METADATA() = takes (0) returns (0) {
     0x20
     [URI_POINTER]
 
@@ -116,7 +143,6 @@
     
     end:
     
-    pop pop pop pop 
     
     0xa0 0x00 return
 }
@@ -125,20 +151,7 @@
 // ***               Function dispatcher                     ***
 // *************************************************************
 
-#define macro MAIN() = takes (0) returns (0) {
-    0x00 calldataload 0xE0 shr  // [sig]
-
-    dup1 __FUNC_SIG(setUri)                       eq setUri jumpi
-    dup1 __FUNC_SIG(getUri)                       eq getUri jumpi
-    dup1 __FUNC_SIG(tokenURI)                     eq tokenURI jumpi
-
-    invalid
-
-    tokenURI:
-    tokenURI()
-        
-
-    getUri:
+#define macro GET_URI() = takes (0) returns (0) {
         0x20
         [URI_POINTER]
 
@@ -167,41 +180,4 @@
         0x80 mstore
         
         0xa0 0x00 return
-
-    setUri:
-        [URI_POINTER]
-        
-        0x24 calldataload   // length, [URI_POINTER]
-        dup2                // [URI_POINTER], length, [URI_POINTER]
-        sstore              // [URI_POINTER]
-
-        0x44 calldataload   // str(0), [URI_POINTER]
-        dup2 0x20 add       // [URI_POINTER+0x20], [URI_POINTER]
-        sstore              // [URI_POINTER]
-        
-        0x64 calldataload   // str(1), [URI_POINTER]
-        dup2 0x40 add       // [URI_POINTER+0x40], [URI_POINTER]
-        sstore              // [URI_POINTER]
-
-        0x84 calldataload   // str(2), [URI_POINTER]
-        dup2 0x60 add       // [URI_POINTER+0x60], [URI_POINTER]
-        sstore              // [URI_POINTER]
-
-        0x84 calldataload   // str(2), [URI_POINTER]
-        dup2 0x80 add       // [URI_POINTER+0x80], [URI_POINTER]
-        sstore              // [URI_POINTER]
-        stop
-/*
-        startSet:
-            0x20 add
-            dup1 calldataload 
-
-
-
-        0x6ce8ea55
-        0000000000000000000000000000000000000000000000000000000000000020
-        0000000000000000000000000000000000000000000000000000000000000004
-        686f6c6100000000000000000000000000000000000000000000000000000000
-*/
-
 }

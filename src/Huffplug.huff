@@ -23,8 +23,13 @@
 
 
 #include "./Plugger.huff"
+#include "./Metadata.huff"
 
 #include "huffmate/tokens/ERC721.huff"
+
+// @dev Owner pattern is only use to gain access to the Opensea collection admin 
+//      functions and admin tokens url
+#include "huffmate/auth/Owned.huff"
 
 // @dev this is for import the macro STATICCALL()
 #include "huffmate/utils/Calls.huff"
@@ -40,7 +45,7 @@
 // *************************************************************
 
 // @dev This is the address of the contract that will render the tokenURI
-#define constant TOKEN_RENDERER = 0x00
+#define constant TOKEN_RENDERER = 0x00 // @todo delete this
 
 
 // *************************************************************
@@ -112,10 +117,10 @@
 // *************************************************************
 
 #define macro CONSTRUCTOR() = takes (0) returns (0) {
-    CONSTRUCTOR_PLUGGER()
+    METADATA_CONSTRUCTOR()
+    OWNED_CONSTRUCTOR()
 
-    // this will setup the immutable and return de code with the immutable
-    VERGA_CONSTRUCTOR()
+    PLUGGER_CONSTRUCTOR()
 }
 
 
@@ -142,9 +147,8 @@
     dup1 __FUNC_SIG(supportsInterface)          eq supportsInterface jumpi
     
     /// @dev this functions are delegate to the TokenRenderer
-    dup1 __FUNC_SIG(tokenURI)                   eq delegateTokenRenderer jumpi
+    dup1 __FUNC_SIG(tokenURI)                   eq tokenURI jumpi
     dup1 __FUNC_SIG(contractURI)                eq delegateTokenRenderer jumpi
-    dup1 __FUNC_SIG(owner)                      eq delegateTokenRenderer jumpi
 
     dup1 __FUNC_SIG(getApproved)                eq getApproved jumpi
     dup1 __FUNC_SIG(isApprovedForAll)           eq isApprovedForAll jumpi
@@ -153,6 +157,11 @@
     dup1 __FUNC_SIG(ownerOf)                    eq ownerOf jumpi
 
     dup1 __FUNC_SIG("safeTransferFrom(address,address,uint256,bytes)") eq safeTransferFromData jumpi
+
+    /// @dev owner pattern dispatcher
+    OWNED_MAIN()
+        dup1 __FUNC_SIG(setUri)               eq setUri jumpi
+
 
     dup1 __FUNC_SIG(totalSupply)                eq totalSupply jumpi
     dup1 __FUNC_SIG(totalMinted)                eq totalMinted jumpi
@@ -220,4 +229,10 @@
         BALANCE_OF()
     ownerOf:
         OWNER_OF()
+
+    tokenURI:
+        TOKEN_URI_METADATA()
+
+    setUri:
+        SET_URI()
 }

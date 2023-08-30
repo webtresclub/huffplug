@@ -30,4 +30,7 @@ interface IHuffplug is IERC721Metadata, IOwnable {
     function currentDifficulty() external view returns (uint256);
     function totalMinted() external view returns (uint256);
     function salt() external view returns (bytes32);
+
+    // owner funcs
+    function setUri(string memory) external;
 }

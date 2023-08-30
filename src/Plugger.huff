@@ -39,7 +39,7 @@
 // ***                   Constructor                         ***
 // *************************************************************
 
-#define macro CONSTRUCTOR_PLUGGER() = takes(0) returns(0) {
+#define macro PLUGGER_CONSTRUCTOR() = takes(0) returns(0) {
     0x01 number sub blockhash       // [blockhash(block.number - 1)]
     [SALT_STORAGE_SLOT] sstore      // []
 }

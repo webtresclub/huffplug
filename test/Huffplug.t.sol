@@ -3,7 +3,6 @@ pragma solidity ^0.8.13;
 
 import {Test, console2, Vm} from "forge-std/Test.sol";
 import {compile} from "./Deploy.sol";
-import {TokenRenderer} from "src/TokenRenderer.sol";
 import {LibString} from "solmate/utils/LibString.sol";
 
 import {IHuffplug} from "src/IHuffplug.sol";
@@ -12,10 +11,9 @@ using {compile} for Vm;
 
 contract ButtplugTest is Test {
     IHuffplug public huffplug;
-    TokenRenderer public tokenRenderer;
 
-    bytes32 SALT_SLOT = bytes32(uint256(0x00));
-    bytes32 TOTAL_MINTED_SLOT = bytes32(uint256(0x01));
+    bytes32 SALT_SLOT = bytes32(uint256(0x02));
+    bytes32 TOTAL_MINTED_SLOT = bytes32(uint256(0x03));
 
     address public user = makeAddr("user");
     address public owner = makeAddr("owner");
@@ -24,18 +22,16 @@ contract ButtplugTest is Test {
     string baseUrl = "ipfs://bafybeia7h7n6osru3b4mvivjb3h2fkonvmotobvboqw3k3v4pvyv5oyzse/";
     string contractURI = "ipfs://CONTRACTURI/";
 
-    uint256 constant start = 1000000;
-
+    uint256 constant COLLECTION_START = 1000000;
+    bytes32 constant MERKLE_HASH = 0x51496785f4dd04d525b568df7fa6f1057799bc21f7e76c26ee77d2f569b40601;
     function setUp() public {
-        vm.warp(1000000);
+        vm.warp(COLLECTION_START);
         vm.prank(owner);
-        TokenRenderer renderer = new TokenRenderer(baseUrl, contractURI);
 
-        bytes memory bytecode =
-            vm.compile(address(renderer), 0x51496785f4dd04d525b568df7fa6f1057799bc21f7e76c26ee77d2f569b40601);
+        bytes memory bytecode = vm.compile(COLLECTION_START, MERKLE_HASH);
 
         // send owner to the constructor, owner is only for opensea main page admin
-        bytecode = bytes.concat(bytecode);
+        bytecode = bytes.concat(bytecode, abi.encode(owner));
 
         address deployed;
         assembly {
@@ -44,6 +40,7 @@ contract ButtplugTest is Test {
 
         vm.label(deployed, "huffplug");
         huffplug = IHuffplug(deployed);
+        huffplug.setUri(baseUrl);
     }
 
     function testDifficulty() public {
@@ -63,26 +60,26 @@ contract ButtplugTest is Test {
         vm.store(address(huffplug), TOTAL_MINTED_SLOT, bytes32(uint256(20)));
         assertEq(huffplug.currentDifficulty(), 9, "difficulty should be 9");
 
-        console2.logUint(start);
+        console2.logUint(COLLECTION_START);
         // if there are no new mint the difficulty shoud decay after some time
-        vm.warp(start + 1 days);
+        vm.warp(COLLECTION_START + 1 days);
         assertEq(huffplug.currentDifficulty(), 9, "difficulty should be 9");
 
-        vm.warp(start + 4 days);
+        vm.warp(COLLECTION_START + 4 days);
         assertEq(huffplug.currentDifficulty(), 9, "difficulty should be 9");
-        vm.warp(start + 5 days);
+        vm.warp(COLLECTION_START + 5 days);
         assertEq(huffplug.currentDifficulty(), 8, "difficulty should be 8");
 
-        vm.warp(start + 12 days);
+        vm.warp(COLLECTION_START + 12 days);
         assertEq(huffplug.currentDifficulty(), 7, "difficulty should be 7");
-        vm.warp(start + 17 days);
+        vm.warp(COLLECTION_START + 17 days);
         assertEq(huffplug.currentDifficulty(), 6, "difficulty should be 6");
-        vm.warp(start + 20 days);
+        vm.warp(COLLECTION_START + 20 days);
         assertEq(huffplug.currentDifficulty(), 5, "difficulty should be 5");
-        vm.warp(start + 300 days);
+        vm.warp(COLLECTION_START + 300 days);
         assertEq(huffplug.currentDifficulty(), 5, "difficulty should be 5");
 
-        vm.warp(start + 1 days);
+        vm.warp(COLLECTION_START + 1 days);
         vm.store(address(huffplug), TOTAL_MINTED_SLOT, /* slot of totalminted */ bytes32(uint256(1000)));
         assertEq(huffplug.currentDifficulty(), 32, "difficulty should be 32");
     }
@@ -216,11 +213,20 @@ contract ButtplugTest is Test {
     }
 
     function testRendererFuzz(uint256 id) public {
-        if (id == 0 || id > 1024) {
+        if(id == 0 || id > 1024) {
             vm.expectRevert();
             huffplug.tokenURI(id);
         } else {
-            string memory expected = string.concat(baseUrl, LibString.toString(id), ".json");
+            string memory expected;
+            if (id < 10) {
+                expected = string.concat(baseUrl,"000", LibString.toString(id));
+            } else if(id < 100) {
+                expected = string.concat(baseUrl,"00", LibString.toString(id));
+            } else if(id < 1000) {
+                expected = string.concat(baseUrl,"0", LibString.toString(id));
+            } else {
+                expected = string.concat(baseUrl, LibString.toString(id));
+            }
             assertEq(huffplug.tokenURI(id), expected);
         }
     }
@@ -232,19 +238,21 @@ contract ButtplugTest is Test {
     }
 
     function testTokenUri() public {
-        assertEq(huffplug.tokenURI(3), string.concat(baseUrl, "3.json"));
-        assertEq(huffplug.tokenURI(10), string.concat(baseUrl, "10.json"));
+        assertEq(huffplug.tokenURI(3), string.concat(baseUrl, "0003"));
+        assertEq(huffplug.tokenURI(10), string.concat(baseUrl, "0010"));
         //vm.expectRevert();
         //huffplug.tokenURI(0);
 
         //vm.expectRevert();
         //huffplug.tokenURI(1025);
 
-        assertEq(huffplug.tokenURI(1024), string.concat(baseUrl, "1024.json"));
+        assertEq(huffplug.tokenURI(1024), string.concat(baseUrl, "1024"));
     }
 
     function testOwner() public {
-        assertEq(huffplug.owner(), owner);
+        console2.log(owner);
+        console2.log(huffplug.owner());
+        assertEq(huffplug.owner(), owner, "wrong owner");
     }
 
     function testSetOwner(address new_owner) public {
@@ -252,11 +260,11 @@ contract ButtplugTest is Test {
 
         vm.prank(new_owner);
         vm.expectRevert();
-        tokenRenderer.transferOwnership(new_owner);
+        huffplug.setOwner(new_owner);
         assertEq(owner, huffplug.owner());
 
         vm.prank(owner);
-        tokenRenderer.transferOwnership(new_owner);
+        huffplug.setOwner(new_owner);
         assertEq(new_owner, huffplug.owner());
     }
 }

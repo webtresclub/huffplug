@@ -12,46 +12,18 @@
 #define constant MAX_DIFFICULTY     = 0x20
 #define constant ONE_DAY            = 0x015180 // 1 day = 86400 = 0x015180
 
+/// @dev The timestamp when the collection started, useful to calculate the difficulty  
+#define constant COLLECTION_START   = 0x00
+
 // *************************************************************
 // ***                      Storage                          ***
 // *************************************************************
 
-/// @dev The timestamp when the collection started, useful to calculate the difficulty
-
-// *************************************************************
-// ***                   Constructor                         ***
-// *************************************************************
-
-#define macro VERGA_CONSTRUCTOR() = takes (0) returns (0) {
-  // Usual code copy to memory routine:
-    codesize             // [codesize]
-    dup1                 // [codesize, codesize]
-    0x00 0x00 codecopy   // [codesize] Copy all code to memory
-
-    //  size of code + immutable size
-    0x20 add // [codesize+immutable_size]
-
-    timestamp 
-    codesize mstore 
-
-    pc 0x0b add          // [PC+11, codesize+immutable_size] what to substract from total codesize (current pointer + 11 instructions below)
-    swap1                // [codesize+immutable_size, PC+11] (Where PC is the amount of constructor at the first PC call and 11 is amount of instructions after)
-    sub                  // [codesize + immutable_size - PC - 11] Size of only the deployed contract bytecode + immutable_size
-    pc 0x05 add return   // [PC+5, codesize + immutable_size - PC - 11] Position of the deployed contract bytecode. Returns the code.
-}
 
 // *************************************************************
 // ***                      Macros                           ***
 // *************************************************************
 
-/// @notice Retrives an "immutable" from the runtime bytecode.
-#define macro _GET_IMMUTABLE(offset_end, free_memory) = takes (0) returns (1) {
-    0x20                        // [size]
-    <offset_end> codesize sub   // [offset_code, size]
-    <free_memory>               // [offset_memory, offset_code, size]
-    codecopy                    // []
-    <free_memory> mload         // [value]
-}
 
 /// @dev Returns the current difficulty, calculated using VERGA curve
 ///      The difficulty is calculated using the following formula:
@@ -66,7 +38,7 @@
   /// @dev We expect to mint 1 Buttplug (UwU) per day
   // uint256 delta = (block.timestamp - COLLECTION_START) / 1 days;
   [ONE_DAY]                                         // [ONE_DAY, totalMinted, totalMinted]
-  _GET_IMMUTABLE(0x20, 0x00) timestamp           // [timestamp, COLLECTION_START, ONE_DAY, totalMinted, totalMinted]
+  [COLLECTION_START] timestamp           // [timestamp, COLLECTION_START, ONE_DAY, totalMinted, totalMinted]
   sub                                               // [timestamp - COLLECTION_START, ONE_DAY, totalMinted, totalMinted]
   div                                               // [(timestamp - COLLECTION_START) / ONE_DAY, totalMinted, totalMinted]
 
