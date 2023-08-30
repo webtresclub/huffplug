@@ -1,0 +1,188 @@
+// @dev Usage LOG_STACK_1(0x00), LOG_STACK_2(0x00), ..., etc
+ #include "Huff-Console/Console.huff"
+
+#define constant URI_SLOT_POINTER = FREE_STORAGE_POINTER()
+// keccak256("tokenUri") - 1
+// #define constant URI_POINTER = 0x3f62dec5b8b67ab667ad08e83a2c3ba1db7fdb4ab8dc3a33c057c4fddec8d3dd
+#define constant URI_POINTER = 0xffffff000000
+
+#define macro CONSTRUCTOR() = takes (0) returns (0) {
+    [URI_SLOT_POINTER] [URI_POINTER] sstore
+    [URI_POINTER] 0x00 sstore // length 0
+    // URI should be empty
+}
+
+#define function setUri(string) nonpayable returns ()
+#define function getUri() nonpayable returns (string)
+#define function tokenURI(uint256) nonpayable returns (string)
+
+
+// *************************************************************
+// ***               Function dispatcher                     ***
+// *************************************************************
+
+
+#define macro tokenURI() = takes (0) returns (0) {
+    0x20
+    [URI_POINTER]
+
+    dup2 0x00 mstore     // URI_POINTER, 0x20
+                         // MEM: [0x00:0x20]
+        
+    dup1 sload           // LEN,URI_POINTER, 0x20
+
+    // 4 == len("XXXX") where XXXX is the id
+    0x04 add            // LEN+4, URI_POINTER, 0x20
+
+    dup1                // LEN+4, LEN+4, URI_POINTER, 0x20
+    dup4                // 0x20, LEN+4, LEN+4, URI_POINTER, 0x20
+    mstore              // LEN+4, URI_POINTER, 0x20
+                        // MEM: [0x00:0x20, 0x20:LEN+4]
+    0x40 add
+
+    swap2               // 0x20, URI_POINTER, LEN+4
+    dup2                // URI_POINTER, 0x20, URI_POINTER, LEN+4
+    
+    dup2                // 0x20, URI_POINTER, 0x20, URI_POINTER, LEN+4
+    add                 // URI_POINTER+0x20, 0x20, URI_POINTER, LEN+4
+    dup1 sload          // str(0), URI_POINTER+0x20, 0x20, URI_POINTER, LEN+4
+    0x40 mstore         // URI_POINTER+0x20, 0x20, URI_POINTER, LEN+4
+                        // MEM: [0x00:0x20, 0x20:LEN+4, 0x40:str(0)]
+
+                         // URI_POINTER+0x20, 0x20, URI_POINTER, LEN+4
+
+    dup2                 // 0x20, URI_POINTER+0x20, 0x20, URI_POINTER, LEN+4
+    add                  // URI_POINTER+0x40, 0x20, URI_POINTER, LEN+4
+    sload                // URI_POINTER+0x40, 0x20, URI_POINTER, LEN+4
+    0x60 mstore
+
+    // URI_POINTER+0x40, 0x20, URI_POINTER, LEN+4
+    swap2  // URI_POINTER+0x20, 0x20, URI_POINTER, LEN+4
+    0x04 // counter
+    swap1
+    0x30  // 48, mempos, counter=4
+    0x04 calldataload // number, 48, mempos, counter
+    0x0a  // 10, number, 48, mempos, counter
+
+
+    start:
+
+    dup1  // 10, 10, number, 48, mempos, counter
+
+    dup3  // number, 10, 10, number, 48, mempos
+    mod   // mod, 10, number, 48, mempos
+    dup4 add // mod + 48, 10, number, 48, mempos
+    dup5     // mempos, mod + 48, 10, number, 48,mempos
+
+    mstore8 // 10, number, 48,mempos
+    // 10, number, 48,mempos
+    
+    dup1    // 10, 10, number, 48,mempos
+    swap2   // number, 10, 10, 48,mempos
+
+    div     // number / 10, 10, 48,mempos
+    dup4    // mempos, number / 10, 10, 48, mempos
+    0x00 not add // mempos-1, number, 10, 48, mempos
+
+    swap4             // mempos, number, 10, 48, mempos-1
+    pop               // number, 10, 48, mempos-1
+
+    swap1             // 10, number, 48, mempos-1
+    
+    dup5 
+    
+    0x00 not add
+   
+    swap5
+    pop
+    
+    dup5 iszero end jumpi
+    start jump
+    
+    end:
+    
+    pop pop pop pop 
+    
+    0xa0 0x00 return
+}
+
+#define macro MAIN() = takes (0) returns (0) {
+    0x00 calldataload 0xE0 shr  // [sig]
+
+    dup1 __FUNC_SIG(setUri)                       eq setUri jumpi
+    dup1 __FUNC_SIG(getUri)                       eq getUri jumpi
+    dup1 __FUNC_SIG(tokenURI)                     eq tokenURI jumpi
+
+    invalid
+
+    tokenURI:
+    tokenURI()
+        
+
+    getUri:
+        0x20
+        [URI_POINTER]
+
+        // URI_POINTER, 0x20
+
+        dup2 0x00 mstore     // URI_POINTER, 0x20
+                             // MEM: [0x00:0x20]
+        
+        dup1 sload           // LEN,URI_POINTER, 0x20
+        dup3 mstore          // URI_POINTER, 0x20
+                             // MEM: [0x00:0x20, 0x20:LEN]
+
+                             // URI_POINTER, 0x20
+        
+        dup2 add             // URI_POINTER+0x20, 0x20
+        dup1 sload           // str(0), URI_POINTER+0x20, 0x20
+        0x40 mstore          // URI_POINTER+0x20, 0x20
+                             // MEM: [0x00:0x20, 0x20:LEN, 0x40:str(0)]
+
+                             // URI_POINTER+0x20, 0x20
+
+        dup1 0x20 add sload
+        0x60 mstore
+
+        //dup1 0x60 add sload
+        //0x80 mstore
+        
+        0xa0 0x00 return
+
+    setUri:
+        [URI_POINTER]
+        
+        0x24 calldataload   // length, [URI_POINTER]
+        dup2                // [URI_POINTER], length, [URI_POINTER]
+        sstore              // [URI_POINTER]
+
+        0x44 calldataload   // str(0), [URI_POINTER]
+        dup2 0x20 add       // [URI_POINTER+0x20], [URI_POINTER]
+        sstore              // [URI_POINTER]
+        
+        0x64 calldataload   // str(1), [URI_POINTER]
+        dup2 0x40 add       // [URI_POINTER+0x40], [URI_POINTER]
+        sstore              // [URI_POINTER]
+
+        0x84 calldataload   // str(2), [URI_POINTER]
+        dup2 0x60 add       // [URI_POINTER+0x60], [URI_POINTER]
+        sstore              // [URI_POINTER]
+
+        0x84 calldataload   // str(2), [URI_POINTER]
+        dup2 0x80 add       // [URI_POINTER+0x80], [URI_POINTER]
+        sstore              // [URI_POINTER]
+        stop
+/*
+        startSet:
+            0x20 add
+            dup1 calldataload 
+
+
+
+        0x6ce8ea55
+        0000000000000000000000000000000000000000000000000000000000000020
+        0000000000000000000000000000000000000000000000000000000000000004
+        686f6c6100000000000000000000000000000000000000000000000000000000
+*/
+
+}
