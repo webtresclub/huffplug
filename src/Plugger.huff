@@ -40,7 +40,8 @@
 // *************************************************************
 
 #define macro PLUGGER_CONSTRUCTOR() = takes(0) returns(0) {
-    0x01 number sub blockhash       // [blockhash(block.number - 1)]
+    number 0x00 not add
+    blockhash       // [blockhash(block.number - 1)]
     [SALT_STORAGE_SLOT] sstore      // []
 }
 
