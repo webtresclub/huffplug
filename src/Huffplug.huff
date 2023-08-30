@@ -4,6 +4,24 @@
 // source code: https://github.com/webtresclub/huffplug
 // mint on goerli: https://buttplug-homepage.vercel.app/
 
+/*
+  ▄▀  ██      ▄▄▄▄▄       ███   ██   ██▄           
+▄▀    █ █    █     ▀▄     █  █  █ █  █  █          
+█ ▀▄  █▄▄█ ▄  ▀▀▀▀▄       █ ▀ ▄ █▄▄█ █   █         
+█   █ █  █  ▀▄▄▄▄▀        █  ▄▀ █  █ █  █          
+ ███     █                ███      █ ███▀          
+        █                         █                
+       ▀                         ▀                 
+   ▄   ▄████     ▄▄▄▄▀       ▄▀  ████▄ ████▄ ██▄   
+    █  █▀   ▀ ▀▀▀ █        ▄▀    █   █ █   █ █  █  
+██   █ █▀▀        █        █ ▀▄  █   █ █   █ █   █ 
+█ █  █ █         █         █   █ ▀████ ▀████ █  █  
+█  █ █  █       ▀           ███              ███▀  
+█   ██   ▀                                         
+                    UwU                                  
+*/
+
+
 #include "./Plugger.huff"
 
 #include "huffmate/tokens/ERC721.huff"
