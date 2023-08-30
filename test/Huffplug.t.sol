@@ -24,6 +24,7 @@ contract ButtplugTest is Test {
 
     uint256 constant COLLECTION_START = 1000000;
     bytes32 constant MERKLE_HASH = 0x51496785f4dd04d525b568df7fa6f1057799bc21f7e76c26ee77d2f569b40601;
+
     function setUp() public {
         vm.warp(COLLECTION_START);
         vm.prank(owner);
@@ -213,17 +214,17 @@ contract ButtplugTest is Test {
     }
 
     function testRendererFuzz(uint256 id) public {
-        if(id == 0 || id > 1024) {
+        if (id == 0 || id > 1024) {
             vm.expectRevert();
             huffplug.tokenURI(id);
         } else {
             string memory expected;
             if (id < 10) {
-                expected = string.concat(baseUrl,"000", LibString.toString(id));
-            } else if(id < 100) {
-                expected = string.concat(baseUrl,"00", LibString.toString(id));
-            } else if(id < 1000) {
-                expected = string.concat(baseUrl,"0", LibString.toString(id));
+                expected = string.concat(baseUrl, "000", LibString.toString(id));
+            } else if (id < 100) {
+                expected = string.concat(baseUrl, "00", LibString.toString(id));
+            } else if (id < 1000) {
+                expected = string.concat(baseUrl, "0", LibString.toString(id));
             } else {
                 expected = string.concat(baseUrl, LibString.toString(id));
             }

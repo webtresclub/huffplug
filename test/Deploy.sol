@@ -13,7 +13,7 @@ function compile(Vm vm, uint256 collectionStart, bytes32 merkleRoot) returns (by
     cmd[6] = "-c";
     cmd[7] = string.concat("MERKLE_ROOT=", bytesToString(abi.encode(merkleRoot)));
     cmd[8] = string.concat("COLLECTION_START=", bytesToString(abi.encode(collectionStart)));
-    
+
     return vm.ffi(cmd);
 }
 
