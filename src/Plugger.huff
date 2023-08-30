@@ -30,10 +30,10 @@
 // *************************************************************
 
 /// @dev The number of Buttplug (UwU) that have been minted, useful to calculate the difficulty
-#define constant MINTED_STORAGE_SLOT = FREE_STORAGE_POINTER()
+#define constant MINTED_STORAGE_SLOT = 0x0420
 
 /// @dev The salt used to generate the pseudo random number for the minting
-#define constant SALT_STORAGE_SLOT   = FREE_STORAGE_POINTER()
+#define constant SALT_STORAGE_SLOT   = 0x031337
 
 // *************************************************************
 // ***                   Constructor                         ***
@@ -142,54 +142,56 @@
 /// @param nonce The nonce used to generate the pseudo random number
 /// function mint(uint256 nonce) external;
 #define macro MINT() = takes(0) returns(0) {
-    [MINTED_STORAGE_SLOT] sload           // [totalMinted]
+    0x01
 
-    REQUIRE_MINT_LIMIT()                  // [totalMinted]
+    [MINTED_STORAGE_SLOT] sload           // [totalMinted, 0x01]
+
+    REQUIRE_MINT_LIMIT()                  // [totalMinted, 0x01]
 
     // pseudo random number
     //    bytes32 random = keccak256(abi.encodePacked(msg.sender, salt, nonce));
-    caller                                // [caller, totalMinted]                mem = []
-    0x00 mstore                           // [totalMinted]                        mem = [caller]
-    [SALT_STORAGE_SLOT] sload             // [salt, totalMinted]                  mem = [caller]
-    0x20 mstore                           // [totalMinted]                        mem = [caller, salt]
-    0x04 calldataload                     // [nonce, totalMinted]                 mem = [caller, salt]
-    0x40 mstore                           // [totalMinted]                        mem = [caller, salt, nonce]
+    caller                                // [caller, totalMinted, 0x01]                mem = []
+    0x00 mstore                           // [totalMinted, 0x01]                        mem = [caller]
+    [SALT_STORAGE_SLOT] sload             // [salt, totalMinted, 0x01]                  mem = [caller]
+    0x20 mstore                           // [totalMinted, 0x01]                        mem = [caller, salt]
+    0x04 calldataload                     // [nonce, totalMinted, 0x01]                 mem = [caller, salt]
+    0x40 mstore                           // [totalMinted, 0x01]                        mem = [caller, salt, nonce]
     
     // @dev use 0x0c skip empty bytes from caller address, and emulate abi.encodePacked(msg.sender, salt, nonce)
-    0x54 0x0c sha3                        // [random, totalMinted]
+    0x54 0x0c sha3                        // [random, totalMinted, 0x01]
 
-    swap1                                 // [totalMinted, random]
+    swap1                                 // [totalMinted, random, 0x01]
 
-    CURRENT_DIFFICULTY()                  // [difficulty, totalMinted, random]
-    0x02 shl                              // [difficulty * 4, totalMinted, random]
+    CURRENT_DIFFICULTY()                  // [difficulty, totalMinted, random, 0x01]
+    0x02 shl                              // [difficulty * 4, totalMinted, random, 0x01]
 
-    0x0100 sub                            // [256 - (difficulty * 4), totalMinted, random]
+    0x0100 sub                            // [256 - (difficulty * 4), totalMinted, random, 0x01]
 
-    dup3                                  // [random, 256 - (difficulty * 4), totalMinted, random]
-    swap1                                 // [256 - (difficulty * 4), random, totalMinted, random]
+    dup3                                  // [random, 256 - (difficulty * 4), totalMinted, random, 0x01]
+    swap1                                 // [256 - (difficulty * 4), random, totalMinted, random, 0x01]
 
     // shift random by (256 - (difficulty * 4)) bits
     // 000...00XXX...XXX >> (256 - difficulty in bits)
     // 0000000.00XXX..XX
-    shr                                   // [shiftedRandom, totalMinted, random]
+    shr                                   // [shiftedRandom, totalMinted, random, 0x01]
 
-    __RIGHTPAD(0x57524f4e475f53414c54)    // ["WRONG_SALT", shiftedRandom, totalMinted, random]
-    0x0a                                  // [10 (length), "WRONG_SALT", shiftedRandom, totalMinted, random]
-    dup3 iszero                           // [shiftedRandom == 0, 10 (length), "WRONG_SALT", shiftedRandom, totalMinted, random]
-    REQUIRE()                             // [shiftedRandom, totalMinted, random]
-    pop                                   // [totalMinted, random]
+    __RIGHTPAD(0x57524f4e475f53414c54)    // ["WRONG_SALT", shiftedRandom, totalMinted, random, 0x01]
+    0x0a                                  // [10 (length), "WRONG_SALT", shiftedRandom, totalMinted, random, 0x01]
+    dup3 iszero                           // [shiftedRandom == 0, 10 (length), "WRONG_SALT", shiftedRandom, totalMinted, random, 0x01]
+    REQUIRE()                             // [shiftedRandom, totalMinted, random, 0x01]
+    pop                                   // [totalMinted, random, 0x01]
 
     // minted = _minted + 1;
-    0x01 add                              // [totalMinted + 1, random]
-    [MINTED_STORAGE_SLOT] sstore          // [random]
+    dup3 add                              // [totalMinted + 1, random, 0x01]
+    [MINTED_STORAGE_SLOT] sstore          // [random, 0x01]
 
     // update salt
     // salt = blockhash(block.number - 1);
-    0x01 number sub blockhash             // [blockhash(block.number - 1), random]
-    [SALT_STORAGE_SLOT] sstore            // [random]
+    dup3 number sub blockhash             // [blockhash(block.number - 1), random, 0x01]
+    [SALT_STORAGE_SLOT] sstore            // [random, 0x01]
 
-    [MAX_SUPPLY] swap1                    // [random, MAX_SUPPLY]
-    mod 0x01 add                          // [random) % MAX_SUPPLY + 1 = nftId]
+    [MAX_SUPPLY] swap1                    // [random, MAX_SUPPLY, 0x01]
+    mod add                          // [random) % MAX_SUPPLY + 1 = nftId]
 
     caller                                // [msg.sender, nftId]
 

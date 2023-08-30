@@ -44,8 +44,6 @@
 // ***                    Constants                          ***
 // *************************************************************
 
-// @dev This is the address of the contract that will render the tokenURI
-#define constant TOKEN_RENDERER = 0x00 // @todo delete this
 
 
 // *************************************************************
@@ -84,23 +82,6 @@
     0x20 mstore                                 // [name_value]
     0x40 mstore                                 // []
     0x60 0x00 return
-}
-
-#define macro DELEGATE_TOKENRENDERER() = takes (0) {
-    // tokenURI SIG + token id
-    0x24 0x00 0x00 calldatacopy
-
-    // STATICCALL(ret_size,ret_offset,arg_size,arg_offset,to,maxgas)
-    STATICCALL(0x00,0x00,0x24,0x00,TOKEN_RENDERER,gas)
-
-    // Revert if call is unsuccessful
-    cont jumpi
-    0x00 0x00 revert
-    cont:
-
-    returndatasize 0x00 0x00 returndatacopy
-    // Load the result
-    returndatasize 0x00 return
 }
 
 #define macro SYMBOL() = takes (0) {
@@ -146,9 +127,8 @@
     dup1 __FUNC_SIG(symbol)                     eq symbol jumpi
     dup1 __FUNC_SIG(supportsInterface)          eq supportsInterface jumpi
     
-    /// @dev this functions are delegate to the TokenRenderer
     dup1 __FUNC_SIG(tokenURI)                   eq tokenURI jumpi
-    dup1 __FUNC_SIG(contractURI)                eq delegateTokenRenderer jumpi
+    // @TODO dup1 __FUNC_SIG(contractURI)                eq delegateTokenRenderer jumpi
 
     dup1 __FUNC_SIG(getApproved)                eq getApproved jumpi
     dup1 __FUNC_SIG(isApprovedForAll)           eq isApprovedForAll jumpi
@@ -215,8 +195,6 @@
         NAME()
     symbol:
         SYMBOL()
-    delegateTokenRenderer:
-        DELEGATE_TOKENRENDERER()
     supportsInterface:
         SUPPORTS_INTERFACE()
 
@@ -232,7 +210,8 @@
 
     tokenURI:
         TOKEN_URI_METADATA()
-
+    contractURI:
+        CONTRACT_URI_METADATA()
     setUri:
         SET_URI()
 }

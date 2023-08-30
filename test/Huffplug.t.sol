@@ -12,8 +12,8 @@ using {compile} for Vm;
 contract ButtplugTest is Test {
     IHuffplug public huffplug;
 
-    bytes32 SALT_SLOT = bytes32(uint256(0x02));
-    bytes32 TOTAL_MINTED_SLOT = bytes32(uint256(0x03));
+    bytes32 SALT_SLOT = bytes32(uint256(0x031337));
+    bytes32 TOTAL_MINTED_SLOT = bytes32(uint256(0x0420));
 
     address public user = makeAddr("user");
     address public owner = makeAddr("owner");
