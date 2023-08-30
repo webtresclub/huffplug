@@ -1,5 +1,8 @@
 // @dev Usage LOG_STACK_1(0x00), LOG_STACK_2(0x00), ..., etc
- #include "Huff-Console/Console.huff"
+#include "Huff-Console/Console.huff"
+
+#include "huffmate/utils/Errors.huff"
+
 
 #define constant URI_SLOT_POINTER = FREE_STORAGE_POINTER()
 // keccak256("tokenUri") - 1
@@ -16,10 +19,16 @@
 #define function tokenURI(uint256) nonpayable returns (string)
 
 
-// *************************************************************
-// ***               Function dispatcher                     ***
-// *************************************************************
-
+#define macro VALIDATE_TOKEN_ID() = takes (1) returns (0) {
+    0x00 not add 
+    0x0400 // max supply
+    gt
+    
+    0x0d
+    __RIGHTPAD(0x494e56414c49445f544f4b454e) // "INVALID_TOKEN"
+    swap2
+    REQUIRE()
+}
 
 #define macro tokenURI() = takes (0) returns (0) {
     0x20
@@ -64,9 +73,10 @@
     swap2  // URI_POINTER+0x20, 0x20, URI_POINTER, LEN+4
     0x04 // counter
     swap1
-    0x00 not swap1 add
+    0x00 not add
     0x30  // 48, mempos, counter=4
     0x04 calldataload // number, 48, mempos, counter
+    dup1 VALIDATE_TOKEN_ID()
     0x0a  // 10, number, 48, mempos, counter
 
 
@@ -110,6 +120,10 @@
     
     0xa0 0x00 return
 }
+
+// *************************************************************
+// ***               Function dispatcher                     ***
+// *************************************************************
 
 #define macro MAIN() = takes (0) returns (0) {
     0x00 calldataload 0xE0 shr  // [sig]

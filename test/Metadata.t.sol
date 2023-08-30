@@ -2,6 +2,7 @@
 pragma solidity ^0.8.13;
 
 import {Test, console2, Vm} from "forge-std/Test.sol";
+import {LibString} from "solmate/utils/LibString.sol";
 
 interface IMetadata {
     function setUri(string memory) external;
@@ -32,6 +33,29 @@ contract MetadataTest is Test {
         metadata = IMetadata(deployed);
     }
 
+    function testRenderer(uint256 id) public {
+        string memory baseuri = "ipfs://bafybeia7h7n6osru3b4mvivjb3h2fkonvmotobvboqw3k3v4pvyv5oyzse/";
+        metadata.setUri(baseuri);
+
+        if(id == 0 || id > 1024) {
+            vm.expectRevert();
+            metadata.tokenURI(id);
+        } else {
+            string memory expected;
+            if (id < 10) {
+                expected = string.concat(baseuri,"000", LibString.toString(id));
+            } else if(id < 100) {
+                expected = string.concat(baseuri,"00", LibString.toString(id));
+            } else if(id < 1000) {
+                expected = string.concat(baseuri,"0", LibString.toString(id));
+            } else {
+                expected = string.concat(baseuri, LibString.toString(id));
+            }
+            assertEq(metadata.tokenURI(id), expected);
+        }
+
+    }
+
     function testRenderer1() public {
         assertEq("0333", metadata.tokenURI(333));
 
@@ -48,7 +72,6 @@ console2.log("t", metadata.getUri());
 console2.log("t", metadata.tokenURI(333));
         metadata.setUri("");
 console2.log("t", metadata.tokenURI(333));
-
     }
 }
 
