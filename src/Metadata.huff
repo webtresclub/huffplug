@@ -51,9 +51,7 @@
         dup2 0x60 add       // [URI_POINTER+0x60], [URI_POINTER]
         sstore              // [URI_POINTER]
 
-        0x84 calldataload   // str(2), [URI_POINTER]
-        dup2 0x80 add       // [URI_POINTER+0x80], [URI_POINTER]
-        sstore              // [URI_POINTER]
+
         stop
 }
 

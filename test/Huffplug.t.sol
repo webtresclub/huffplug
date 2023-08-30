@@ -17,7 +17,6 @@ contract ButtplugTest is Test {
 
     address public user = makeAddr("user");
     address public owner = makeAddr("owner");
-    address public minter = makeAddr("minter");
 
     string baseUrl = "ipfs://bafybeia7h7n6osru3b4mvivjb3h2fkonvmotobvboqw3k3v4pvyv5oyzse/";
     string contractURI = "ipfs://CONTRACTURI/";
