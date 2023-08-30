@@ -43,7 +43,7 @@ contract ButtplugTest is Test {
         huffplug.setUri(baseUrl);
     }
 
-    function testDifficulty() public {
+    function testDifficulty() public noGasMetering {
         assertEq(huffplug.totalMinted(), 0, "total minted should be 0");
         assertEq(huffplug.currentDifficulty(), 5, "difficulty should be 5");
 
@@ -84,13 +84,13 @@ contract ButtplugTest is Test {
         assertEq(huffplug.currentDifficulty(), 32, "difficulty should be 32");
     }
 
-    function testTotalMinted() public {
+    function testTotalMinted() public noGasMetering {
         assertEq(huffplug.totalMinted(), 0);
         vm.store(address(huffplug), TOTAL_MINTED_SLOT, /* slot of totalminted */ bytes32(uint256(10)));
         assertEq(huffplug.totalMinted(), 10);
     }
 
-    function testMint() public {
+    function testMint() public noGasMetering {
         vm.store(address(huffplug), SALT_SLOT, /* slot of salt in ButtplugPlugger */ keccak256("salt"));
 
         assertEq(huffplug.salt(), keccak256("salt"));
@@ -112,7 +112,7 @@ contract ButtplugTest is Test {
         assertNotEq(huffplug.salt(), keccak256("salt"));
     }
 
-    function testMintReverts() public {
+    function testMintReverts() public noGasMetering {
         uint256 nonce = 271021;
         vm.store(address(huffplug), TOTAL_MINTED_SLOT, /* slot of totalminted */ bytes32(uint256(1023)));
         vm.store(address(huffplug), SALT_SLOT, /* slot of salt in ButtplugPlugger */ keccak256("salt"));
@@ -136,7 +136,7 @@ contract ButtplugTest is Test {
         huffplug.mint(nonce);
     }
 
-    function testMintMerkleFail() public {
+    function testMintMerkleFail() public noGasMetering {
         bytes32[] memory roots = new bytes32[](2);
         roots[0] = 0x000000000000000000000000ee081f9fea22c5b578aa9ab1b4fc16e4335f5d2b;
         roots[1] = 0xa3a47908ac03234744670fa693ee11af0774d84b1cec2d2edbcb2e77b7bdd37b;
@@ -148,7 +148,7 @@ contract ButtplugTest is Test {
         huffplug.mintWithMerkle(roots);
     }
 
-    function testMintMerkle() public {
+    function testMintMerkle() public noGasMetering {
         vm.store(address(huffplug), SALT_SLOT, /* slot of salt in ButtplugPlugger */ keccak256("salt"));
 
         assertEq(huffplug.totalMinted(), 0);
@@ -212,7 +212,7 @@ contract ButtplugTest is Test {
         assertEq(huffplug.totalMinted(), 3, "buttplugs minted should be 3");
     }
 
-    function testRendererFuzz(uint256 id) public {
+    function testRendererFuzz(uint256 id) public noGasMetering {
         if (id == 0 || id > 1024) {
             vm.expectRevert();
             huffplug.tokenURI(id);
@@ -231,13 +231,13 @@ contract ButtplugTest is Test {
         }
     }
 
-    function testMetadata() public {
+    function testMetadata() public noGasMetering {
         assertEq(huffplug.symbol(), "UwU");
         assertEq(huffplug.name(), "Buttpluggy");
         assertEq(huffplug.totalSupply(), 1024);
     }
 
-    function testTokenUri() public {
+    function testTokenUri() public noGasMetering {
         assertEq(huffplug.tokenURI(3), string.concat(baseUrl, "0003"));
         assertEq(huffplug.tokenURI(10), string.concat(baseUrl, "0010"));
         //vm.expectRevert();
@@ -249,13 +249,13 @@ contract ButtplugTest is Test {
         assertEq(huffplug.tokenURI(1024), string.concat(baseUrl, "1024"));
     }
 
-    function testOwner() public {
+    function testOwner() public noGasMetering {
         console2.log(owner);
         console2.log(huffplug.owner());
         assertEq(huffplug.owner(), owner, "wrong owner");
     }
 
-    function testSetOwner(address new_owner) public {
+    function testSetOwner(address new_owner) public noGasMetering {
         vm.assume(new_owner != owner);
 
         vm.prank(new_owner);
