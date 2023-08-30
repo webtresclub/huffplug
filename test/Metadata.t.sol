@@ -33,25 +33,22 @@ contract MetadataTest is Test {
     }
 
     function testRenderer1() public {
-        string memory expected = "abcd";
-        vm.record();
+        assertEq("0333", metadata.tokenURI(333));
+
+
+        string memory expected = "ipfs://bafybeia7h7n6osru3b4mvivjb3h2fkonvmotobvboqw3k3v4pvyv5oyzse/";
         metadata.setUri(expected);
 
-(bytes32[] memory reads, bytes32[] memory writes) = vm.accesses(
-  address(metadata)
-);
 
-//console2.log("reads", reads.length);
-//console2.log("writes", writes.length);
-// log_uint(uint256(reads[0])); // 1
-        vm.record();
         assertEq(metadata.getUri(), expected);
-        console2.log("abcde");
-
 
 //console2.log("reads", reads.length);
 //console2.log("writes", writes.length);
+console2.log("t", metadata.getUri());
 console2.log("t", metadata.tokenURI(333));
+        metadata.setUri("");
+console2.log("t", metadata.tokenURI(333));
+
     }
 }
 
