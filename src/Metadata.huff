@@ -21,7 +21,7 @@
 
 #define macro VALIDATE_TOKEN_ID() = takes (1) returns (0) {
     0x00 not add 
-    0x0400 // max supply
+    [MAX_SUPPLY] // max supply
     gt
     
     0x0d
