@@ -149,7 +149,7 @@ contract ButtplugTest is Test {
         address user1 = 0xe7292962e48c18e04Bd26aB2AcCA00Ef794E8171;
 
         vm.prank(user1);
-        vm.expectRevert("INVALID PROOF");
+        vm.expectRevert(IHuffplug.ErrInvalidProof.selector);
         huffplug.mintWithMerkle(roots);
     }
 

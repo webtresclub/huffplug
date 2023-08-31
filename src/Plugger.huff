@@ -12,6 +12,7 @@
 
 // @dev this is for import the macro REQUIRE()
 #include "huffmate/utils/Errors.huff"
+#include "./CustomErrors.huff"
 
 #include "./VergaCurve.huff"
 
@@ -30,6 +31,7 @@
 // *************************************************************
 
 #define error ErrAlreadyClaimed()
+#define error ErrInvalidProof()
 
 // *************************************************************
 // ***                      Storage                          ***
@@ -54,16 +56,6 @@
 // *************************************************************
 // ***                      Macros                           ***
 // *************************************************************
-
-#define macro REQUIRE_CUSTOM_ERROR() = takes(2) returns(0) {
-    // [condition, customErrorSig]
-    do_not_throwErr jumpi
-    0x00 mstore
-    0x04 0x00 revert
-
-    do_not_throwErr:
-    pop
-}
 
 
 /// @dev Macro defined for
@@ -93,19 +85,18 @@
 
 #define macro REQUIRE_NOT_CLAIMED() = takes (0) returns (0) {
     __ERROR(ErrAlreadyClaimed)       // [ErrAlreadyClaimedSig]
-    caller sload iszero                                // [CLAIMED(caller) == 0, (length=15), "ALREADY_CLAIMED"]
-    REQUIRE_CUSTOM_ERROR()                                          // []
+    caller sload iszero              // [CLAIMED(caller) == 0, ErrAlreadyClaimedSig]
+    REQUIRE_CUSTOM_ERROR()           // []
 }
 
 #define macro REQUIRE_VALID_PROOF(PROOF_CD_POINTER) = takes (0) returns (0) {
-    __RIGHTPAD(0x494e56414c49442050524f4f46)       // ["INVALID PROOF"]
-    0x0d                                           // [(length=13), "INVALID PROOF"]
+    __ERROR(ErrInvalidProof)
 
-    [MERKLE_ROOT]                                  // [root, (length=13), "INVALID PROOF"]
-    caller                                         // [leaf, root, (length=13), "INVALID PROOF"]
-    <PROOF_CD_POINTER>                             // [PROOF_CD_POINTER, leaf, root, (length=13), "INVALID PROOF"]
-    VERIFY_PROOF()                                 // [is_valid, (length=13), "INVALID PROOF"]
-    REQUIRE()                                      // []
+    [MERKLE_ROOT]                                  // [root, ErrInvalidProof]
+    caller                                         // [leaf, root, ErrInvalidProof]
+    <PROOF_CD_POINTER>                             // [PROOF_CD_POINTER, leaf, root,  ErrInvalidProof]
+    VERIFY_PROOF()                                 // [is_valid, ErrInvalidProof]
+    REQUIRE_CUSTOM_ERROR()                                      // []
 }
 
 #define macro REQUIRE_MINT_LIMIT() = takes(1) returns(1) {

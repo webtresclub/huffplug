@@ -1,0 +1,9 @@
+#define macro REQUIRE_CUSTOM_ERROR() = takes(2) returns(0) {
+    // [condition, customErrorSig]
+    do_not_throwErr jumpi
+    0x00 mstore
+    0x04 0x00 revert
+
+    do_not_throwErr:
+    pop
+}
