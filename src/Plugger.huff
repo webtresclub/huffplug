@@ -6,12 +6,11 @@
 #include "huffmate/tokens/ERC721.huff"
 
 // @dev Usage LOG_STACK_1(0x00), LOG_STACK_2(0x00), ..., etc
-// #include "Huff-Console/Console.huff"
+#include "Huff-Console/Console.huff"
 
 #include "huffmate/utils/MerkleProofLib.huff"
 
-// @dev this is for import the macro REQUIRE()
-#include "huffmate/utils/Errors.huff"
+// @dev this is for import the macro REQUIRE_CUSTOM_ERROR()
 #include "./CustomErrors.huff"
 
 #include "./VergaCurve.huff"
@@ -33,6 +32,7 @@
 #define error ErrAlreadyClaimed()
 #define error ErrInvalidProof()
 #define error ErrNoMoreUwU()
+#define error ErrWrongSalt()
 
 // *************************************************************
 // ***                      Storage                          ***
@@ -181,10 +181,9 @@
     // 0000000.00XXX..XX
     shr                                   // [shiftedRandom, totalMinted, random, 0x01]
 
-    __RIGHTPAD(0x57524f4e475f53414c54)    // ["WRONG_SALT", shiftedRandom, totalMinted, random, 0x01]
-    0x0a                                  // [10 (length), "WRONG_SALT", shiftedRandom, totalMinted, random, 0x01]
-    dup3 iszero                           // [shiftedRandom == 0, 10 (length), "WRONG_SALT", shiftedRandom, totalMinted, random, 0x01]
-    REQUIRE()                             // [shiftedRandom, totalMinted, random, 0x01]
+    __ERROR(ErrWrongSalt)                 // [ErrWrongSaltSig, shiftedRandom, totalMinted, random, 0x01]
+    dup2 iszero                           // [shiftedRandom == 0, ErrWrongSaltSig, shiftedRandom, totalMinted, random, 0x01]
+    REQUIRE_CUSTOM_ERROR()                // [shiftedRandom, totalMinted, random, 0x01]
     pop                                   // [totalMinted, random, 0x01]
 
     // minted = _minted + 1;

@@ -125,7 +125,7 @@ contract ButtplugTest is Test {
         assertEq(huffplug.totalMinted(), 1023);
         assertEq(huffplug.currentDifficulty(), 32);
 
-        vm.expectRevert("WRONG_SALT");
+        vm.expectRevert(IHuffplug.ErrWrongSalt.selector);
         vm.prank(user);
         huffplug.mint(nonce);
         assertEq(huffplug.totalMinted(), 1023);
