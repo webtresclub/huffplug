@@ -26,6 +26,12 @@
 #define constant MERKLE_ROOT        = 0x00
 
 // *************************************************************
+// ***                      Errors                           ***
+// *************************************************************
+
+#define error ErrAlreadyClaimed()
+
+// *************************************************************
 // ***                      Storage                          ***
 // *************************************************************
 
@@ -48,6 +54,17 @@
 // *************************************************************
 // ***                      Macros                           ***
 // *************************************************************
+
+#define macro REQUIRE_CUSTOM_ERROR() = takes(2) returns(0) {
+    // [condition, customErrorSig]
+    do_not_throwErr jumpi
+    0x00 mstore
+    0x04 0x00 revert
+
+    do_not_throwErr:
+    pop
+}
+
 
 /// @dev Macro defined for
 /// function salt() external view returns (bytes32)
@@ -75,10 +92,9 @@
 }
 
 #define macro REQUIRE_NOT_CLAIMED() = takes (0) returns (0) {
-    __RIGHTPAD(0x414c52454144595f434c41494d4544)       // ["ALREADY_CLAIMED"]
-    0x0f                                               // [(length=15), "ALREADY_CLAIMED"]
+    __ERROR(ErrAlreadyClaimed)       // [ErrAlreadyClaimedSig]
     caller sload iszero                                // [CLAIMED(caller) == 0, (length=15), "ALREADY_CLAIMED"]
-    REQUIRE()                                          // []
+    REQUIRE_CUSTOM_ERROR()                                          // []
 }
 
 #define macro REQUIRE_VALID_PROOF(PROOF_CD_POINTER) = takes (0) returns (0) {

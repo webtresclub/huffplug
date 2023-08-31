@@ -179,7 +179,7 @@ contract ButtplugTest is Test {
         assertEq(huffplug.ownerOf(371), user1);
 
         vm.prank(user1);
-        vm.expectRevert("ALREADY_CLAIMED");
+        vm.expectRevert(IHuffplug.ErrAlreadyClaimed.selector);
         huffplug.mintWithMerkle(roots);
 
         // @dev after minting with merkle salt should NOT be changed
