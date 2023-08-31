@@ -32,6 +32,7 @@
 
 #define error ErrAlreadyClaimed()
 #define error ErrInvalidProof()
+#define error ErrNoMoreUwU()
 
 // *************************************************************
 // ***                      Storage                          ***

@@ -19,6 +19,8 @@ interface IOwnable is IERC721 {
 interface IHuffplug is IERC721Metadata, IOwnable {
     error ErrAlreadyClaimed();
     error ErrInvalidProof();
+    error ErrNoMoreUwU();
+    error ErrWrongSalt();
 
     // extra for minting
     function plug(address who, uint256 tokenid) external;
