@@ -19,7 +19,7 @@ contract ButtplugTest is Test {
     address public owner = makeAddr("owner");
 
     string baseUrl = "ipfs://bafybeia7h7n6osru3b4mvivjb3h2fkonvmotobvboqw3k3v4pvyv5oyzse/";
-    string contractURI = "ipfs://CONTRACTURI/";
+    string contractURI ="ipfs://bafybeia7h7n6osru3b4mvivjb3h2fkonvmotobvboqw3k3v4pvyv5oyzse/collection.json";
 
     uint256 constant COLLECTION_START = 1000000;
     bytes32 constant MERKLE_HASH = 0x51496785f4dd04d525b568df7fa6f1057799bc21f7e76c26ee77d2f569b40601;
@@ -41,6 +41,11 @@ contract ButtplugTest is Test {
         vm.label(deployed, "huffplug");
         huffplug = IHuffplug(deployed);
         huffplug.setUri(baseUrl);
+        huffplug.setContractUri(contractURI);
+    }
+
+    function testContractUri() public noGasMetering {
+        assertEq(huffplug.contractURI(), contractURI);
     }
 
     function testDifficulty() public noGasMetering {

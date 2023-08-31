@@ -129,7 +129,7 @@
     dup1 __FUNC_SIG(supportsInterface)          eq supportsInterface jumpi
     
     dup1 __FUNC_SIG(tokenURI)                   eq tokenURI jumpi
-    // @TODO dup1 __FUNC_SIG(contractURI)                eq delegateTokenRenderer jumpi
+    dup1 __FUNC_SIG(contractURI)                eq contractURI jumpi
 
     dup1 __FUNC_SIG(getApproved)                eq getApproved jumpi
     dup1 __FUNC_SIG(isApprovedForAll)           eq isApprovedForAll jumpi

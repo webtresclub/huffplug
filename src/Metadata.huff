@@ -33,22 +33,29 @@
 // @dev This macro is used to set a string in memory
 //      the max length supported is 96 characters
 #define macro SET_STRING(POINTER) = takes(0) returns (0) {
+    0x20
     <POINTER>
 
     0x24 calldataload   // length, [POINTER]
     dup2                // [POINTER], length, [POINTER]
     sstore              // [POINTER]
 
-    0x44 calldataload   // str(0), [POINTER]
-    dup2 0x20 add       // [POINTER+0x20], [POINTER]
-    sstore              // [POINTER]
-    
-    0x64 calldataload   // str(1), [POINTER]
-    dup2 0x40 add       // [POINTER+0x40], [POINTER]
+    dup2 add            // [POINTER + 0x20]
+
+    0x44 calldataload   // str(0), [POINTER + 0x20]
+    dup2                // [POINTER+0x20], str(0), [POINTER + 0x20]
+    sstore              // [POINTER + 0x20]
+
+    dup2 add            // [POINTER + 0x20 + 0x20]
+
+    0x64 calldataload   // str(1), [POINTER+0x60]
+    dup2                // [POINTER+0x60], str(1), [POINTER]
     sstore              // [POINTER]
 
+    dup2 add            // [POINTER + 0x20 + 0x20]
+
     0x84 calldataload   // str(2), [POINTER]
-    dup2 0x60 add       // [POINTER+0x60], [POINTER]
+    dup2                // [POINTER+0x60], [POINTER]
     sstore              // [POINTER]
 
     stop
@@ -162,27 +169,29 @@
 #define macro RETURN_STRING() = takes(0) returns (0) {
     // URI_POINTER, 0x20
 
-        dup2 0x00 mstore     // URI_POINTER, 0x20
-                             // MEM: [0x00:0x20]
-        
-        dup1 sload           // LEN,URI_POINTER, 0x20
-        dup3 mstore          // URI_POINTER, 0x20
-                             // MEM: [0x00:0x20, 0x20:LEN]
+    dup2 0x00 mstore     // URI_POINTER, 0x20
+                         // MEM: [0x00:0x20]
+    
+    dup1 sload           // LEN, URI_POINTER, 0x20
+    dup3 mstore          // URI_POINTER, 0x20
+                         // MEM: [0x00:0x20, 0x20:LEN]
 
-                             // URI_POINTER, 0x20
-        
-        dup2 add             // URI_POINTER+0x20, 0x20
-        dup1 sload           // str(0), URI_POINTER+0x20, 0x20
-        0x40 mstore          // URI_POINTER+0x20, 0x20
-                             // MEM: [0x00:0x20, 0x20:LEN, 0x40:str(0)]
+                            // URI_POINTER, 0x20
+    
+    dup2 add             // URI_POINTER+0x20, 0x20
 
-                             // URI_POINTER+0x20, 0x20
+    dup1 sload           // str(0), URI_POINTER+0x20, 0x20
 
-        dup1 0x20 add sload
-        0x60 mstore
+    0x40 mstore          // URI_POINTER+0x20, 0x20
+                         // MEM: [0x00:0x20, 0x20:LEN, 0x40:str(0)]
 
-        dup1 0x60 add sload
-        0x80 mstore
-        
-        0xa0 0x00 return
+                         // URI_POINTER+0x20, 0x20
+
+    dup1 dup3 add sload
+    0x60 mstore
+
+    dup1 0x40 add sload
+    0x80 mstore
+    
+    0xa0 0x00 return
 }

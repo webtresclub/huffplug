@@ -25,6 +25,7 @@ interface IHuffplug is IERC721Metadata, IOwnable {
 
     // total token supply
     function totalSupply() external view returns (uint256);
+    function contractURI() external view returns (string memory);
 
     function claimed(address user) external view returns (bool);
     function currentDifficulty() external view returns (uint256);
@@ -33,4 +34,5 @@ interface IHuffplug is IERC721Metadata, IOwnable {
 
     // owner funcs
     function setUri(string memory) external;
+    function setContractUri(string memory) external;
 }
