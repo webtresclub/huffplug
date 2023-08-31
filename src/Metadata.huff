@@ -5,18 +5,19 @@
 // @dev Usage LOG_STACK_1(0x00), LOG_STACK_2(0x00), ..., etc
 #include "Huff-Console/Console.huff"
 
+// *************************************************************
+// ***                    Constants                          ***
+// *************************************************************
+
 // keccak256("tokenUri") - 1
 #define constant URI_POINTER = 0x3f62dec5b8b67ab667ad08e83a2c3ba1db7fdb4ab8dc3a33c057c4fddec8d3dd
+// keccak256("contractURI") - 1
+#define constant CONTRACTURI_POINTER = 0x2d530b1e3e1fe59556d7ac7104ced650bd036802735b613ada407ce4a05d653b
 
-#define macro METADATA_CONSTRUCTOR() = takes (0) returns (0) {
-    [URI_POINTER] 0x00 sstore // length 0
-    // URI should be empty
-}
 
-#define function setUri(string) nonpayable returns ()
-#define function getUri() nonpayable returns (string)
-#define function tokenURI(uint256) nonpayable returns (string)
-
+// *************************************************************
+// ***                      Macros                           ***
+// *************************************************************
 
 #define macro VALIDATE_TOKEN_ID() = takes (1) returns (0) {
     0x00 not add 
@@ -29,25 +30,26 @@
     REQUIRE()
 }
 
-#define macro SET_URI() = takes(0) returns (0) {
-    ONLY_OWNER()
-    [URI_POINTER]
+// @dev This macro is used to set a string in memory
+//      the max length supported is 96 characters
+#define macro SET_STRING(POINTER) = takes(0) returns (0) {
+    <POINTER>
 
-    0x24 calldataload   // length, [URI_POINTER]
-    dup2                // [URI_POINTER], length, [URI_POINTER]
-    sstore              // [URI_POINTER]
+    0x24 calldataload   // length, [POINTER]
+    dup2                // [POINTER], length, [POINTER]
+    sstore              // [POINTER]
 
-    0x44 calldataload   // str(0), [URI_POINTER]
-    dup2 0x20 add       // [URI_POINTER+0x20], [URI_POINTER]
-    sstore               // [URI_POINTER]
+    0x44 calldataload   // str(0), [POINTER]
+    dup2 0x20 add       // [POINTER+0x20], [POINTER]
+    sstore              // [POINTER]
     
-    0x64 calldataload   // str(1), [URI_POINTER]
-    dup2 0x40 add       // [URI_POINTER+0x40], [URI_POINTER]
-    sstore              // [URI_POINTER]
+    0x64 calldataload   // str(1), [POINTER]
+    dup2 0x40 add       // [POINTER+0x40], [POINTER]
+    sstore              // [POINTER]
 
-    0x84 calldataload   // str(2), [URI_POINTER]
-    dup2 0x60 add       // [URI_POINTER+0x60], [URI_POINTER]
-    sstore              // [URI_POINTER]
+    0x84 calldataload   // str(2), [POINTER]
+    dup2 0x60 add       // [POINTER+0x60], [POINTER]
+    sstore              // [POINTER]
 
     stop
 }
@@ -138,22 +140,23 @@
     
     end:
     
-    
     0xa0 0x00 return
 }
 
 #define macro CONTRACT_URI_METADATA() = takes (0) returns (0) {
-    // @todo
-    stop
+    0x20
+    [CONTRACTURI_POINTER]
+
+    RETURN_STRING()
 }
 
 
 
 #define macro GET_URI() = takes (0) returns (0) {
-        0x20
-        [URI_POINTER]
+    0x20
+    [URI_POINTER]
 
-        RETURN_STRING()
+    RETURN_STRING()
 }
 
 #define macro RETURN_STRING() = takes(0) returns (0) {

@@ -40,11 +40,6 @@
 // #include "Huff-Console/Console.huff"
 
 
-// *************************************************************
-// ***                    Constants                          ***
-// *************************************************************
-
-
 
 // *************************************************************
 // ***                    Interfaces                         ***
@@ -59,6 +54,12 @@
 #define function salt() view returns (bytes32)
 #define function contractURI() view returns (string)
 #define function owner() view returns (address)
+#define function getUri() nonpayable returns (string)
+
+// access control, onlyAdmin
+#define function setUri(string) nonpayable returns ()
+#define function setContractUri(string) nonpayable returns ()
+
 
 // *************************************************************
 // ***                      Macros                           ***
@@ -99,7 +100,6 @@
 // *************************************************************
 
 #define macro CONSTRUCTOR() = takes (0) returns (0) {
-    METADATA_CONSTRUCTOR()
     OWNED_CONSTRUCTOR()
 
     PLUGGER_CONSTRUCTOR()
@@ -144,6 +144,8 @@
     dup1 __FUNC_SIG(owner)    eq owner jumpi
     
     dup1 __FUNC_SIG(setUri)               eq setUri jumpi
+    dup1 __FUNC_SIG(setContractUri)               eq setContractUri jumpi
+    
 
     dup1 __FUNC_SIG(totalSupply)                eq totalSupply jumpi
     dup1 __FUNC_SIG(totalMinted)                eq totalMinted jumpi
@@ -217,11 +219,16 @@
     
     
     setUri:
-        SET_URI()
+        ONLY_OWNER()
+        SET_STRING(URI_POINTER)
+
+    setContractUri:
+        ONLY_OWNER()
+        SET_STRING(CONTRACTURI_POINTER)
 
     set_owner:
-      SET_OWNER()
+        SET_OWNER()
     owner:
-          OWNER()
+        OWNER()
 
 }
