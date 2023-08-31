@@ -31,8 +31,6 @@
 //      functions and admin tokens url
 #include "huffmate/auth/Owned.huff"
 
-// @dev this is for import the macro STATICCALL()
-#include "huffmate/utils/Calls.huff"
 // @dev this is for import the macro REQUIRE()
 #include "huffmate/utils/Errors.huff"
 
