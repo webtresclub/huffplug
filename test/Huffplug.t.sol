@@ -136,8 +136,7 @@ contract ButtplugTest is Test {
         vm.prank(user);
         huffplug.mint(nonce);
 
-        //vm.expectRevert(IHuffplug.ErrNoMoreUwU.selector);
-        vm.expectRevert("No more UwU");
+        vm.expectRevert(IHuffplug.ErrNoMoreUwU.selector);
         huffplug.mint(nonce);
 
     }

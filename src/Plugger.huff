@@ -92,20 +92,18 @@
 
 #define macro REQUIRE_VALID_PROOF(PROOF_CD_POINTER) = takes (0) returns (0) {
     __ERROR(ErrInvalidProof)
-
     [MERKLE_ROOT]                                  // [root, ErrInvalidProof]
     caller                                         // [leaf, root, ErrInvalidProof]
     <PROOF_CD_POINTER>                             // [PROOF_CD_POINTER, leaf, root,  ErrInvalidProof]
     VERIFY_PROOF()                                 // [is_valid, ErrInvalidProof]
-    REQUIRE_CUSTOM_ERROR()                                      // []
+    REQUIRE_CUSTOM_ERROR()                         // []
 }
 
 #define macro REQUIRE_MINT_LIMIT() = takes(1) returns(1) {
     // input state is [totalMinted]
-    __RIGHTPAD(0x4e6f206d6f726520557755)     // ["No more UwU", totalMinted]
-    0x0b                                     // [(length=11), "No more UwU", totalMinted]
-    dup3 [MAX_SUPPLY] gt                     // [MAX_SUPPLY > totalMinted, (length=11), "No more UwU", totalMinted]
-    REQUIRE()                                // []
+    __ERROR(ErrNoMoreUwU)     // [ErrNoMoreUwUSig, totalMinted]
+    dup2 [MAX_SUPPLY] gt      // [MAX_SUPPLY > totalMinted, ErrNoMoreUwUSig, totalMinted]
+    REQUIRE_CUSTOM_ERROR()    // [totalMinted]
 }
 
 /// @notice Mint a Buttplug (UwU) using a merkle proof
