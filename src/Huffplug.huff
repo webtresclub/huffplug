@@ -76,20 +76,21 @@
 }
 
 #define macro NAME() = takes (0) {
-    __RIGHTPAD(0x42757474706c75676779) // Buttpluggy
     0x0a
-    0x20 0x00 mstore                            // [name_length, name_value]
-    0x20 mstore                                 // [name_value]
+    0x20
+    dup1 0x00 mstore                            // [name_length, name_value]
+    mstore                                 // [name_value]
+    __RIGHTPAD(0x42757474706c75676779) // Buttpluggy
     0x40 mstore                                 // []
     0x60 0x00 return
 }
 
 #define macro SYMBOL() = takes (0) {
-    __RIGHTPAD(0x557755) // UwU
-    0x03
-    0x20 0x00 mstore                            // [symbol_length, symbol_value]
-    0x20 mstore                                 // [symbol_value]
-    0x40 mstore                                 // []
+    0x03                 // 3, UwU
+    0x20                 // 0x20, 3, UwU
+    dup1 0x00 mstore     
+    mstore               
+    __RIGHTPAD(0x557755) 0x40 mstore          
     0x60 0x00 return
 }
 
@@ -117,11 +118,11 @@
     dup1 __FUNC_SIG(mint)                       eq mint jumpi
     dup1 __FUNC_SIG(mintWithMerkle)             eq mintWithMerkle jumpi
 
-    dup1 __FUNC_SIG(approve)                    eq approve jumpi
-    dup1 __FUNC_SIG(setApprovalForAll)          eq setApprovalForAll jumpi
-
     dup1 __FUNC_SIG(transferFrom)               eq transferFrom jumpi
     dup1 __FUNC_SIG(safeTransferFrom)           eq safeTransferFrom jumpi
+
+    dup1 __FUNC_SIG(approve)                    eq approve jumpi
+    dup1 __FUNC_SIG(setApprovalForAll)          eq setApprovalForAll jumpi
 
     dup1 __FUNC_SIG(name)                       eq name jumpi
     dup1 __FUNC_SIG(symbol)                     eq symbol jumpi
@@ -143,7 +144,6 @@
     dup1 __FUNC_SIG(owner)    eq owner jumpi
     
     dup1 __FUNC_SIG(setUri)               eq setUri jumpi
-
 
     dup1 __FUNC_SIG(totalSupply)                eq totalSupply jumpi
     dup1 __FUNC_SIG(totalMinted)                eq totalMinted jumpi
