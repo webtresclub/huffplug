@@ -25,18 +25,14 @@
 #include "./Plugger.huff"
 #include "./Metadata.huff"
 
-#include "huffmate/tokens/ERC721.huff"
+#include "./ERC721.huff"
 
 // @dev Owner pattern is only use to gain access to the Opensea collection admin 
 //      functions and admin tokens url
 #include "huffmate/auth/Owned.huff"
 
-// @dev this is for import the macro REQUIRE()
-#include "huffmate/utils/Errors.huff"
-
 // @dev Usage LOG_STACK_1(0x00), LOG_STACK_2(0x00), ..., etc
 // #include "Huff-Console/Console.huff"
-
 
 
 // *************************************************************
