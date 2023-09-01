@@ -11,7 +11,7 @@ using {compile} for Vm;
 
 contract HuffDeployScript is Script {
     address constant DEPLOYER2 = 0x4e59b44847b379578588920cA78FbF26c0B4956C;
-    IHuffplug constant huffplug = IHuffplug(0xC24895E09E51762730D6bc1DbC5Cd5183Aa45f49);
+    IHuffplug huffplug = IHuffplug(0x1837F678b81F5a1C1BDC17A6FeABA430F3aF7346);
 
     bytes32 constant MERKLE_ROOT = 0x51496785f4dd04d525b568df7fa6f1057799bc21f7e76c26ee77d2f569b40601;
     string baseUrl = "ipfs://bafybeia7h7n6osru3b4mvivjb3h2fkonvmotobvboqw3k3v4pvyv5oyzse/";
@@ -37,11 +37,15 @@ contract HuffDeployScript is Script {
         assembly {
             deployedAddress := mload(add(ret, 20))
         }
+
+        // @todo on deploy require(address(huffplug) == deployedAddress, "deployed address mismatch");
+        huffplug = IHuffplug(deployedAddress);
+
         huffplug.setUri(baseUrl);
         huffplug.setContractUri(contractURI);
 
+
         vm.stopBroadcast();
-        require(address(huffplug) == deployedAddress, "deployed address mismatch");
         require(huffplug.owner() == owner, "owner mismatch");
 
         _huffplug = address(huffplug);
