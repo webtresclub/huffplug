@@ -47,7 +47,7 @@
 #define event ApprovalForAll(address,address,bool)
 
 // Storage Slots
-#define constant OWNER_LOCATION = FREE_STORAGE_POINTER()
+#define constant OWNER_LOCATION_MASK = 0xC0DE420C0DE420C0DE4200000000000000000000000000000000000000000000
 #define constant BALANCE_LOCATION = FREE_STORAGE_POINTER()
 #define constant SINGLE_APPROVAL_LOCATION = FREE_STORAGE_POINTER()
 
@@ -68,7 +68,7 @@
 /// @notice Returns the owner of the given token id
 #define macro OWNER_OF() = takes (0) returns (0) {
     0x04 calldataload                               // [tokenId]
-    [OWNER_LOCATION] LOAD_ELEMENT_FROM_KEYS(0x00)   // [owner]
+    [OWNER_LOCATION_MASK] or sload                  // [owner]
     0x00 mstore                                     // []
     0x20 0x00 return                                // []
 }
@@ -141,7 +141,7 @@
     0x00 dup3                                       // [tokenId, from (0x00), to, tokenId]
 
     // Check token ownership
-    [OWNER_LOCATION] LOAD_ELEMENT_FROM_KEYS(0x00)   // [owner, from (0x00), to, tokenId]
+    [OWNER_LOCATION_MASK] or sload                  // [owner, from (0x00), to, tokenId]
     unauthorized jumpi
 
     // Give tokens to the recipient.
@@ -171,7 +171,7 @@
     // Input stack:                                 // [tokenId]
 
     dup1                                            // [tokenId, tokenId]
-    [OWNER_LOCATION] LOAD_ELEMENT_FROM_KEYS(0x00)   // [owner, tokenId]
+    [OWNER_LOCATION_MASK] or sload                  // [owner, tokenId]
 
     // Check that the recipient is valid
     dup1 iszero                                     // [owner == 0, owner, tokenId]
@@ -188,8 +188,8 @@
     STORE_ELEMENT_FROM_KEYS(0x00)                   // [owner, to, tokenId]
 
     // Set the owner of the token to 0x00
-    0x00 dup4 [OWNER_LOCATION]                      // [slot, owner, 0x00, owner, to, tokenId]
-    STORE_ELEMENT_FROM_KEYS(0x00)                   // [owner, to, tokenId]
+    0x00 dup4 [OWNER_LOCATION_MASK] or              // [slot, owner, 0x00, owner, to, tokenId]
+    sstore                                          // [owner, to, tokenId]
 
     // Set the approval of the token to 0x00 for the owner
     0x00 dup4 [SINGLE_APPROVAL_LOCATION]            // [slot, owner, 0x00, owner, to, tokenId]
@@ -217,8 +217,8 @@
 #define macro APPROVE() = takes (0) returns (0) {
     // Load the token owner
     0x24 calldataload dup1          // [tokenId, tokenId]
-    [OWNER_LOCATION]
-    LOAD_ELEMENT_FROM_KEYS(0x00)    // [owner, tokenId]
+    [OWNER_LOCATION_MASK] or
+    sload                           // [owner, tokenId]
     dup1 caller eq                  // [is_sender_owner, owner, tokenId]
 
     // Check if approved for all
@@ -436,7 +436,7 @@
 
     // If from !== ownerOf[tokenId] revert with "WRONG_FROM"
     dup1 dup4                                       // [tokenId, from, from, to, tokenId]
-    [OWNER_LOCATION] LOAD_ELEMENT_FROM_KEYS(0x00)   // [owner, from, from, to, tokenId]
+    [OWNER_LOCATION_MASK] or sload                  // [owner, from, from, to, tokenId]
     eq cont jumpi                                   // [from, to, tokenId]
     __ERROR(ErrWrongFrom)
     ERR_CUSTOM()
@@ -493,8 +493,8 @@
 
     // update ownerOf
     dup2 dup4                       // [tokenId, to, from, to, tokenId]
-    [OWNER_LOCATION]                // [owner_slot, tokenId, to, from, to, tokenId]
-    STORE_ELEMENT_FROM_KEYS(0x00)   // [from, to, tokenId]
+    [OWNER_LOCATION_MASK] or        // [owner_slot, tokenId, to, from, to, tokenId]
+    sstore                          // [from, to, tokenId]
 
     // update approval
     0x00 dup4                       // [tokenId, address(0), from, to, tokenId]
