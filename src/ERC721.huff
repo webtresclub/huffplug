@@ -34,11 +34,17 @@
 
 
 #define error ErrUnauthorized()
+#define constant ERR_UNAUTHORIZED = 0xcc12cef6
 #define error ErrUnsafeRecipient()
+#define constant ERR_UNSAFE_RECIPIENT = 0x7a356439
 #define error ErrInvalidRecipient()
+#define constant ERR_INVALID_RECIPIENT = 0x2a7c2a7e
 #define error ErrAlreadyMinted()
+#define constant ERR_ALREADY_MINTED = 0x883f1579
 #define error ErrNotMinted()
+#define constant ERR_NOT_MINTED = 0x29dcb00b
 #define error ErrWrongFrom()
+#define constant ERR_WRONG_FROM = 0x011ba94e
 
 
 // Events
@@ -155,12 +161,12 @@
     cont jump
 
     invalid_recipient:
-        __ERROR(ErrInvalidRecipient)
-        ERR_CUSTOM()
+        [ERR_INVALID_RECIPIENT]
+        ERR_CUSTOM_LONG()
 
     unauthorized:
-        __ERROR(ErrAlreadyMinted)
-        ERR_CUSTOM()
+        [ERR_ALREADY_MINTED]
+        ERR_CUSTOM_LONG()
 
     cont:
 }
@@ -204,8 +210,8 @@
     cont jump
 
     not_minted:
-        __ERROR(ErrNotMinted)
-        ERR_CUSTOM()
+        [ERR_NOT_MINTED]
+        ERR_CUSTOM_LONG()
 
     cont:
 }
@@ -241,8 +247,8 @@
     stop
 
     not_authorized:
-        __ERROR(ErrUnauthorized)
-        ERR_CUSTOM()
+        [ERR_UNAUTHORIZED]
+        ERR_CUSTOM_LONG()
 }
 
 /// @notice Set Approval For All
@@ -347,8 +353,8 @@
     eq safe jumpi           // [to]
 
     // Revert if the return data is not accepted
-    __ERROR(ErrUnsafeRecipient)
-    ERR_CUSTOM()
+    [ERR_UNSAFE_RECIPIENT]
+    ERR_CUSTOM_LONG()
 
     // Stop execution if safe
     safe:
@@ -420,8 +426,8 @@
     eq safe jumpi           // [to]
 
     // Revert if the return data is not accepted
-    __ERROR(ErrUnsafeRecipient)
-    ERR_CUSTOM()
+    [ERR_UNSAFE_RECIPIENT]
+    ERR_CUSTOM_LONG()
 
     // Stop execution if safe
     safe:
@@ -438,14 +444,14 @@
     dup1 dup4                                       // [tokenId, from, from, to, tokenId]
     [OWNER_LOCATION] LOAD_ELEMENT_FROM_KEYS(0x00)   // [owner, from, from, to, tokenId]
     eq cont jumpi                                   // [from, to, tokenId]
-    __ERROR(ErrWrongFrom)
-    ERR_CUSTOM()
+    [ERR_WRONG_FROM]
+    ERR_CUSTOM_LONG()
     cont:
 
     // If to === address(0) revert with "INVALID_RECIPIENT"
     dup2 continue jumpi                             // [from, to, tokenId]
-    __ERROR(ErrInvalidRecipient)
-    ERR_CUSTOM()
+    [ERR_INVALID_RECIPIENT]
+    ERR_CUSTOM_LONG()
     continue:
 
     // Check if msg.sender == from
@@ -464,8 +470,8 @@
     caller eq is_authorized jumpi                   // [from, to, tokenId]
 
     // If msg.sender != from && !isApprovedForAll[from][msg.sender] && msg.sender != getApproved[id],
-    __ERROR(ErrUnauthorized)
-    ERR_CUSTOM()
+    [ERR_UNAUTHORIZED]
+    ERR_CUSTOM_LONG()
 
     is_authorized:
 
