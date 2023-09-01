@@ -1,3 +1,4 @@
+#include "./Slots.huff"
 #include "huffmate/auth/Owned.huff"
 
 // @dev Usage LOG_STACK_1(0x00), LOG_STACK_2(0x00), ..., etc
@@ -5,14 +6,6 @@
 
 #define error ErrInvalidToken()
 
-// *************************************************************
-// ***                    Constants                          ***
-// *************************************************************
-
-// keccak256("tokenUri") - 1
-#define constant URI_POINTER = 0x3f62dec5b8b67ab667ad08e83a2c3ba1db7fdb4ab8dc3a33c057c4fddec8d3dd
-// keccak256("contractURI") - 1
-#define constant CONTRACTURI_POINTER = 0x2d530b1e3e1fe59556d7ac7104ced650bd036802735b613ada407ce4a05d653b
 
 
 // *************************************************************
@@ -91,7 +84,7 @@
 
     dup2                 // 0x20, URI_POINTER+0x20, 0x20, URI_POINTER, LEN+4
     add                  // URI_POINTER+0x40, 0x20, URI_POINTER, LEN+4
-    dup1 sload                // URI_POINTER+0x40, 0x20, URI_POINTER, LEN+4
+    dup1 sload           // URI_POINTER+0x40, 0x20, URI_POINTER, LEN+4
     0x60 mstore
 
     dup2                 // 0x20, URI_POINTER+0x20, 0x20, URI_POINTER, LEN+4
@@ -108,7 +101,6 @@
     0x04 calldataload // number, 48, mempos, counter
     dup1 VALIDATE_TOKEN_ID()
     0x0a  // 10, number, 48, mempos, counter
-
 
     start:
 

@@ -1,0 +1,57 @@
+/// @title Owned
+/// @notice SPDX-License-Identifier: MIT
+/// @author asnared <https://github.com/abigger87>
+/// @notice An single owner authorization module
+/// @notice Adapted from <https://github.com/transmissions11/solmate/blob/main/src/auth/Owned.sol>
+
+// Interface
+#define function setOwner(address) nonpayable returns ()
+#define function owner() view returns (address)
+
+// Events
+#define event OwnerUpdated(address indexed user, address indexed newOwner)
+
+// CONSTRUCTOR
+#define macro OWNED_CONSTRUCTOR() = takes (0) returns (0) {
+  // Copy the owner into memory
+  0x20                        // [size] - byte size to copy
+  0x20 codesize sub           // [offset, size] - offset in the code to copy from
+  0x00                        // [mem, offset, size] - offset in memory to copy to
+  codecopy                    // []
+
+  // Set the new owner
+  0x00 mload                  // [owner]
+  dup1                        // [owner, owner]
+  [OWNER]                     // [OWNER, owner, owner]
+  sstore                      // [owner]
+}
+
+/// @notice Only Owner Modifier
+#define macro ONLY_OWNER_MODIFIER() = takes (0) returns (0) {
+    __ERROR(ErrOnlyOwner)                   // []
+    [OWNER] sload                      // [owner]
+    caller eq
+    REQUIRE_CUSTOM_ERROR()
+}
+
+/// @notice Set the Owner
+/// @param {owner} [address] - The new owner
+#define macro SET_OWNER() = takes (0) returns (0) {
+  // Check that the caller is authorized
+  IS_OWNER()
+
+  // Set the new owner
+  0x04 calldataload           // [newOwner]
+  dup1                        // [newOwner, newOwner]
+  [OWNER] sstore              // [newOwner]
+
+  stop
+}
+
+/// @notice Get the owner of the contract
+/// @return {owner} [address] - The owner of the contract
+#define macro OWNER() = takes (0) returns (0) {
+  [OWNER] sload                  // [owner]
+  0x00 mstore                    // []
+  0x20 0x00 return
+}

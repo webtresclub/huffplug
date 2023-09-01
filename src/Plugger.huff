@@ -4,6 +4,7 @@
 
 #include "huffmate/math/Math.huff"
 #include "./ERC721.huff"
+#include "./Slots.huff"
 
 // @dev Usage LOG_STACK_1(0x00), LOG_STACK_2(0x00), ..., etc
 #include "Huff-Console/Console.huff"
@@ -33,16 +34,6 @@
 #define error ErrInvalidProof()
 #define error ErrNoMoreUwU()
 #define error ErrWrongSalt()
-
-// *************************************************************
-// ***                      Storage                          ***
-// *************************************************************
-
-/// @dev The number of Buttplug (UwU) that have been minted, useful to calculate the difficulty
-#define constant MINTED_STORAGE_SLOT = 0x0420
-
-/// @dev The salt used to generate the pseudo random number for the minting
-#define constant SALT_STORAGE_SLOT   = 0x031337
 
 // *************************************************************
 // ***                   Constructor                         ***

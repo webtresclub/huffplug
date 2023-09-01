@@ -29,7 +29,7 @@
 
 // @dev Owner pattern is only use to gain access to the Opensea collection admin 
 //      functions and admin tokens url
-#include "huffmate/auth/Owned.huff"
+#include "./Owned.huff"
 
 // @dev Usage LOG_STACK_1(0x00), LOG_STACK_2(0x00), ..., etc
 // #include "Huff-Console/Console.huff"
@@ -62,14 +62,6 @@
 // ***                      Macros                           ***
 // *************************************************************
 
-
-/// @notice Only Owner Modifier
-#define macro ONLY_OWNER_MODIFIER() = takes (0) returns (0) {
-    __ERROR(ErrOnlyOwner)                   // []
-    [OWNER] sload                      // [owner]
-    caller eq
-    REQUIRE_CUSTOM_ERROR()
-}
 
 #define macro TOTAL_MINTED() = takes (0) returns (0) {
     [MINTED_STORAGE_SLOT] sload

@@ -7,6 +7,7 @@
 /// @notice Modified to be use in the Huffplugys
 
 // Imports
+#include "./Slots.huff"
 #include "huffmate/data-structures/Hashmap.huff"
 #include "./CustomErrors.huff"
 
@@ -51,11 +52,6 @@
 #define event Transfer(address,address,uint256)
 #define event Approval(address,address,uint256)
 #define event ApprovalForAll(address,address,bool)
-
-// Storage Slots
-#define constant OWNER_LOCATION = FREE_STORAGE_POINTER()
-#define constant BALANCE_LOCATION = FREE_STORAGE_POINTER()
-#define constant SINGLE_APPROVAL_LOCATION = FREE_STORAGE_POINTER()
 
 
 /// >>>>>>>>>>>>>>>>>>>>>  VIEW FUNCTIONS  <<<<<<<<<<<<<<<<<<<<<< ///
