@@ -5,8 +5,7 @@
 #include "Huff-Console/Console.huff"
 
 #define error ErrInvalidToken()
-
-
+#define constant ERR_INVALIDTOKEN = 0x0873c1d0
 
 // *************************************************************
 // ***                      Macros                           ***
@@ -16,10 +15,7 @@
     0x00 not add // tokeniId-1
     [MAX_SUPPLY] // max supply, tokeniId-1
     gt           // max supply > tokeniId-1
-    
-    __ERROR(ErrInvalidToken)    // ErrInvalidTokenSig, condition
-    swap1                       // condition, ErrInvalidTokenSig
-    REQUIRE_CUSTOM_ERROR()
+    REQUIRE_CUSTOM_ERROR_LONG(ERR_INVALIDTOKEN)
 }
 
 // @dev This macro is used to set a string in memory

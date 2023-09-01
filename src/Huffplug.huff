@@ -54,8 +54,8 @@
 #define function setUri(string) nonpayable returns ()
 #define function setContractUri(string) nonpayable returns ()
 
-#define error ErrOnlyOwner()
 #define error ErrNonPayable()
+#define constant ERR_NONPAYABLE = 0x77c8d2bd
 
 
 // *************************************************************

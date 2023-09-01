@@ -8,8 +8,9 @@
 #define function setOwner(address) nonpayable returns ()
 #define function owner() view returns (address)
 
-// Events
-#define event OwnerUpdated(address indexed user, address indexed newOwner)
+// Errors
+#define error ErrOnlyOwner()
+#define constant ERR_ONLYOWNER = 0x4eebc1aa
 
 // CONSTRUCTOR
 #define macro OWNED_CONSTRUCTOR() = takes (0) returns (0) {
@@ -28,17 +29,16 @@
 
 /// @notice Only Owner Modifier
 #define macro ONLY_OWNER_MODIFIER() = takes (0) returns (0) {
-    __ERROR(ErrOnlyOwner)                   // []
     [OWNER] sload                      // [owner]
     caller eq
-    REQUIRE_CUSTOM_ERROR()
+    REQUIRE_CUSTOM_ERROR_LONG(ERR_ONLYOWNER)
 }
 
 /// @notice Set the Owner
 /// @param {owner} [address] - The new owner
 #define macro SET_OWNER() = takes (0) returns (0) {
   // Check that the caller is authorized
-  IS_OWNER()
+  ONLY_OWNER_MODIFIER()
 
   // Set the new owner
   0x04 calldataload           // [newOwner]
