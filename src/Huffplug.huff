@@ -54,10 +54,22 @@
 #define function setUri(string) nonpayable returns ()
 #define function setContractUri(string) nonpayable returns ()
 
+#define error ErrOnlyOwner()
+#define error ErrNonPayable()
+
 
 // *************************************************************
 // ***                      Macros                           ***
 // *************************************************************
+
+
+/// @notice Only Owner Modifier
+#define macro ONLY_OWNER_MODIFIER() = takes (0) returns (0) {
+    __ERROR(ErrOnlyOwner)                   // []
+    [OWNER] sload                      // [owner]
+    caller eq
+    REQUIRE_CUSTOM_ERROR()
+}
 
 #define macro TOTAL_MINTED() = takes (0) returns (0) {
     [MINTED_STORAGE_SLOT] sload
@@ -105,9 +117,11 @@
 // *************************************************************
 
 #define macro MAIN() = takes (0) returns (0) {
-    0x00 calldataload 0xE0 shr  // [sig]
+    __ERROR(ErrNonPayable)
+    callvalue iszero         // [msg.value == 0, ErrNonPayable Signature]
+    REQUIRE_CUSTOM_ERROR()                // []
 
-    NON_PAYABLE()                               // []
+    0x00 calldataload 0xE0 shr  // [sig]
 
     dup1 __FUNC_SIG(mint)                       eq mint jumpi
     dup1 __FUNC_SIG(mintWithMerkle)             eq mintWithMerkle jumpi
@@ -213,11 +227,11 @@
     
     
     setUri:
-        ONLY_OWNER()
+        ONLY_OWNER_MODIFIER()
         SET_STRING(URI_POINTER)
 
     setContractUri:
-        ONLY_OWNER()
+        ONLY_OWNER_MODIFIER()
         SET_STRING(CONTRACTURI_POINTER)
 
     set_owner:

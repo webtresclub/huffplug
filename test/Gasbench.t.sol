@@ -38,6 +38,7 @@ contract GasbenchTest is Test {
 
         vm.label(deployed, "huffplug");
         huffplug = IHuffplug(deployed);
+        vm.prank(owner);
         huffplug.setUri(baseUrl);
     }
 
@@ -54,6 +55,7 @@ contract GasbenchTest is Test {
         assembly {
             deployed := create(0, add(bytecode, 0x20), mload(bytecode))
         }
+        vm.prank(owner);
         deployed.setUri(baseUrl);
     }
 

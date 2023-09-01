@@ -40,7 +40,10 @@ contract ButtplugTest is Test {
 
         vm.label(deployed, "huffplug");
         huffplug = IHuffplug(deployed);
+
+        vm.prank(owner);
         huffplug.setUri(baseUrl);
+        vm.prank(owner);
         huffplug.setContractUri(contractURI);
     }
 
@@ -115,6 +118,32 @@ contract ButtplugTest is Test {
         assertEq(huffplug.ownerOf(478), user);
 
         assertNotEq(huffplug.salt(), keccak256("salt"));
+
+        vm.prank(user);
+        huffplug.transferFrom(user, owner, 478);
+    }
+
+    function testTransfer() public noGasMetering {
+        vm.store(address(huffplug), SALT_SLOT, /* slot of salt in ButtplugPlugger */ keccak256("salt"));
+        uint256 nonce = 271021;
+        vm.prank(user);
+        huffplug.mint(nonce);
+
+        assertEq(huffplug.balanceOf(user), 1);
+        assertEq(huffplug.ownerOf(478), user);
+
+        vm.expectRevert();
+        huffplug.transferFrom(user, owner, 478);
+
+        vm.prank(user);
+        vm.expectRevert();
+        huffplug.transferFrom(user, owner, 470);
+        vm.prank(user);
+        huffplug.transferFrom(user, owner, 478);
+
+        assertEq(huffplug.balanceOf(user), 0);
+        assertEq(huffplug.ownerOf(478), owner);
+        assertEq(huffplug.balanceOf(owner), 1);
     }
 
     function testMintReverts() public noGasMetering {
@@ -246,19 +275,31 @@ contract ButtplugTest is Test {
     function testTokenUri() public noGasMetering {
         assertEq(huffplug.tokenURI(3), string.concat(baseUrl, "0003"));
         assertEq(huffplug.tokenURI(10), string.concat(baseUrl, "0010"));
-        //vm.expectRevert();
-        //huffplug.tokenURI(0);
+        vm.expectRevert();
+        huffplug.tokenURI(0);
 
-        //vm.expectRevert();
-        //huffplug.tokenURI(1025);
+        vm.expectRevert();
+        huffplug.tokenURI(1025);
 
         assertEq(huffplug.tokenURI(1024), string.concat(baseUrl, "1024"));
     }
 
     function testOwner() public noGasMetering {
-        console2.log(owner);
-        console2.log(huffplug.owner());
         assertEq(huffplug.owner(), owner, "wrong owner");
+        vm.expectRevert(IHuffplug.ErrOnlyOwner.selector);
+        huffplug.setContractUri("contracturi");
+        vm.expectRevert(IHuffplug.ErrOnlyOwner.selector);
+        huffplug.setUri("baseuri");
+
+        assertEq(huffplug.tokenURI(10), string.concat(baseUrl, "0010"));
+        vm.startPrank(owner);
+        huffplug.setContractUri("contracturi");
+        huffplug.setUri("baseuri");
+        vm.stopPrank();
+        assertEq(huffplug.contractURI(), "contracturi", "wrong contract uri");
+        assertEq(huffplug.tokenURI(10), "baseuri0010");
+
+
     }
 
     function testSetOwner(address new_owner) public noGasMetering {

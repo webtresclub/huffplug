@@ -8,7 +8,7 @@
 
 // Imports
 #include "huffmate/data-structures/Hashmap.huff"
-#include "./CommonErrors.huff"
+#include "./CustomErrors.huff"
 
 // Interface
 #define function name() nonpayable returns (string)
@@ -32,6 +32,15 @@
 #define function balanceOf(address) view returns (uint256)
 #define function supportsInterface(bytes4) view returns (bool)
 
+
+#define error ErrUnauthorized()
+#define error ErrUnsafeRecipient()
+#define error ErrInvalidRecipient()
+#define error ErrAlreadyMinted()
+#define error ErrNotMinted()
+#define error ErrWrongFrom()
+
+
 // Events
 #define event Transfer(address,address,uint256)
 #define event Approval(address,address,uint256)
@@ -42,14 +51,9 @@
 #define constant BALANCE_LOCATION = FREE_STORAGE_POINTER()
 #define constant SINGLE_APPROVAL_LOCATION = FREE_STORAGE_POINTER()
 
-#define error ErrUnauthorized()
-#define error ErrUnsafeRecipient()
-#define error ErrInvalidRecipient()
-#define error ErrAlreadyMinted()
-#define error ErrNotMinted()
-
 
 /// >>>>>>>>>>>>>>>>>>>>>  VIEW FUNCTIONS  <<<<<<<<<<<<<<<<<<<<<< ///
+
 
 /// @notice Balance Of
 /// @notice Returns the balance of the given address
@@ -165,7 +169,6 @@
 /// @notice Burns the token with the given id
 #define macro _BURN() = takes (1) returns (0) {
     // Input stack:                                 // [tokenId]
-    NON_PAYABLE()                                   // [tokenId]
 
     dup1                                            // [tokenId, tokenId]
     [OWNER_LOCATION] LOAD_ELEMENT_FROM_KEYS(0x00)   // [owner, tokenId]
@@ -435,7 +438,8 @@
     dup1 dup4                                       // [tokenId, from, from, to, tokenId]
     [OWNER_LOCATION] LOAD_ELEMENT_FROM_KEYS(0x00)   // [owner, from, from, to, tokenId]
     eq cont jumpi                                   // [from, to, tokenId]
-    WRONG_FROM(0x00)
+    __ERROR(ErrWrongFrom)
+    ERR_CUSTOM()
     cont:
 
     // If to === address(0) revert with "INVALID_RECIPIENT"
