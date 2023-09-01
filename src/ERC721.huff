@@ -48,7 +48,7 @@
 
 // Storage Slots
 #define constant OWNER_LOCATION_MASK = 0xC0DE420C0DE420C0DE4200000000000000000000000000000000000000000000
-#define constant BALANCE_LOCATION = FREE_STORAGE_POINTER()
+#define constant BALANCE_LOCATION_MASK = 0xFFFFFFFFFFFF0000000000000000000000000000000000000000000000000000
 #define constant SINGLE_APPROVAL_LOCATION = FREE_STORAGE_POINTER()
 
 
@@ -59,7 +59,7 @@
 /// @notice Returns the balance of the given address
 #define macro BALANCE_OF() = takes (0) returns (0) {
     0x04 calldataload                                   // [account]
-    [BALANCE_LOCATION] LOAD_ELEMENT_FROM_KEYS(0x00)     // [balance]
+    [BALANCE_LOCATION_MASK] or sload                    // [balance]
     0x00 mstore                                         // []
     0x20 0x00 return                                    // []
 }
@@ -182,10 +182,10 @@
 
     // Reduce the balance of owner by 1
     0x01 dup2                                       // [owner, 1, owner, to, tokenId]
-    [BALANCE_LOCATION] LOAD_ELEMENT_FROM_KEYS(0x00) // [balance, 1, owner, to, tokenId]
+    [BALANCE_LOCATION_MASK] or sload                // [balance, 1, owner, to, tokenId]
     sub dup2                                        // [owner, balance-1, owner, to, tokenId]
-    [BALANCE_LOCATION]
-    STORE_ELEMENT_FROM_KEYS(0x00)                   // [owner, to, tokenId]
+    [BALANCE_LOCATION_MASK] or
+    sstore                                          // [owner, to, tokenId]
 
     // Set the owner of the token to 0x00
     0x00 dup4 [OWNER_LOCATION_MASK] or              // [slot, owner, 0x00, owner, to, tokenId]
@@ -471,10 +471,10 @@
 
     // Update balance of from
     0x01 dup2                                       // [from, 1, from, to, tokenId]
-    [BALANCE_LOCATION] LOAD_ELEMENT_FROM_KEYS(0x00) // [balance, 1, from, to, tokenId]
+    [BALANCE_LOCATION_MASK] or sload                // [balance, 1, from, to, tokenId]
     sub dup2                                        // [from, balance-1, from, to, tokenId]
-    [BALANCE_LOCATION]
-    STORE_ELEMENT_FROM_KEYS(0x00)                   // [from, to, tokenId]
+    [BALANCE_LOCATION_MASK] or 
+    sstore                   // [from, to, tokenId]
 }
 
 /// @notice Internal Macro to update Transfer to accounting
@@ -482,14 +482,14 @@
     // retrieve balance
     // input stack:                 // [from, to, tokenId]
     dup2                            // [to, from, to, tokenId]
-	[BALANCE_LOCATION]              // [balance_slot, to, from, to, tokenId]
-    LOAD_ELEMENT_FROM_KEYS(0x00)    // [balance, from, to, tokenId]
+	[BALANCE_LOCATION_MASK] or      // [balance_slot, to, from, to, tokenId]
+    sload                           // [balance, from, to, tokenId]
     0x01 add                        // [balance+1, from, to, tokenId]
 
     // update balance
 	dup3                            // [to, balance+1, from, to, tokenId]
-    [BALANCE_LOCATION]              // [balance_slot, to, balance+1, from, to, tokenId]
-    STORE_ELEMENT_FROM_KEYS(0x00)   // [from, to, tokenId]
+    [BALANCE_LOCATION_MASK] or      // [balance_slot, to, balance+1, from, to, tokenId]
+    sstore                          // [from, to, tokenId]
 
     // update ownerOf
     dup2 dup4                       // [tokenId, to, from, to, tokenId]
