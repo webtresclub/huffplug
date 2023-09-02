@@ -1,23 +1,5 @@
-
 /// @notice Reverts with a Custom error
 #define macro ERR_CUSTOM() = takes (1) returns (0) {
-    // ERROR SIGNATURE
-    0x00 mstore
-    0x04 0x00 revert
-}
-
-#define macro REQUIRE_CUSTOM_ERROR() = takes(2) returns(0) {
-    // [condition, customErrorSig]
-    do_not_throwErr jumpi
-    ERR_CUSTOM()
-
-    do_not_throwErr:
-    pop
-}
-
-
-/// @notice Reverts with a Custom error
-#define macro ERR_CUSTOM_LONG() = takes (1) returns (0) {
     // ERROR SIGNATURE
     0x00 mstore
     0x04 0x1c revert
@@ -27,7 +9,7 @@
     // [condition, customErrorSig]
     do_not_throwErr jumpi
     <ERROR_SIGNATURE>
-    ERR_CUSTOM_LONG()
+    ERR_CUSTOM()
 
     do_not_throwErr:
 }

@@ -16,7 +16,7 @@
 #define macro OWNED_CONSTRUCTOR() = takes (0) returns (0) {
   // Copy the owner into memory
   0x20                        // [size] - byte size to copy
-  0x20 codesize sub           // [offset, size] - offset in the code to copy from
+  dup1 codesize sub           // [offset, size] - offset in the code to copy from
   0x00                        // [mem, offset, size] - offset in memory to copy to
   codecopy                    // []
 
@@ -36,7 +36,7 @@
 
   // Revert otherwise
   [ERR_ONLYOWNER]
-  ERR_CUSTOM_LONG()
+  ERR_CUSTOM()
 
   authed:
 }

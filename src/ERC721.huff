@@ -158,11 +158,11 @@
 
     invalid_recipient:
         [ERR_INVALID_RECIPIENT]
-        ERR_CUSTOM_LONG()
+        ERR_CUSTOM()
 
     unauthorized:
         [ERR_ALREADY_MINTED]
-        ERR_CUSTOM_LONG()
+        ERR_CUSTOM()
 
     cont:
 }
@@ -207,7 +207,7 @@
 
     not_minted:
         [ERR_NOT_MINTED]
-        ERR_CUSTOM_LONG()
+        ERR_CUSTOM()
 
     cont:
 }
@@ -244,7 +244,7 @@
 
     not_authorized:
         [ERR_UNAUTHORIZED]
-        ERR_CUSTOM_LONG()
+        ERR_CUSTOM()
 }
 
 /// @notice Set Approval For All
@@ -350,7 +350,7 @@
 
     // Revert if the return data is not accepted
     [ERR_UNSAFE_RECIPIENT]
-    ERR_CUSTOM_LONG()
+    ERR_CUSTOM()
 
     // Stop execution if safe
     safe:
@@ -423,7 +423,7 @@
 
     // Revert if the return data is not accepted
     [ERR_UNSAFE_RECIPIENT]
-    ERR_CUSTOM_LONG()
+    ERR_CUSTOM()
 
     // Stop execution if safe
     safe:
@@ -441,13 +441,13 @@
     [OWNER_LOCATION] LOAD_ELEMENT_FROM_KEYS(0x00)   // [owner, from, from, to, tokenId]
     eq cont jumpi                                   // [from, to, tokenId]
     [ERR_WRONG_FROM]
-    ERR_CUSTOM_LONG()
+    ERR_CUSTOM()
     cont:
 
     // If to === address(0) revert with "INVALID_RECIPIENT"
     dup2 continue jumpi                             // [from, to, tokenId]
     [ERR_INVALID_RECIPIENT]
-    ERR_CUSTOM_LONG()
+    ERR_CUSTOM()
     continue:
 
     // Check if msg.sender == from
@@ -467,7 +467,7 @@
 
     // If msg.sender != from && !isApprovedForAll[from][msg.sender] && msg.sender != getApproved[id],
     [ERR_UNAUTHORIZED]
-    ERR_CUSTOM_LONG()
+    ERR_CUSTOM()
 
     is_authorized:
 

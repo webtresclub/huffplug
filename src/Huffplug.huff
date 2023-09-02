@@ -109,9 +109,8 @@
 // *************************************************************
 
 #define macro MAIN() = takes (0) returns (0) {
-    __ERROR(ErrNonPayable)
-    callvalue iszero         // [msg.value == 0, ErrNonPayable Signature]
-    REQUIRE_CUSTOM_ERROR()                // []
+    callvalue iszero         // [msg.value == 0]
+    REQUIRE_CUSTOM_ERROR_LONG(ERR_NONPAYABLE)                // []
 
     0x00 calldataload 0xE0 shr  // [sig]
 

@@ -31,9 +31,13 @@
 // *************************************************************
 
 #define error ErrAlreadyClaimed()
+#define constant ERR_ALREADY_CLAIMED = 0xe4f5bd59
 #define error ErrInvalidProof()
+#define constant ERR_INVALID_PROOF = 0x14209932
 #define error ErrNoMoreUwU()
+#define constant ERR_NOMOREUWU = 0xcea28716
 #define error ErrWrongSalt()
+#define constant ERR_WRONGSALT = 0xc20630a5
 
 // *************************************************************
 // ***                   Constructor                         ***
@@ -76,25 +80,22 @@
 }
 
 #define macro REQUIRE_NOT_CLAIMED() = takes (0) returns (0) {
-    __ERROR(ErrAlreadyClaimed)       // [ErrAlreadyClaimedSig]
-    caller sload iszero              // [CLAIMED(caller) == 0, ErrAlreadyClaimedSig]
-    REQUIRE_CUSTOM_ERROR()           // []
+    caller sload iszero              // [CLAIMED(caller) == 0]
+    REQUIRE_CUSTOM_ERROR_LONG(ERR_ALREADY_CLAIMED)           // []
 }
 
 #define macro REQUIRE_VALID_PROOF(PROOF_CD_POINTER) = takes (0) returns (0) {
-    __ERROR(ErrInvalidProof)
-    [MERKLE_ROOT]                                  // [root, ErrInvalidProof]
-    caller                                         // [leaf, root, ErrInvalidProof]
-    <PROOF_CD_POINTER>                             // [PROOF_CD_POINTER, leaf, root,  ErrInvalidProof]
-    VERIFY_PROOF()                                 // [is_valid, ErrInvalidProof]
-    REQUIRE_CUSTOM_ERROR()                         // []
+    [MERKLE_ROOT]                                  // [root]
+    caller                                         // [leaf, root]
+    <PROOF_CD_POINTER>                             // [PROOF_CD_POINTER, leaf, root]
+    VERIFY_PROOF()                                 // [is_valid]
+    REQUIRE_CUSTOM_ERROR_LONG(ERR_INVALID_PROOF)   // []
 }
 
 #define macro REQUIRE_MINT_LIMIT() = takes(1) returns(1) {
     // input state is [totalMinted]
-    __ERROR(ErrNoMoreUwU)     // [ErrNoMoreUwUSig, totalMinted]
-    dup2 [MAX_SUPPLY] gt      // [MAX_SUPPLY > totalMinted, ErrNoMoreUwUSig, totalMinted]
-    REQUIRE_CUSTOM_ERROR()    // [totalMinted]
+    dup1 [MAX_SUPPLY] gt      // [MAX_SUPPLY > totalMinted, totalMinted]
+    REQUIRE_CUSTOM_ERROR_LONG(ERR_NOMOREUWU)    // [totalMinted]
 }
 
 /// @notice Mint a Buttplug (UwU) using a merkle proof
@@ -172,9 +173,8 @@
     // 0000000.00XXX..XX
     shr                                   // [shiftedRandom, totalMinted, random, 0x01]
 
-    __ERROR(ErrWrongSalt)                 // [ErrWrongSaltSig, shiftedRandom, totalMinted, random, 0x01]
-    dup2 iszero                           // [shiftedRandom == 0, ErrWrongSaltSig, shiftedRandom, totalMinted, random, 0x01]
-    REQUIRE_CUSTOM_ERROR()                // [shiftedRandom, totalMinted, random, 0x01]
+    dup1 iszero                           // [shiftedRandom == 0, shiftedRandom, totalMinted, random, 0x01]
+    REQUIRE_CUSTOM_ERROR_LONG(ERR_WRONGSALT)        // [shiftedRandom, totalMinted, random, 0x01]
     pop                                   // [totalMinted, random, 0x01]
 
     // minted = _minted + 1;
