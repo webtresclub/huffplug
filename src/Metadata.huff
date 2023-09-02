@@ -1,5 +1,6 @@
 #include "./Slots.huff"
-#include "huffmate/auth/Owned.huff"
+
+#include "./Owned.huff"
 
 // @dev Usage LOG_STACK_1(0x00), LOG_STACK_2(0x00), ..., etc
 #include "Huff-Console/Console.huff"

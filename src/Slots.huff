@@ -12,10 +12,7 @@
 // Owned Storage Slots
 #define constant OWNER_SLOT = 0x03
 
-
-
 // Metadata storage Slots
-
 // have some space between because is a string
 #define constant URI_POINTER = 0xdd
 // have some space between because is a string

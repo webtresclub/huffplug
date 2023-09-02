@@ -23,27 +23,34 @@
   // Set the new owner
   0x00 mload                  // [owner]
   dup1                        // [owner, owner]
-  [OWNER]                     // [OWNER, owner, owner]
+  [OWNER_SLOT]                     // [OWNER, owner, owner]
   sstore                      // [owner]
 }
 
+
 /// @notice Only Owner Modifier
-#define macro ONLY_OWNER_MODIFIER() = takes (0) returns (0) {
-    [OWNER] sload                      // [owner]
-    caller eq
-    REQUIRE_CUSTOM_ERROR_LONG(ERR_ONLYOWNER)
+#define macro IS_OWNER() = takes (0) returns (0) {
+  caller                      // [msg.sender]
+  [OWNER_SLOT] sload          // [owner, msg.sender]
+  eq authed jumpi             // [authed]
+
+  // Revert otherwise
+  [ERR_ONLYOWNER]
+  ERR_CUSTOM_LONG()
+
+  authed:
 }
 
 /// @notice Set the Owner
 /// @param {owner} [address] - The new owner
 #define macro SET_OWNER() = takes (0) returns (0) {
   // Check that the caller is authorized
-  ONLY_OWNER_MODIFIER()
+  IS_OWNER()
 
   // Set the new owner
   0x04 calldataload           // [newOwner]
   dup1                        // [newOwner, newOwner]
-  [OWNER] sstore              // [newOwner]
+  [OWNER_SLOT] sstore         // [newOwner]
 
   stop
 }
@@ -51,7 +58,7 @@
 /// @notice Get the owner of the contract
 /// @return {owner} [address] - The owner of the contract
 #define macro OWNER() = takes (0) returns (0) {
-  [OWNER] sload                  // [owner]
+  [OWNER_SLOT] sload                  // [owner]
   0x00 mstore                    // []
   0x20 0x00 return
 }

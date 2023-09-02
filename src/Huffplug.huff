@@ -140,11 +140,11 @@
     dup1 __FUNC_SIG("safeTransferFrom(address,address,uint256,bytes)") eq safeTransferFromData jumpi
 
     /// @dev owner pattern dispatcher
-    dup1 __FUNC_SIG(setOwner) eq set_owner jumpi
-    dup1 __FUNC_SIG(owner)    eq owner jumpi
+    dup1 __FUNC_SIG(setOwner)                   eq set_owner jumpi
+    dup1 __FUNC_SIG(owner)                      eq owner jumpi
     
-    dup1 __FUNC_SIG(setUri)               eq setUri jumpi
-    dup1 __FUNC_SIG(setContractUri)               eq setContractUri jumpi
+    dup1 __FUNC_SIG(setUri)                     eq setUri jumpi
+    dup1 __FUNC_SIG(setContractUri)             eq setContractUri jumpi
     
 
     dup1 __FUNC_SIG(totalSupply)                eq totalSupply jumpi
@@ -153,7 +153,7 @@
     dup1 __FUNC_SIG(claimed)                    eq claimed jumpi    
     dup1 __FUNC_SIG(salt)                       eq salt jumpi
     // last one doesnt need dup1
-    __FUNC_SIG(currentDifficulty)          eq currentDifficulty jumpi
+    __FUNC_SIG(currentDifficulty)               eq currentDifficulty jumpi
 
 
     // Revert on failed dispatch
@@ -216,14 +216,13 @@
         TOKEN_URI_METADATA()
     contractURI:
         CONTRACT_URI_METADATA()
-    
-    
+
     setUri:
-        ONLY_OWNER_MODIFIER()
+        IS_OWNER()
         SET_STRING(URI_POINTER)
 
     setContractUri:
-        ONLY_OWNER_MODIFIER()
+        IS_OWNER()
         SET_STRING(CONTRACTURI_POINTER)
 
     set_owner:
