@@ -18,8 +18,8 @@ contract ButtplugTest is Test {
     address public user = makeAddr("user");
     address public owner = makeAddr("owner");
 
-    string baseUrl = "ipfs://bafybeia7h7n6osru3b4mvivjb3h2fkonvmotobvboqw3k3v4pvyv5oyzse/";
-    string contractURI ="ipfs://bafybeia7h7n6osru3b4mvivjb3h2fkonvmotobvboqw3k3v4pvyv5oyzse/collection.json";
+    string baseUrl = "ipfs://bafybeieqnhc5kxnaypnmypaga7r7oxbsh2bhac7ugrsk264yr3o5o7raxq/";
+    string contractURI ="ipfs://contract/collection.json";
 
     uint256 constant COLLECTION_START = 1000000;
     bytes32 constant MERKLE_HASH = 0x51496785f4dd04d525b568df7fa6f1057799bc21f7e76c26ee77d2f569b40601;

@@ -14,8 +14,8 @@ contract HuffDeployScript is Script {
     IHuffplug huffplug = IHuffplug(0x1837F678b81F5a1C1BDC17A6FeABA430F3aF7346);
 
     bytes32 constant MERKLE_ROOT = 0x51496785f4dd04d525b568df7fa6f1057799bc21f7e76c26ee77d2f569b40601;
-    string baseUrl = "ipfs://bafybeia7h7n6osru3b4mvivjb3h2fkonvmotobvboqw3k3v4pvyv5oyzse/";
-    string contractURI ="ipfs://bafybeia7h7n6osru3b4mvivjb3h2fkonvmotobvboqw3k3v4pvyv5oyzse/collection.json";
+    string baseUrl = "ipfs://bafybeieqnhc5kxnaypnmypaga7r7oxbsh2bhac7ugrsk264yr3o5o7raxq/";
+    string contractURI ="ipfs://.../collection.json";
 
 
     address constant owner = 0xC0FFEc688113B2C5f503dFEAF43548E73C7eCCB3;

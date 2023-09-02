@@ -18,7 +18,7 @@ contract GasbenchTest is Test {
     address public user = makeAddr("user");
     address public owner = makeAddr("owner");
 
-    string baseUrl = "ipfs://bafybeia7h7n6osru3b4mvivjb3h2fkonvmotobvboqw3k3v4pvyv5oyzse/";
+    string baseUrl = "ipfs://bafybeieqnhc5kxnaypnmypaga7r7oxbsh2bhac7ugrsk264yr3o5o7raxq/";
     string contractURI = "ipfs://CONTRACTURI/";
 
     uint256 constant COLLECTION_START = 1000000;
