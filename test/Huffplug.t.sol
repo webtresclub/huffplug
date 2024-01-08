@@ -23,9 +23,12 @@ contract ButtplugTest is Test {
 
     uint256 constant COLLECTION_START = 1000000;
     bytes32 constant MERKLE_HASH = 0x51496785f4dd04d525b568df7fa6f1057799bc21f7e76c26ee77d2f569b40601;
+    bytes32 constant DEFAULT_SALT = keccak256("salt");
 
     function setUp() public {
+        vm.prevrandao(DEFAULT_SALT);
         vm.warp(COLLECTION_START);
+        vm.roll(666); // block number 666
         vm.prank(owner);
 
         bytes memory bytecode = vm.compile(COLLECTION_START, MERKLE_HASH);
@@ -68,7 +71,7 @@ contract ButtplugTest is Test {
         vm.store(address(huffplug), TOTAL_MINTED_SLOT, bytes32(uint256(20)));
         assertEq(huffplug.currentDifficulty(), 9, "difficulty should be 9");
 
-        console2.logUint(COLLECTION_START);
+        console2.log(COLLECTION_START);
         // if there are no new mint the difficulty shoud decay after some time
         vm.warp(COLLECTION_START + 1 days);
         assertEq(huffplug.currentDifficulty(), 9, "difficulty should be 9");
@@ -99,9 +102,10 @@ contract ButtplugTest is Test {
     }
 
     function testMint() public noGasMetering {
-        vm.store(address(huffplug), SALT_SLOT, /* slot of salt in ButtplugPlugger */ keccak256("salt"));
+        bytes32 newSalt = keccak256("newSalt");
+        vm.prevrandao(newSalt);
 
-        assertEq(huffplug.salt(), keccak256("salt"));
+        assertEq(huffplug.salt(), DEFAULT_SALT);
 
         uint256 nonce = 271021;
 
@@ -117,7 +121,8 @@ contract ButtplugTest is Test {
         assertEq(huffplug.balanceOf(user), 1);
         assertEq(huffplug.ownerOf(478), user);
 
-        assertNotEq(huffplug.salt(), keccak256("salt"));
+        assertNotEq(huffplug.salt(), DEFAULT_SALT);
+        assertEq(huffplug.salt(), newSalt);
 
         vm.prank(user);
         huffplug.transferFrom(user, owner, 478);
