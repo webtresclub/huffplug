@@ -10,7 +10,7 @@
 
 // Errors
 #define error ErrOnlyOwner()
-#define constant ERR_ONLYOWNER = 0x4eebc1aa
+#define constant ERR_ONLYOWNER = 0x4eebc1aa // same as bytes4(keccak256("ErrOnlyOwner()"))
 
 // CONSTRUCTOR
 #define macro OWNED_CONSTRUCTOR() = takes (0) returns (0) {
@@ -49,8 +49,7 @@
 
   // Set the new owner
   0x04 calldataload           // [newOwner]
-  dup1                        // [newOwner, newOwner]
-  [OWNER_SLOT] sstore         // [newOwner]
+  [OWNER_SLOT] sstore         // []
 
   stop
 }
