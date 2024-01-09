@@ -77,10 +77,10 @@
 #define macro NAME() = takes (0) {
     0x0a
     0x20
-    dup1 0x00 mstore                            // [name_length, name_value]
-    mstore                                 // [name_value]
-    __RIGHTPAD(0x42757474706c75676779) // Buttpluggy
-    0x40 mstore                                 // []
+    dup1 0x00 mstore                      // [name_length, name_value]
+    mstore                                // [name_value]
+    __RIGHTPAD(0x42757474706c75676779)    // Buttpluggy
+    0x40 mstore                           // []
     0x60 0x00 return
 }
 
@@ -109,8 +109,8 @@
 // *************************************************************
 
 #define macro MAIN() = takes (0) returns (0) {
-    callvalue iszero         // [msg.value == 0]
-    REQUIRE_CUSTOM_ERROR_LONG(ERR_NONPAYABLE)                // []
+    callvalue iszero                               // [msg.value == 0]
+    REQUIRE_CUSTOM_ERROR_LONG(ERR_NONPAYABLE)      // []
 
     0x00 calldataload 0xE0 shr  // [sig]
 
@@ -217,14 +217,20 @@
         CONTRACT_URI_METADATA()
 
     setUri:
+        // Check that the caller is authorized
         IS_OWNER()
         SET_STRING(URI_POINTER)
 
     setContractUri:
+        // Check that the caller is authorized
         IS_OWNER()
+
         SET_STRING(CONTRACTURI_POINTER)
 
     set_owner:
+        // Check that the caller is authorized
+        IS_OWNER()
+
         SET_OWNER()
     owner:
         OWNER()

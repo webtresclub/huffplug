@@ -43,9 +43,6 @@
 /// @notice Set the Owner
 /// @param {owner} [address] - The new owner
 #define macro SET_OWNER() = takes (0) returns (0) {
-  // Check that the caller is authorized
-  IS_OWNER()
-
   // Set the new owner
   0x04 calldataload           // [newOwner]
   [OWNER_SLOT] sstore         // []
@@ -56,7 +53,7 @@
 /// @notice Get the owner of the contract
 /// @return {owner} [address] - The owner of the contract
 #define macro OWNER() = takes (0) returns (0) {
-  [OWNER_SLOT] sload                  // [owner]
-  0x00 mstore                    // []
+  [OWNER_SLOT] sload         // [owner]
+  0x00 mstore                // []
   0x20 0x00 return
 }
