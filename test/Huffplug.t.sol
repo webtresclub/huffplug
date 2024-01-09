@@ -58,8 +58,9 @@ contract ButtplugTest is Test {
         vm.prank(owner);
         huffplug.setContractUri("lol");
         assertEq(huffplug.contractURI(), "lol");
-
     }
+
+    
 
     function testDifficulty() public noGasMetering {
         assertEq(huffplug.totalMinted(), 0, "total minted should be 0");
@@ -260,6 +261,7 @@ contract ButtplugTest is Test {
     }
 
     function testRendererFuzz(uint256 id) public noGasMetering {
+        id = bound(id, 0, 2000);
         if (id == 0 || id > 1024) {
             vm.expectRevert();
             huffplug.tokenURI(id);
@@ -304,14 +306,18 @@ contract ButtplugTest is Test {
         huffplug.setUri("baseuri");
 
         assertEq(huffplug.tokenURI(10), string.concat(baseUrl, "0010"));
+
+        vm.expectRevert(bytes4(keccak256("ErrOnlyOwner()")));
+        huffplug.setContractUri("lol");
+        vm.expectRevert(bytes4(keccak256("ErrOnlyOwner()")));
+        huffplug.setUri("lol");
+
         vm.startPrank(owner);
         huffplug.setContractUri("contracturi");
         huffplug.setUri("baseuri");
         vm.stopPrank();
         assertEq(huffplug.contractURI(), "contracturi", "wrong contract uri");
         assertEq(huffplug.tokenURI(10), "baseuri0010");
-
-
     }
 
     function testSetOwner(address new_owner) public noGasMetering {
@@ -325,5 +331,26 @@ contract ButtplugTest is Test {
         vm.prank(owner);
         huffplug.setOwner(new_owner);
         assertEq(new_owner, huffplug.owner());
+    }
+
+    function testChangeOwner() public noGasMetering {
+        address newOwner = makeAddr("new_owner");
+        assertEq(huffplug.owner(), owner);
+        
+        vm.expectRevert(bytes4(keccak256("ErrOnlyOwner()")));
+        huffplug.setOwner(newOwner);
+
+        vm.prank(owner);
+        huffplug.setOwner(newOwner);
+
+        vm.expectRevert(bytes4(keccak256("ErrOnlyOwner()")));
+        vm.prank(owner);
+        huffplug.setOwner(newOwner);
+
+        assertEq(huffplug.owner(), newOwner);
+
+        vm.prank(newOwner);
+        huffplug.setOwner(owner);
+        assertEq(huffplug.owner(), owner);
     }
 }
