@@ -52,6 +52,13 @@ contract ButtplugTest is Test {
 
     function testContractUri() public noGasMetering {
         assertEq(huffplug.contractURI(), contractURI);
+        vm.expectRevert(bytes4(keccak256("ErrOnlyOwner()")));
+        huffplug.setContractUri("lol");
+
+        vm.prank(owner);
+        huffplug.setContractUri("lol");
+        assertEq(huffplug.contractURI(), "lol");
+
     }
 
     function testDifficulty() public noGasMetering {
