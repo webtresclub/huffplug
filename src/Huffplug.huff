@@ -224,13 +224,11 @@
     setContractUri:
         // Check that the caller is authorized
         IS_OWNER()
-
         SET_STRING(CONTRACTURI_POINTER)
 
     set_owner:
         // Check that the caller is authorized
         IS_OWNER()
-
         SET_OWNER()
     owner:
         OWNER()
