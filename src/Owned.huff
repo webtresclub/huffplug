@@ -22,9 +22,8 @@
 
   // Set the new owner
   0x00 mload                  // [owner]
-  dup1                        // [owner, owner]
-  [OWNER_SLOT]                     // [OWNER, owner, owner]
-  sstore                      // [owner]
+  [OWNER_SLOT]                // [OWNER, owner]
+  sstore                      // []
 }
 
 
