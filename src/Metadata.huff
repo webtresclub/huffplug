@@ -3,7 +3,7 @@
 #include "./Owned.huff"
 
 // @dev Usage LOG_STACK_1(0x00), LOG_STACK_2(0x00), ..., etc
-#include "Huff-Console/Console.huff"
+//#include "Huff-Console/Console.huff"
 
 #define error ErrInvalidToken()
 #define constant ERR_INVALIDTOKEN = 0x0873c1d0
