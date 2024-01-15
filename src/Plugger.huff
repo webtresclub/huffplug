@@ -3,7 +3,6 @@
 // mint on goerli: https://buttplug-homepage.vercel.app/
 
 #include "huffmate/math/Math.huff"
-#include "./ERC721.huff"
 #include "./Slots.huff"
 
 // @dev Usage LOG_STACK_1(0x00), LOG_STACK_2(0x00), ..., etc
