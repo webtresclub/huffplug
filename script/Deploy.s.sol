@@ -10,7 +10,6 @@ import {compile} from "../test/Deploy.sol";
 using {compile} for Vm;
 
 contract HuffDeployScript is Script {
-    address constant DEPLOYER2 = 0x4e59b44847b379578588920cA78FbF26c0B4956C;
     IHuffplug huffplug = IHuffplug(0x1837F678b81F5a1C1BDC17A6FeABA430F3aF7346);
 
     bytes32 constant MERKLE_ROOT = 0x51496785f4dd04d525b568df7fa6f1057799bc21f7e76c26ee77d2f569b40601;
@@ -26,12 +25,13 @@ contract HuffDeployScript is Script {
 
         bytes32 _saltDeploy = 0x09286b392f541f94d0afab741157bd9f766292f732021a1be9ad86bc28b1be42;
 
-        uint256 timestamp = 9999;
+        uint256 timestamp = 1704772170;
         bytes memory bytecode = bytes.concat(vm.compile(timestamp, MERKLE_ROOT), abi.encode(owner));
         // send owner to the constructor
 
         _saltDeploy = 0xcfbbb05e4e07ccd909806657fd780c32d4c4c76931df8394e91d2aa76fc351d1;
-        (bool success, bytes memory ret) = DEPLOYER2.call(bytes.concat(_saltDeploy, bytecode));
+        
+        (bool success, bytes memory ret) = CREATE2_FACTORY.call(bytes.concat(_saltDeploy, bytecode));
         require(success, "deploy failed");
         address deployedAddress;
         assembly {
