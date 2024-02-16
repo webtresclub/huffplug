@@ -21,12 +21,12 @@ contract GasbenchTest is Test {
     string baseUrl = "ipfs://bafybeieqnhc5kxnaypnmypaga7r7oxbsh2bhac7ugrsk264yr3o5o7raxq/";
     string contractURI = "ipfs://CONTRACTURI/";
 
-    uint256 constant COLLECTION_START = 1000000;
+    uint256 constant COLLECTION_START = 1708108000;
     bytes32 constant MERKLE_HASH = 0x51496785f4dd04d525b568df7fa6f1057799bc21f7e76c26ee77d2f569b40601;
 
     function setUp() public {
         vm.warp(COLLECTION_START);
-        bytes memory bytecode = vm.compile(COLLECTION_START, MERKLE_HASH);
+        bytes memory bytecode = vm.compile(MERKLE_HASH);
 
         // send owner to the constructor, owner is only for opensea main page admin
         bytecode = bytes.concat(bytecode, abi.encode(owner));
@@ -44,14 +44,14 @@ contract GasbenchTest is Test {
 
     function testDeploy() public {
         vm.pauseGasMetering();
-        bytes memory bytecode = vm.compile(COLLECTION_START, MERKLE_HASH);
+        bytes memory bytecode = vm.compile(MERKLE_HASH);
 
         // send owner to the constructor, owner is only for opensea main page admin
         bytecode = bytes.concat(bytecode, abi.encode(owner));
 
         IHuffplug deployed;
         vm.resumeGasMetering();
-        
+
         assembly {
             deployed := create(0, add(bytecode, 0x20), mload(bytecode))
         }

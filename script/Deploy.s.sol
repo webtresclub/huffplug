@@ -14,8 +14,7 @@ contract HuffDeployScript is Script {
 
     bytes32 constant MERKLE_ROOT = 0x51496785f4dd04d525b568df7fa6f1057799bc21f7e76c26ee77d2f569b40601;
     string baseUrl = "ipfs://bafybeieqnhc5kxnaypnmypaga7r7oxbsh2bhac7ugrsk264yr3o5o7raxq/";
-    string contractURI ="ipfs://.../collection.json";
-
+    string contractURI = "ipfs://.../collection.json";
 
     address constant owner = 0xC0FFEc688113B2C5f503dFEAF43548E73C7eCCB3;
 
@@ -23,14 +22,14 @@ contract HuffDeployScript is Script {
         require(tx.origin == owner, "deployer should be 0xC0FFE");
         vm.startBroadcast();
 
-        bytes32 _saltDeploy = 0x09286b392f541f94d0afab741157bd9f766292f732021a1be9ad86bc28b1be42;
+        bytes32 _saltDeploy = 0xeb732dab20d493614785447e7c20a4fb61eb3c8f9a34bbe8c54706ae559c32e1;
 
-        uint256 timestamp = 1704772170;
-        bytes memory bytecode = bytes.concat(vm.compile(timestamp, MERKLE_ROOT), abi.encode(owner));
+        uint256 timestamp = 1708108000;
+        bytes memory bytecode = bytes.concat(vm.compile(MERKLE_ROOT), abi.encode(owner));
         // send owner to the constructor
 
         _saltDeploy = 0xcfbbb05e4e07ccd909806657fd780c32d4c4c76931df8394e91d2aa76fc351d1;
-        
+
         (bool success, bytes memory ret) = CREATE2_FACTORY.call(bytes.concat(_saltDeploy, bytecode));
         require(success, "deploy failed");
         address deployedAddress;
@@ -43,7 +42,6 @@ contract HuffDeployScript is Script {
 
         huffplug.setUri(baseUrl);
         huffplug.setContractUri(contractURI);
-
 
         vm.stopBroadcast();
         require(huffplug.owner() == owner, "owner mismatch");

@@ -12,8 +12,8 @@
 #define constant MAX_DIFFICULTY     = 0x20
 #define constant ONE_DAY            = 0x015180 // 1 day = 86400 = 0x015180
 
-/// @dev The timestamp when the collection started, useful to calculate the difficulty  
-#define constant COLLECTION_START   = 0x00
+/// @dev The timestamp when the collection started, useful to calculate the difficulty: 1708108000
+#define constant COLLECTION_START   = 0x65cfa8e0
 
 // *************************************************************
 // ***                      Macros                           ***

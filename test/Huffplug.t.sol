@@ -19,19 +19,18 @@ contract ButtplugTest is Test {
     address public owner = makeAddr("owner");
 
     string baseUrl = "ipfs://bafybeieqnhc5kxnaypnmypaga7r7oxbsh2bhac7ugrsk264yr3o5o7raxq/";
-    string contractURI ="ipfs://contract/collection.json";
+    string contractURI = "ipfs://contract/collection.json";
 
-    uint256 constant COLLECTION_START = 1000000;
+    uint256 constant COLLECTION_START = 1708108000;
     bytes32 constant MERKLE_HASH = 0x51496785f4dd04d525b568df7fa6f1057799bc21f7e76c26ee77d2f569b40601;
-    bytes32 constant DEFAULT_SALT = keccak256("salt");
+    bytes32 constant DEFAULT_SALT = 0x0000000000000000000000000000000000000000000000000000006942031337;
 
     function setUp() public {
-        vm.prevrandao(DEFAULT_SALT);
         vm.warp(COLLECTION_START);
         vm.roll(666); // block number 666
         vm.prank(owner);
 
-        bytes memory bytecode = vm.compile(COLLECTION_START, MERKLE_HASH);
+        bytes memory bytecode = vm.compile(MERKLE_HASH);
 
         // send owner to the constructor, owner is only for opensea main page admin
         bytecode = bytes.concat(bytecode, abi.encode(owner));
@@ -59,8 +58,6 @@ contract ButtplugTest is Test {
         huffplug.setContractUri("lol");
         assertEq(huffplug.contractURI(), "lol");
     }
-
-    
 
     function testDifficulty() public noGasMetering {
         assertEq(huffplug.totalMinted(), 0, "total minted should be 0");
@@ -110,10 +107,12 @@ contract ButtplugTest is Test {
     }
 
     function testMint() public noGasMetering {
+        assertEq(huffplug.salt(), DEFAULT_SALT);
+        vm.store(address(huffplug), SALT_SLOT, /* slot of salt in ButtplugPlugger */ keccak256("salt"));
+        assertEq(huffplug.salt(), keccak256("salt"));
+
         bytes32 newSalt = keccak256("newSalt");
         vm.prevrandao(newSalt);
-
-        assertEq(huffplug.salt(), DEFAULT_SALT);
 
         uint256 nonce = 271021;
 
@@ -180,7 +179,6 @@ contract ButtplugTest is Test {
 
         vm.expectRevert(IHuffplug.ErrNoMoreUwU.selector);
         huffplug.mint(nonce);
-
     }
 
     function testMintMerkleFail() public noGasMetering {
@@ -336,7 +334,7 @@ contract ButtplugTest is Test {
     function testChangeOwner() public noGasMetering {
         address newOwner = makeAddr("new_owner");
         assertEq(huffplug.owner(), owner);
-        
+
         vm.expectRevert(bytes4(keccak256("ErrOnlyOwner()")));
         huffplug.setOwner(newOwner);
 
