@@ -14,3 +14,6 @@ docs/
 .env
 /mine-POC/node_modules/
 /merkletree-builder/node_modules/
+/mine-POC-rust/target/debug/
+/mine-POC-rust/target/.rustc_info.json
+/mine-POC-rust/target
