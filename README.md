@@ -14,12 +14,9 @@ WebtrES is a collective of talented hackers, primarily Spanish-speaking, dedicat
 - **Name**: `Huffplug.huff`
 - **Language**: The contract is written in Huff, using the `Huffmate` libraries. For those unfamiliar with Huff, it's a low-level language that gives us the power and flexibility to ensure optimal performance.
 
-## Contract Goerli address
+## Contract address
 
-- [Huffplug](https://goerli.etherscan.io/address/0x0000420f234E9Ea92F8E9fD1afF8016f9F4c7D5D#code)
-- [ButtPlugger](https://goerli.etherscan.io/address/0x262C5ea7411B0FAdB8E175C8D994A2Fd08274C31#code)
-- [TokenRenderer](https://goerli.etherscan.io/address/0x847981B577732B0Cb84E9496AbF0daf4a7277180#code)
-
+- [Huffplug](https://etherscan.io/address/0x0000420538cd5abfbc7db219b6a1d125f5892ab0#code)
 
 ## Minting Buttplugs
 
@@ -28,8 +25,8 @@ There are two unique methods for minting a Buttplug:
 1. **Merkle Tree Method**: Only those whose Ethereum addresses are listed on our Merkle tree can mint Buttplugs. To become eligible, a user must have at least two POAPs. So if you're an active participant in the Ethereum community, you might just be on our list! [You could find more details here](./merkletree-builder/README.md)
 
 2. **Nonce Challenge Method**: Inspired by the classic MoonCats Rescue mechanism, users can also mint by finding a nonce that, when hashed, produces a digest with a certain number of leading zeros. This method ensures fairness and accessibility to all, while also introducing an element of skill and challenge. As time progresses, the difficulty adjusts based on the number of days since the contract deployment in relation to the number of Buttplugs that have been minted.
-
-Goerli demo page: [https://buttplug-homepage.vercel.app/](https://buttplug-homepage.vercel.app/)
+Mine sample: [https://github.com/webtresclub/huffplug/blob/main/mine-POC/index.js]
+Page: [https://buttplug-homepage.vercel.app/](https://buttplug-homepage.vercel.app/)
 
 ## Difficulty Adjustment
 
