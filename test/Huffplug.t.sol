@@ -19,7 +19,7 @@ contract ButtplugTest is Test {
     address public owner = makeAddr("owner");
 
     string baseUrl = "ipfs://bafybeieqnhc5kxnaypnmypaga7r7oxbsh2bhac7ugrsk264yr3o5o7raxq/";
-    string contractURI = "ipfs://contract/collection.json";
+    string contractURI = "https://buttplug-homepage.vercel.app/contract-metadata.json";
 
     uint256 constant COLLECTION_START = 1708108000;
     bytes32 constant MERKLE_HASH = 0x51496785f4dd04d525b568df7fa6f1057799bc21f7e76c26ee77d2f569b40601;
