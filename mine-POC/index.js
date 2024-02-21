@@ -1,28 +1,47 @@
 const {keccak256, encodePacked} = require('viem');
 
+function fromHexString(hexString) {
+  if(hexString.startsWith('0x')) hexString = hexString.slice(2);
+  return Uint8Array.from(hexString.match(/.{1,2}/g).map((byte) => parseInt(byte, 16)));
+}
 
-// start on 270000n to save time (known nonce from previous run)
-let n = 270000n;
+function toHexString(bytes) {
+  return  bytes.reduce((str, byte) => str + byte.toString(16).padStart(2, '0'), '');
+}
+
+let n = 0;
 
 // makeAddr("user")
 const USER ='0x6CA6d1e2D5347Bfab1d91e883F1915560e09129D';
 
 // keccak256("salt")
 const CURRENT_SALT ='0xa05e334153147e75f3f416139b5109d1179cb56fef6a4ecb4c4cbc92a7c37b70';
+// 10k en 72 - 74 ms
+const message = fromHexString(encodePacked(['address', 'bytes32', 'uint256'], [USER, CURRENT_SALT, Math.floor(Math.random() * 1e10)]))
 
+const startArr = fromHexString(
+  encodePacked(['address', 'bytes32'], [USER, CURRENT_SALT])
+).length;
+
+let startTimestamp = +Date.now();
 while(true) {
-  const message = encodePacked(['address', 'bytes32', 'uint256'], [USER, CURRENT_SALT, n])
   const result = keccak256(message);
   // demo para una dificultad de 5 ceros
-  if(n % 10000n == 0n) console.log(n, result);
-  if(result.slice(2,7) == '00000') {
-    console.log(message);
+  if(n % 10000 == 0) {
+    console.log(n, result);
+    // hash rate
+    console.log('hash rate 10k in', ((+Date.now() - startTimestamp)), 'ms');
+    startTimestamp = +Date.now();
+  }
+  if(result.startsWith('0x00000')) {
+    console.log(`0x${toHexString(message)}`);
 
-    console.log("seed:", n);
+    console.log("seed:", `0x${toHexString(message.slice(-32))}`);
     console.log("hash:", result);
     break;
   };
-  n += 1n;
+  message[startArr + (n & 31)] = (Math.random() * 256) | 0;
+  n++;
 }
 
 /**
