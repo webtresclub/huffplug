@@ -9,6 +9,6 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "viem": "^1.5.3"
+    "viem": "^2.7.11"
   }
 }
