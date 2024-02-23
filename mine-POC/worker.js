@@ -7,9 +7,7 @@ function hex(arrayBuffer){
         .join("");
 }
 
-module.exports = function runMainWorkLoop(DIFFICULTY, USER, CURRENT_SALT) {
-  const expectedHash = '0x'+'0'.repeat(DIFFICULTY); // Pre-compute expected hash prefix
-    
+module.exports = function runMainWorkLoop(DIFFICULTY, USER, CURRENT_SALT) {    
   const bytesConcat = USER.toLowerCase().slice(2).concat(CURRENT_SALT.slice(2));
   const searchSeed = [];
   for (let i = 0; i < bytesConcat.length; i += 2) {
@@ -19,16 +17,18 @@ module.exports = function runMainWorkLoop(DIFFICULTY, USER, CURRENT_SALT) {
   const baseLen = searchSeed.length;
 
 
+  const SHIFT_NUM = BigInt(256 - (DIFFICULTY * 4));
   while(1) {
-    const randomSeed = crypto.getRandomValues(new Uint8Array(32));
+    const randomSeed = getRandomValues();
     randomSeed.forEach(n => searchSeed.push(n));
     const message = new Uint8Array(searchSeed);
     
     
     for(let i = 0; i < 100000; ++i) {
       const hash = keccak256(message);
-      // Use startsWith for clarity
-      if (hash.startsWith(expectedHash)) {
+      
+      // if(BigInt(hash) >> SHIFT_NUM == 0n) { same as below
+      if (BigInt(hash.slice(0, DIFFICULTY + 2)) == 0n) {
         console.log("seed:", hex(message.slice(-32)));
         console.log("hash:", hash);
         process.exit();
@@ -37,4 +37,8 @@ module.exports = function runMainWorkLoop(DIFFICULTY, USER, CURRENT_SALT) {
     }
     process.send({ cmd: 'loop' });
   }  
+}
+
+function getRandomValues() {
+  return new Uint8Array(32).map(() => Math.floor(Math.random() * 256));
 }
