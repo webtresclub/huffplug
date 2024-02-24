@@ -15,7 +15,8 @@ use std::{fmt::Write, num::ParseIntError};
 fn main() {
     let user: H160 = "0x6CA6d1e2D5347Bfab1d91e883F1915560e09129D".parse().unwrap();
     let current_salt: H256 = "0x851e34d5f1de39b1758b00f0040ae4ab4f3bc8c5631b4a8463144022de2cf428".parse().unwrap();
-
+    let difficulty = 9;
+    
     loop {
         let mut rng = rand::thread_rng();
 
@@ -27,19 +28,11 @@ fn main() {
         let mut n = hex_encode(&_n);
         let mut nonce: U256 = U256::from_big_endian(H256::from_slice(&_n).as_bytes());
 
-        for i in 0..1000000 {
-            
-            let encoded = abi::encode_packed(&[Token::Address(user), 
-            // Token::Uint(current_salt),
-            Token::FixedBytes(current_salt.0.to_vec()),
-            Token::Uint(nonce)]).unwrap();
+        for i in 0..1_000_000 {            
+            let encoded = abi::encode_packed(&[Token::Address(user), Token::FixedBytes(current_salt.0.to_vec()),Token::Uint(nonce)]).unwrap();
             let salt = keccak256(encoded);
-            // println!("hash: 0x{:?}", hex_encode(&salt.to_vec()));
-
-            let saltVec = salt.to_vec();
-    
-            //if (&hex_encode(&salt)[0..6] == "000000") {
-            if saltVec[0] == 0x00  && saltVec[1] == 0x00 && saltVec[2] == 0x00 && saltVec[3] == 0x00 {
+            
+            if leading_zeros(&salt, difficulty) {
                 println!("seed: {:?}", nonce);
                 println!("hash: 0x{:?}", hex_encode(&salt.to_vec()));
 
@@ -50,6 +43,34 @@ fn main() {
 
             // Add 1 to the U256 value
             nonce += U256::from(1);
-        }    
+        }
+
+        println!("loop");
     }
+}
+
+
+fn leading_zeros(hash: &[u8], n: usize) -> bool {
+    // Calculate the number of full zero bytes required
+    let full_zero_bytes = n / 2;
+
+    // Check each full zero byte
+    for &byte in hash.iter().take(full_zero_bytes) {
+        if byte != 0x00 {
+            return false;
+        }
+    }
+
+    // If N is odd, check the next half byte (4 bits) for zeros
+    if n % 2 != 0 {
+        // Get the byte that should contain the next half-zero if full_zero_bytes is within bounds
+        if full_zero_bytes < hash.len() {
+            // Check if the higher 4 bits of the byte are 0 (for even N, we check the next byte)
+            if hash[full_zero_bytes] & 0xF0 != 0 {
+                return false;
+            }
+        }
+    }
+
+    true
 }
