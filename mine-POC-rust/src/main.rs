@@ -9,7 +9,7 @@ use hex::decode as hex_decode;//
 
 use rand::Rng;
 
-use std::{fmt::Write, num::ParseIntError};
+use std::{fmt::Write, num::ParseIntError, time::Instant};
 
 
 fn main() {
@@ -18,6 +18,8 @@ fn main() {
     let difficulty = 9;
     
     loop {
+        let start = Instant::now(); // Start timing
+
         let mut rng = rand::thread_rng();
 
         // Corrected: Was referencing an undeclared variable `random_seed`
@@ -45,7 +47,9 @@ fn main() {
             nonce += U256::from(1);
         }
 
-        println!("loop");
+        let elapsed = start.elapsed().as_secs_f32(); // Calculate elapsed time in seconds
+        let hashes_per_second = 1_000_000f32 / elapsed;
+        println!("loop, Hashes per second: {}", hashes_per_second);
     }
 }
 
