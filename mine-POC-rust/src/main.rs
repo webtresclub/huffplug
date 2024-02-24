@@ -30,9 +30,15 @@ fn main() {
         let mut n = hex_encode(&_n);
         let mut nonce: U256 = U256::from_big_endian(H256::from_slice(&_n).as_bytes());
 
+
+        let encoded = abi::encode_packed(&[Token::Address(user), Token::FixedBytes(current_salt.0.to_vec())]).unwrap();
+        
+
         for i in 0..1_000_000 {            
-            let encoded = abi::encode_packed(&[Token::Address(user), Token::FixedBytes(current_salt.0.to_vec()),Token::Uint(nonce)]).unwrap();
-            let salt = keccak256(encoded);
+            // let encoded = abi::encode_packed(&[Token::Address(user), Token::FixedBytes(current_salt.0.to_vec()),Token::Uint(nonce)]).unwrap();
+            let mut encoded_with_nonce = encoded.clone();
+            encoded_with_nonce.extend_from_slice(&_n); // Append the raw nonce bytes directly
+            let salt = keccak256(encoded_with_nonce);
             
             if leading_zeros(&salt, difficulty) {
                 println!("seed: {:?}", nonce);
