@@ -22,36 +22,37 @@ fn main() {
 
         let mut rng = rand::thread_rng();
 
-        // Corrected: Was referencing an undeclared variable `random_seed`
-        let mut _n = vec![0u8; 32];
-        rng.fill(&mut _n[..]); // Use rng variable declared above instead of creating a new one
-        
-        // Corrected: H256::from_slice is the correct method to create H256 from byte slice
-        let mut n = hex_encode(&_n);
-        let mut nonce: U256 = U256::from_big_endian(H256::from_slice(&_n).as_bytes());
-
-
+        let mut _n = vec![0u8; 32]; // Create random nonce
+        //rng.fill(&mut _n[..]);
+                
         let encoded = abi::encode_packed(&[Token::Address(user), Token::FixedBytes(current_salt.0.to_vec())]).unwrap();
-        
 
+        let base_len = encoded.len();
+
+        let mut encoded_with_nonce = encoded.clone();
+        encoded_with_nonce.extend_from_slice(&_n); // Append the nonce bytes directly
+            
         for i in 0..1_000_000 {            
+            let nonce_index = base_len + (i % 32);
+            encoded_with_nonce[nonce_index] = rng.gen_range(0..=255);
+            
+
             // let encoded = abi::encode_packed(&[Token::Address(user), Token::FixedBytes(current_salt.0.to_vec()),Token::Uint(nonce)]).unwrap();
-            let mut encoded_with_nonce = encoded.clone();
-            encoded_with_nonce.extend_from_slice(&_n); // Append the raw nonce bytes directly
-            let salt = keccak256(encoded_with_nonce);
+            let salt = keccak256(&encoded_with_nonce);
+            // println!("hash: 0x{:?}", hex_encode(&salt.to_vec()));
+           // println!("hash: {:?}", nonce_index - base_len);
             
             if leading_zeros(&salt, difficulty) {
-                println!("seed: {:?}", nonce);
-                println!("hash: 0x{:?}", hex_encode(&salt.to_vec()));
+                println!("seed: 0x{:}", hex_encode(&encoded_with_nonce[base_len..].to_vec()));
+                println!("hash output: 0x{:}", hex_encode(&salt.to_vec()));
 
                 // this will exit
                 return;
                 // break;
             }
-
-            // Add 1 to the U256 value
-            nonce += U256::from(1);
+            
         }
+
 
         let elapsed = start.elapsed().as_secs_f32(); // Calculate elapsed time in seconds
         let hashes_per_second = 1_000_000f32 / elapsed;
