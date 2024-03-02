@@ -60,7 +60,7 @@ fn hash_loop(user: H160, current_salt: H256, difficulty: usize, tx: mpsc::Sender
         let mut rng = rand::thread_rng();
 
         let mut _n = vec![0u8; 32]; // Create random nonce
-        //rng.fill(&mut _n[..]);
+        rng.fill(&mut _n[..]);
                 
         let encoded = abi::encode_packed(&[Token::Address(user), Token::FixedBytes(current_salt.0.to_vec())]).unwrap();
 
@@ -68,10 +68,22 @@ fn hash_loop(user: H160, current_salt: H256, difficulty: usize, tx: mpsc::Sender
 
         let mut encoded_with_nonce = encoded.clone();
         encoded_with_nonce.extend_from_slice(&_n); // Append the nonce bytes directly
-            
-        for i in 31..1_000_000 {            
-            let nonce_index = base_len + (i % 32);
-            encoded_with_nonce[nonce_index] = rng.gen_range(0..=255);
+        
+        let mut nonce_pos = 0;
+        let mut nonce_index = base_len + (nonce_pos % 32);
+        
+
+        for _i in 31..1_000_000 {            
+            if encoded_with_nonce[nonce_index] == 255 {
+                encoded_with_nonce[nonce_index] = rng.gen_range(0..=255);
+                nonce_pos +=1 ;
+                nonce_index = base_len + (nonce_pos % 32);
+            } else {
+                encoded_with_nonce[nonce_index] += 1;
+            }
+
+            // print to ensure the nonce is changing
+            // println!("nonce_index: {}", hex_encode(&encoded_with_nonce[base_len..]));
             
             let salt = keccak256(&encoded_with_nonce);
             
@@ -84,31 +96,49 @@ fn hash_loop(user: H160, current_salt: H256, difficulty: usize, tx: mpsc::Sender
         let elapsed = start.elapsed().as_secs_f32(); // Calculate elapsed time in seconds
         let hashes_per_second = 1_000_000f32 / elapsed;
         println!("thread {}, Hashes per second: {}", thread_n, hashes_per_second);
+        
     }
 }
 
 
-fn leading_zeros(hash: &[u8], n: usize) -> bool {
+fn leading_zeros(hash: &[u8], difficulty: usize) -> bool {
     // Calculate the number of full zero bytes required
-    let full_zero_bytes = n / 2;
-
+    let full_zero_bytes = difficulty / 2;
+ 
+ 
     // Check each full zero byte
     for &byte in hash.iter().take(full_zero_bytes) {
-        if byte != 0x00 {
+        if byte != 0 {
             return false;
         }
     }
 
-    // If N is odd, check the next half byte (4 bits) for zeros
-    if n % 2 != 0 {
-        // Get the byte that should contain the next half-zero if full_zero_bytes is within bounds
-        if full_zero_bytes < hash.len() {
-            // Check if the higher 4 bits of the byte are 0 (for even N, we check the next byte)
-            if hash[full_zero_bytes] & 0xF0 != 0 {
-                return false;
-            }
-        }
+    // If n is odd, check the next half byte (4 bits) for zeros
+    // Note: No need to check if full_zero_bytes is within bounds again, as it's implied by earlier return
+    if difficulty % 2 != 0 && (hash.get(full_zero_bytes).unwrap_or(&0) & 0xF0) != 0 {
+        return false;
     }
 
     true
 }
+
+// add test
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_main_loop() {
+        let user = H160::from_low_u64_be(0x1234567890abcdef);
+        let current_salt = H256::from_low_u64_be(0x1234567890abcdef);
+        let difficulty = 10;
+        let (tx, rx) = mpsc::channel();
+        let thread_n = 0;
+
+        hash_loop(user, current_salt, difficulty, tx, thread_n);
+        let (nonce, salt) = rx.recv().unwrap();
+        assert_eq!(nonce.len(), 32);
+        assert_eq!(salt.len(), 32);
+    }
+}
+
