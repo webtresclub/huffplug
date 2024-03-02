@@ -54,7 +54,14 @@ The name _Buttplug_ is chosen for its playful connotation and represents oscillo
 
 **Note**: Always make sure to do your own research and due diligence when participating in any blockchain project.
 
---- 
+---
+
+## Collaborators
+
+fill it community!
+
+---
+
 
 **Connect with WebtrES**:
 
