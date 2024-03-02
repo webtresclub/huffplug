@@ -58,7 +58,7 @@ The name _Buttplug_ is chosen for its playful connotation and represents oscillo
 
 ## Collaborators
 
-[Magnetto](https://x.com/magnetto90), [0x4non](https://twitter.com/eugenioclrc)
+[Magnetto](https://x.com/magnetto90), [0x4non](https://twitter.com/eugenioclrcl), [ljmanini](https://twitter.com/ljmanini/)
 
 ---
 
