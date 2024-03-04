@@ -25,8 +25,8 @@ There are two unique methods for minting a Buttplug:
 1. **Merkle Tree Method**: Only those whose Ethereum addresses are listed on our Merkle tree can mint Buttplugs. To become eligible, a user must have at least two POAPs. So if you're an active participant in the Ethereum community, you might just be on our list! [You could find more details here](./merkletree-builder/README.md)
 
 2. **Nonce Challenge Method**: Inspired by the classic MoonCats Rescue mechanism, users can also mint by finding a nonce that, when hashed, produces a digest with a certain number of leading zeros. This method ensures fairness and accessibility to all, while also introducing an element of skill and challenge. As time progresses, the difficulty adjusts based on the number of days since the contract deployment in relation to the number of Buttplugs that have been minted.
-Mine sample: [https://github.com/webtresclub/huffplug/blob/main/mine-POC/index.js]
-Page: [https://buttplug-homepage.vercel.app/](https://buttplug-homepage.vercel.app/)
+   Mine sample: [https://github.com/webtresclub/huffplug/blob/main/mine-POC/index.js]
+   Page: [https://buttplug-homepage.vercel.app/](https://buttplug-homepage.vercel.app/)
 
 ## Difficulty Adjustment
 
@@ -50,7 +50,7 @@ Interested in joining our vibrant and ever-growing community? Follow WebtrES on 
 
 The name _Buttplug_ is chosen for its playful connotation and represents oscilloscopes in our collection. We urge the community to approach this with an open mind and a sense of humor. Enjoy the collection!
 
---- 
+---
 
 **Note**: Always make sure to do your own research and due diligence when participating in any blockchain project.
 
@@ -58,11 +58,10 @@ The name _Buttplug_ is chosen for its playful connotation and represents oscillo
 
 ## Collaborators
 
-[Magnetto](https://x.com/magnetto90), [0x4non](https://twitter.com/eugenioclrc), [ljmanini](https://twitter.com/ljmanini/), [nicobevi](https://twitter.com/nicobevi2023/), 
-[P4Troy](https://twitter.com/MartinPefaur), [luksgrin](https://twitter.com/luksgrin)
+[Magnetto](https://x.com/magnetto90), [0x4non](https://twitter.com/eugenioclrc), [ljmanini](https://twitter.com/ljmanini/), [nicobevi](https://twitter.com/nicobevi2023/),
+[P4Troy](https://twitter.com/MartinPefaur), [luksgrin](https://twitter.com/luksgrin), [Saeta](https://twitter.com/saetaeth)
 
 ---
-
 
 **Connect with WebtrES**:
 
