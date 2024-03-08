@@ -18,6 +18,10 @@ WebtrES is a collective of talented hackers, primarily Spanish-speaking, dedicat
 
 - [Huffplug](https://etherscan.io/address/0x0000420538cd5abfbc7db219b6a1d125f5892ab0#code)
 
+## Traits
+
+All Buttplugy image and trait generation are available in [webtresclub/buttplug-traits](https://github.com/webtresclub/buttplug-traits).
+
 ## Minting Buttplugs
 
 There are two unique methods for minting a Buttplug:
