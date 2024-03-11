@@ -1,0 +1,9 @@
+type ButtpluggyNft @entity {
+  id: ID!
+  owner: Owner!
+}
+
+type Owner @entity {
+  id: ID!
+  nfts: [ButtpluggyNft!]! @derivedFrom(field: "owner")
+}
