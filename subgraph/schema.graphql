@@ -1,6 +1,7 @@
 type ButtpluggyNft @entity {
   id: ID!
   owner: Owner!
+  createdAt: BigInt!
 }
 
 type Owner @entity {

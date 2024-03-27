@@ -29,13 +29,23 @@ export class ButtpluggyNft extends Entity {
     }
   }
 
+  static loadInBlock(id: string): ButtpluggyNft | null {
+    return changetype<ButtpluggyNft | null>(
+      store.get_in_block("ButtpluggyNft", id)
+    );
+  }
+
   static load(id: string): ButtpluggyNft | null {
     return changetype<ButtpluggyNft | null>(store.get("ButtpluggyNft", id));
   }
 
   get id(): string {
     let value = this.get("id");
-    return value!.toString();
+    if (!value || value.kind == ValueKind.NULL) {
+      throw new Error("Cannot return null for a required field.");
+    } else {
+      return value.toString();
+    }
   }
 
   set id(value: string) {
@@ -44,11 +54,28 @@ export class ButtpluggyNft extends Entity {
 
   get owner(): string {
     let value = this.get("owner");
-    return value!.toString();
+    if (!value || value.kind == ValueKind.NULL) {
+      throw new Error("Cannot return null for a required field.");
+    } else {
+      return value.toString();
+    }
   }
 
   set owner(value: string) {
     this.set("owner", Value.fromString(value));
+  }
+
+  get createdAt(): BigInt {
+    let value = this.get("createdAt");
+    if (!value || value.kind == ValueKind.NULL) {
+      throw new Error("Cannot return null for a required field.");
+    } else {
+      return value.toBigInt();
+    }
+  }
+
+  set createdAt(value: BigInt) {
+    this.set("createdAt", Value.fromBigInt(value));
   }
 }
 
@@ -70,25 +97,46 @@ export class Owner extends Entity {
     }
   }
 
+  static loadInBlock(id: string): Owner | null {
+    return changetype<Owner | null>(store.get_in_block("Owner", id));
+  }
+
   static load(id: string): Owner | null {
     return changetype<Owner | null>(store.get("Owner", id));
   }
 
   get id(): string {
     let value = this.get("id");
-    return value!.toString();
+    if (!value || value.kind == ValueKind.NULL) {
+      throw new Error("Cannot return null for a required field.");
+    } else {
+      return value.toString();
+    }
   }
 
   set id(value: string) {
     this.set("id", Value.fromString(value));
   }
 
-  get nfts(): Array<string> {
-    let value = this.get("nfts");
-    return value!.toStringArray();
+  get nfts(): ButtpluggyNftLoader {
+    return new ButtpluggyNftLoader("Owner", this.get("id")!.toString(), "nfts");
+  }
+}
+
+export class ButtpluggyNftLoader extends Entity {
+  _entity: string;
+  _field: string;
+  _id: string;
+
+  constructor(entity: string, id: string, field: string) {
+    super();
+    this._entity = entity;
+    this._id = id;
+    this._field = field;
   }
 
-  set nfts(value: Array<string>) {
-    this.set("nfts", Value.fromStringArray(value));
+  load(): ButtpluggyNft[] {
+    let value = store.loadRelated(this._entity, this._id, this._field);
+    return changetype<ButtpluggyNft[]>(value);
   }
 }

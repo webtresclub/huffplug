@@ -15,6 +15,7 @@ export function handleTransfer(event: Transfer): void {
   let nft = ButtpluggyNft.load(tokenId)
   if (!nft) {
     nft = new ButtpluggyNft(tokenId)
+    nft.createdAt = event.block.timestamp;
   }
   nft.owner = userTo
   nft.save()
