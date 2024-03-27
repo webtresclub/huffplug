@@ -19,3 +19,5 @@ docs/
 /mine-POC-rust/target
 /test-rust/
 /subgraph/node_modules/
+/subgraph/build/
+/subgraph/generated/
